@@ -5,6 +5,10 @@ use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\BalitaController;
 use App\Http\Controllers\StuntingController;
 use App\Http\Controllers\IbuHamilController;
+use App\Http\Controllers\IbuNifasController;
+use App\Http\Controllers\IbuMenyusuiController;
+use App\Http\Controllers\RemajaPutriController;
+use App\Http\Controllers\GentingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,6 +50,30 @@ Route::middleware('auth')->group(function () {
         Route::get('/ibu-hamil/{id}/edit', [IbuHamilController::class, 'edit'])->name('ibu_hamil.edit');
         Route::put('/ibu-hamil/{id}', [IbuHamilController::class, 'update'])->name('ibu_hamil.update');
         Route::delete('/ibu-hamil/{id}', [IbuHamilController::class, 'destroy'])->name('ibu_hamil.destroy');
+        Route::get('/ibu-nifas', [IbuNifasController::class, 'index'])->name('ibu_nifas.index');
+        Route::get('/ibu-nifas/create', [IbuNifasController::class, 'create'])->name('ibu_nifas.create');
+        Route::post('/ibu-nifas', [IbuNifasController::class, 'store'])->name('ibu_nifas.store');
+        Route::get('/ibu-nifas/{id}/edit', [IbuNifasController::class, 'edit'])->name('ibu_nifas.edit');
+        Route::put('/ibu-nifas/{id}', [IbuNifasController::class, 'update'])->name('ibu_nifas.update');
+        Route::delete('/ibu-nifas/{id}', [IbuNifasController::class, 'destroy'])->name('ibu_nifas.destroy');
+        Route::get('/ibu-menyusui', [IbuMenyusuiController::class, 'index'])->name('ibu_menyusui.index');
+        Route::get('/ibu-menyusui/create', [IbuMenyusuiController::class, 'create'])->name('ibu_menyusui.create');
+        Route::post('/ibu-menyusui', [IbuMenyusuiController::class, 'store'])->name('ibu_menyusui.store');
+        Route::get('/ibu-menyusui/{id}/edit', [IbuMenyusuiController::class, 'edit'])->name('ibu_menyusui.edit');
+        Route::put('/ibu-menyusui/{id}', [IbuMenyusuiController::class, 'update'])->name('ibu_menyusui.update');
+        Route::delete('/ibu-menyusui/{id}', [IbuMenyusuiController::class, 'destroy'])->name('ibu_menyusui.destroy');
+        Route::get('/remaja-putri', [RemajaPutriController::class, 'index'])->name('remaja_putri.index');
+        Route::get('/remaja-putri/create', [RemajaPutriController::class, 'create'])->name('remaja_putri.create');
+        Route::post('/remaja-putri', [RemajaPutriController::class, 'store'])->name('remaja_putri.store');
+        Route::get('/remaja-putri/{id}/edit', [RemajaPutriController::class, 'edit'])->name('remaja_putri.edit');
+        Route::put('/remaja-putri/{id}', [RemajaPutriController::class, 'update'])->name('remaja_putri.update');
+        Route::delete('/remaja-putri/{id}', [RemajaPutriController::class, 'destroy'])->name('remaja_putri.destroy');
+        Route::get('/genting', [GentingController::class, 'index'])->name('genting.index');
+        Route::get('/genting/create', [GentingController::class, 'create'])->name('genting.create');
+        Route::post('/genting', [GentingController::class, 'store'])->name('genting.store');
+        Route::get('/genting/{id}/edit', [GentingController::class, 'edit'])->name('genting.edit');
+        Route::put('/genting/{id}', [GentingController::class, 'update'])->name('genting.update');
+        Route::delete('/genting/{id}', [GentingController::class, 'destroy'])->name('genting.destroy');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {
