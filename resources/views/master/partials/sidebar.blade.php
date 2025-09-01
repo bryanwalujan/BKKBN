@@ -8,6 +8,12 @@
                 <a href="{{ route('balita.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('balita.*') ? 'bg-blue-700' : '' }}">Informasi Balita</a>
             </li>
             <li>
+                <a href="{{ route('stunting.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('stunting.*') ? 'bg-blue-700' : '' }}">Data Stunting</a>
+            </li>
+            <li>
+                <a href="{{ route('ibu_hamil.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('ibu_hamil.*') ? 'bg-blue-700' : '' }}">Data Ibu Hamil</a>
+            </li>
+            <li>
                 <a href="{{ route('verifikasi.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('verifikasi.*') ? 'bg-blue-700' : '' }}">Verifikasi Akun</a>
             </li>
             <li>
