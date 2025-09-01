@@ -17,7 +17,7 @@ class TemplateController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'file' => ['required', 'file', 'mimes:docx', 'max:2048'],
+            'file' => ['required', 'file', 'mimes:docx', 'max:7000'],
         ]);
 
         $filePath = $request->file('file')->store('templates', 'public');

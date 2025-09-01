@@ -2,6 +2,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\BalitaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,6 +26,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
         Route::post('/templates', [TemplateController::class, 'store'])->name('templates.store');
         Route::delete('/templates/{id}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+        Route::get('/balita', [BalitaController::class, 'index'])->name('balita.index');
+        Route::get('/balita/create', [BalitaController::class, 'create'])->name('balita.create');
+        Route::post('/balita', [BalitaController::class, 'store'])->name('balita.store');
+        Route::get('/balita/{id}/edit', [BalitaController::class, 'edit'])->name('balita.edit');
+        Route::put('/balita/{id}', [BalitaController::class, 'update'])->name('balita.update');
+        Route::delete('/balita/{id}', [BalitaController::class, 'destroy'])->name('balita.destroy');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {

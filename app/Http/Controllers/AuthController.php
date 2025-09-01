@@ -58,8 +58,8 @@ class AuthController extends Controller
             'kelurahan_nama' => ['required', 'string', 'max:255'],
             'penanggung_jawab' => ['required', 'string', 'max:255'],
             'no_telepon' => ['required', 'string', 'max:15'],
-            'pas_foto' => ['required', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
-            'surat_pengajuan' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'pas_foto' => ['required', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
+            'surat_pengajuan' => ['required', 'file', 'mimes:pdf', 'max:7000'],
         ]);
 
         $pasFotoPath = $request->file('pas_foto')->store('pas_foto', 'public');
