@@ -26,7 +26,7 @@ class AksiKonvergensiController extends Controller
             'nama_aksi' => ['required', 'string', 'max:255'],
             'selesai' => ['nullable', 'boolean'],
             'tahun' => ['required', 'integer', 'min:2020', 'max:2030'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
 
         $data = $request->all();
@@ -55,7 +55,7 @@ class AksiKonvergensiController extends Controller
             'nama_aksi' => ['required', 'string', 'max:255'],
             'selesai' => ['nullable', 'boolean'],
             'tahun' => ['required', 'integer', 'min:2020', 'max:2030'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
 
         $aksiKonvergensi = AksiKonvergensi::findOrFail($id);

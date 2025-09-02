@@ -26,7 +26,7 @@ class GentingController extends Controller
             'lokasi' => ['required', 'string', 'max:255'],
             'sasaran' => ['required', 'string', 'max:255'],
             'jenis_intervensi' => ['required', 'string', 'max:255'],
-            'dokumentasi' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'dokumentasi' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
 
         $data = $request->all();
@@ -54,7 +54,7 @@ class GentingController extends Controller
             'lokasi' => ['required', 'string', 'max:255'],
             'sasaran' => ['required', 'string', 'max:255'],
             'jenis_intervensi' => ['required', 'string', 'max:255'],
-            'dokumentasi' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'dokumentasi' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
 
         $genting = Genting::findOrFail($id);

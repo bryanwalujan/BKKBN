@@ -34,16 +34,53 @@
                 </ul>
             </li>
             <li>
-                <a href="{{ route('genting.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('genting.*') ? 'bg-blue-700' : '' }}">Genting</a>
+                <button class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('genting.*', 'aksi_konvergensi.*', 'peta_geospasial.*', 'pendamping_keluarga.*') ? 'bg-blue-700' : '' }}"
+                        onclick="document.getElementById('kelola-kegiatan-dropdown').classList.toggle('hidden')">
+                    Kelola Kegiatan
+                    <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <ul id="kelola-kegiatan-dropdown" class="ml-4 {{ Route::is('genting.*', 'aksi_konvergensi.*', 'peta_geospasial.*', 'pendamping_keluarga.*') ? '' : 'hidden' }}">
+                    <li>
+                        <a href="{{ route('genting.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('genting.*') ? 'bg-blue-600' : '' }}">Genting</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('aksi_konvergensi.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('aksi_konvergensi.*') ? 'bg-blue-600' : '' }}">Aksi Konvergensi</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('peta_geospasial.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('peta_geospasial.*') ? 'bg-blue-600' : '' }}">Peta Geospasial</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('pendamping_keluarga.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('pendamping_keluarga.*') ? 'bg-blue-600' : '' }}">Pendamping Keluarga</a>
+                    </li>
+                </ul>
             </li>
             <li>
-                <a href="{{ route('aksi_konvergensi.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('aksi_konvergensi.*') ? 'bg-blue-700' : '' }}">Aksi Konvergensi</a>
-            </li>
-            <li>
-                <a href="{{ route('peta_geospasial.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('peta_geospasial.*') ? 'bg-blue-700' : '' }}">Peta Geospasial</a>
-            </li>
-            <li>
-                <a href="{{ route('pendamping_keluarga.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('pendamping_keluarga.*') ? 'bg-blue-700' : '' }}">Pendamping Keluarga</a>
+                <button class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('carousel.*', 'data_riset.*', 'tentang_kami.*', 'layanan_kami.*', 'galeri_program.*') ? 'bg-blue-700' : '' }}"
+                        onclick="document.getElementById('kelola-beranda-dropdown').classList.toggle('hidden')">
+                    Kelola Beranda
+                    <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <ul id="kelola-beranda-dropdown" class="ml-4 {{ Route::is('carousel.*', 'data_riset.*', 'tentang_kami.*', 'layanan_kami.*', 'galeri_program.*') ? '' : 'hidden' }}">
+                    <li>
+                        <a href="{{ route('carousel.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('carousel.*') ? 'bg-blue-600' : '' }}">Carousel</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('data_riset.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('data_riset.*') ? 'bg-blue-600' : '' }}">Data Riset</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('tentang_kami.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('tentang_kami.*') ? 'bg-blue-600' : '' }}">Tentang Kami</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('layanan_kami.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('layanan_kami.*') ? 'bg-blue-600' : '' }}">Layanan Kami</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('galeri_program.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('galeri_program.*') ? 'bg-blue-600' : '' }}">Galeri Program</a>
+                    </li>
+                </ul>
             </li>
             <li>
                 <a href="{{ route('verifikasi.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('verifikasi.*') ? 'bg-blue-700' : '' }}">Verifikasi Akun</a>

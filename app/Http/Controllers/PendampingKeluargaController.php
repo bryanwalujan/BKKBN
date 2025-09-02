@@ -27,7 +27,7 @@ class PendampingKeluargaController extends Controller
             'kecamatan' => ['required', 'string', 'max:255'],
             'status' => ['required', 'in:Aktif,Non-Aktif'],
             'tahun_bergabung' => ['required', 'integer', 'min:1900', 'max:' . date('Y')],
-            'foto' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:7000'],
         ]);
 
         $data = $request->all();
@@ -56,7 +56,7 @@ class PendampingKeluargaController extends Controller
             'kecamatan' => ['required', 'string', 'max:255'],
             'status' => ['required', 'in:Aktif,Non-Aktif'],
             'tahun_bergabung' => ['required', 'integer', 'min:1900', 'max:' . date('Y')],
-            'foto' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:7000'],
         ]);
 
         $pendampingKeluarga = PendampingKeluarga::findOrFail($id);

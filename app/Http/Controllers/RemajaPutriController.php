@@ -27,7 +27,7 @@ class RemajaPutriController extends Controller
             'umur' => ['required', 'integer', 'min:10', 'max:19'],
             'status_anemia' => ['required', 'in:Tidak Anemia,Anemia Ringan,Anemia Sedang,Anemia Berat'],
             'konsumsi_ttd' => ['required', 'in:Rutin,Tidak Rutin,Tidak Konsumsi'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
         $data = $request->all();
@@ -56,7 +56,7 @@ class RemajaPutriController extends Controller
             'umur' => ['required', 'integer', 'min:10', 'max:19'],
             'status_anemia' => ['required', 'in:Tidak Anemia,Anemia Ringan,Anemia Sedang,Anemia Berat'],
             'konsumsi_ttd' => ['required', 'in:Rutin,Tidak Rutin,Tidak Konsumsi'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
         $remajaPutri = RemajaPutri::findOrFail($id);

@@ -30,7 +30,7 @@ class IbuMenyusuiController extends Controller
             'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
         $data = $request->all();
@@ -62,7 +62,7 @@ class IbuMenyusuiController extends Controller
             'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
         $ibuMenyusui = IbuMenyusui::findOrFail($id);

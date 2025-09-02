@@ -12,6 +12,11 @@ use App\Http\Controllers\GentingController;
 use App\Http\Controllers\AksiKonvergensiController;
 use App\Http\Controllers\PetaGeospasialController;
 use App\Http\Controllers\PendampingKeluargaController;
+use App\Http\Controllers\CarouselController;
+use App\Http\Controllers\DataRisetController;
+use App\Http\Controllers\TentangKamiController;
+use App\Http\Controllers\LayananKamiController;
+use App\Http\Controllers\GaleriProgramController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -95,6 +100,38 @@ Route::middleware('auth')->group(function () {
         Route::get('/pendamping-keluarga/{id}/edit', [PendampingKeluargaController::class, 'edit'])->name('pendamping_keluarga.edit');
         Route::put('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'update'])->name('pendamping_keluarga.update');
         Route::delete('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'destroy'])->name('pendamping_keluarga.destroy');
+        Route::get('/carousel', [CarouselController::class, 'index'])->name('carousel.index');
+        Route::get('/carousel/create', [CarouselController::class, 'create'])->name('carousel.create');
+        Route::post('/carousel', [CarouselController::class, 'store'])->name('carousel.store');
+        Route::get('/carousel/{id}/edit', [CarouselController::class, 'edit'])->name('carousel.edit');
+        Route::put('/carousel/{id}', [CarouselController::class, 'update'])->name('carousel.update');
+        Route::delete('/carousel/{id}', [CarouselController::class, 'destroy'])->name('carousel.destroy');
+        Route::get('/data-riset', [DataRisetController::class, 'index'])->name('data_riset.index');
+        Route::get('/data-riset/create', [DataRisetController::class, 'create'])->name('data_riset.create');
+        Route::post('/data-riset', [DataRisetController::class, 'store'])->name('data_riset.store');
+        Route::get('/data-riset/{id}/edit', [DataRisetController::class, 'edit'])->name('data_riset.edit');
+        Route::put('/data-riset/{id}', [DataRisetController::class, 'update'])->name('data_riset.update');
+        Route::delete('/data-riset/{id}', [DataRisetController::class, 'destroy'])->name('data_riset.destroy');
+        Route::post('/data-riset/refresh', [DataRisetController::class, 'refresh'])->name('data_riset.refresh');
+        Route::get('/tentang-kami', [TentangKamiController::class, 'index'])->name('tentang_kami.index');
+        Route::get('/tentang-kami/create', [TentangKamiController::class, 'create'])->name('tentang_kami.create');
+        Route::post('/tentang-kami', [TentangKamiController::class, 'store'])->name('tentang_kami.store');
+        Route::get('/tentang-kami/edit', [TentangKamiController::class, 'edit'])->name('tentang_kami.edit');
+        Route::put('/tentang-kami', [TentangKamiController::class, 'update'])->name('tentang_kami.update');
+        Route::get('/layanan-kami', [LayananKamiController::class, 'index'])->name('layanan_kami.index');
+        Route::get('/layanan-kami/create', [LayananKamiController::class, 'create'])->name('layanan_kami.create');
+        Route::post('/layanan-kami', [LayananKamiController::class, 'store'])->name('layanan_kami.store');
+        Route::get('/layanan-kami/{id}/edit', [LayananKamiController::class, 'edit'])->name('layanan_kami.edit');
+        Route::put('/layanan-kami/{id}', [LayananKamiController::class, 'update'])->name('layanan_kami.update');
+        Route::delete('/layanan-kami/{id}', [LayananKamiController::class, 'destroy'])->name('layanan_kami.destroy');
+        Route::post('/layanan-kami/refresh', [LayananKamiController::class, 'refresh'])->name('layanan_kami.refresh');
+        Route::get('/galeri-program', [GaleriProgramController::class, 'index'])->name('galeri_program.index');
+        Route::get('/galeri-program/create', [GaleriProgramController::class, 'create'])->name('galeri_program.create');
+        Route::post('/galeri-program', [GaleriProgramController::class, 'store'])->name('galeri_program.store');
+        Route::get('/galeri-program/{id}/edit', [GaleriProgramController::class, 'edit'])->name('galeri_program.edit');
+        Route::put('/galeri-program/{id}', [GaleriProgramController::class, 'update'])->name('galeri_program.update');
+        Route::delete('/galeri-program/{id}', [GaleriProgramController::class, 'destroy'])->name('galeri_program.destroy');
+        Route::post('/galeri-program/refresh', [GaleriProgramController::class, 'refresh'])->name('galeri_program.refresh');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {
