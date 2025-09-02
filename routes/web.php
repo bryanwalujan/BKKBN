@@ -9,6 +9,9 @@ use App\Http\Controllers\IbuNifasController;
 use App\Http\Controllers\IbuMenyusuiController;
 use App\Http\Controllers\RemajaPutriController;
 use App\Http\Controllers\GentingController;
+use App\Http\Controllers\AksiKonvergensiController;
+use App\Http\Controllers\PetaGeospasialController;
+use App\Http\Controllers\PendampingKeluargaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -74,6 +77,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/genting/{id}/edit', [GentingController::class, 'edit'])->name('genting.edit');
         Route::put('/genting/{id}', [GentingController::class, 'update'])->name('genting.update');
         Route::delete('/genting/{id}', [GentingController::class, 'destroy'])->name('genting.destroy');
+        Route::get('/aksi-konvergensi', [AksiKonvergensiController::class, 'index'])->name('aksi_konvergensi.index');
+        Route::get('/aksi-konvergensi/create', [AksiKonvergensiController::class, 'create'])->name('aksi_konvergensi.create');
+        Route::post('/aksi-konvergensi', [AksiKonvergensiController::class, 'store'])->name('aksi_konvergensi.store');
+        Route::get('/aksi-konvergensi/{id}/edit', [AksiKonvergensiController::class, 'edit'])->name('aksi_konvergensi.edit');
+        Route::put('/aksi-konvergensi/{id}', [AksiKonvergensiController::class, 'update'])->name('aksi_konvergensi.update');
+        Route::delete('/aksi-konvergensi/{id}', [AksiKonvergensiController::class, 'destroy'])->name('aksi_konvergensi.destroy');
+        Route::get('/peta-geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
+        Route::get('/peta-geospasial/create', [PetaGeospasialController::class, 'create'])->name('peta_geospasial.create');
+        Route::post('/peta-geospasial', [PetaGeospasialController::class, 'store'])->name('peta_geospasial.store');
+        Route::get('/peta-geospasial/{id}/edit', [PetaGeospasialController::class, 'edit'])->name('peta_geospasial.edit');
+        Route::put('/peta-geospasial/{id}', [PetaGeospasialController::class, 'update'])->name('peta_geospasial.update');
+        Route::delete('/peta-geospasial/{id}', [PetaGeospasialController::class, 'destroy'])->name('peta_geospasial.destroy');
+        Route::get('/pendamping-keluarga', [PendampingKeluargaController::class, 'index'])->name('pendamping_keluarga.index');
+        Route::get('/pendamping-keluarga/create', [PendampingKeluargaController::class, 'create'])->name('pendamping_keluarga.create');
+        Route::post('/pendamping-keluarga', [PendampingKeluargaController::class, 'store'])->name('pendamping_keluarga.store');
+        Route::get('/pendamping-keluarga/{id}/edit', [PendampingKeluargaController::class, 'edit'])->name('pendamping_keluarga.edit');
+        Route::put('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'update'])->name('pendamping_keluarga.update');
+        Route::delete('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'destroy'])->name('pendamping_keluarga.destroy');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {
