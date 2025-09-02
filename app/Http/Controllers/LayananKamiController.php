@@ -39,7 +39,7 @@ class LayananKamiController extends Controller
             'deskripsi_lengkap' => ['nullable', 'string'],
             'ikon' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:1024'],
             'urutan' => ['required', 'integer', 'min:1'],
-            'status_aktif' => ['boolean'],
+            'status_aktif' => ['nullable', 'in:on'],
         ]);
 
         $data = $request->all();

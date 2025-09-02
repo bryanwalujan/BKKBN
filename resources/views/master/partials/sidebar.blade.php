@@ -89,6 +89,29 @@
                 <a href="{{ route('templates.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('templates.*') ? 'bg-blue-700' : '' }}">Kelola Template</a>
             </li>
             <li>
+                <button class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('publikasi.*', 'referensi.*', 'data_monitoring.*', 'data_penduduk.*') ? 'bg-blue-700' : '' }}"
+                        onclick="document.getElementById('lainnya-dropdown').classList.toggle('hidden')">
+                    Lainnya
+                    <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <ul id="lainnya-dropdown" class="ml-4 {{ Route::is('publikasi.*', 'referensi.*', 'data_monitoring.*', 'data_penduduk.*') ? '' : 'hidden' }}">
+                    <li>
+                        <a href="{{ route('publikasi.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('publikasi.*') ? 'bg-blue-600' : '' }}">Publikasi</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('referensi.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('referensi.*') ? 'bg-blue-600' : '' }}">Referensi</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('data_monitoring.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('data_monitoring.*') ? 'bg-blue-600' : '' }}">Data Monitoring</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('data_penduduk.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('data_penduduk.*') ? 'bg-blue-600' : '' }}">Data Penduduk</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="block w-full text-left p-4 hover:bg-blue-700">Logout</button>

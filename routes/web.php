@@ -17,6 +17,10 @@ use App\Http\Controllers\DataRisetController;
 use App\Http\Controllers\TentangKamiController;
 use App\Http\Controllers\LayananKamiController;
 use App\Http\Controllers\GaleriProgramController;
+use App\Http\Controllers\PublikasiController;
+use App\Http\Controllers\ReferensiController;
+use App\Http\Controllers\DataMonitoringController;
+use App\Http\Controllers\DataPendudukController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -132,6 +136,34 @@ Route::middleware('auth')->group(function () {
         Route::put('/galeri-program/{id}', [GaleriProgramController::class, 'update'])->name('galeri_program.update');
         Route::delete('/galeri-program/{id}', [GaleriProgramController::class, 'destroy'])->name('galeri_program.destroy');
         Route::post('/galeri-program/refresh', [GaleriProgramController::class, 'refresh'])->name('galeri_program.refresh');
+        Route::get('/publikasi', [PublikasiController::class, 'index'])->name('publikasi.index');
+        Route::get('/publikasi/create', [PublikasiController::class, 'create'])->name('publikasi.create');
+        Route::post('/publikasi', [PublikasiController::class, 'store'])->name('publikasi.store');
+        Route::get('/publikasi/{id}/edit', [PublikasiController::class, 'edit'])->name('publikasi.edit');
+        Route::put('/publikasi/{id}', [PublikasiController::class, 'update'])->name('publikasi.update');
+        Route::delete('/publikasi/{id}', [PublikasiController::class, 'destroy'])->name('publikasi.destroy');
+        Route::post('/publikasi/refresh', [PublikasiController::class, 'refresh'])->name('publikasi.refresh');
+        Route::get('/referensi', [ReferensiController::class, 'index'])->name('referensi.index');
+        Route::get('/referensi/create', [ReferensiController::class, 'create'])->name('referensi.create');
+        Route::post('/referensi', [ReferensiController::class, 'store'])->name('referensi.store');
+        Route::get('/referensi/{id}/edit', [ReferensiController::class, 'edit'])->name('referensi.edit');
+        Route::put('/referensi/{id}', [ReferensiController::class, 'update'])->name('referensi.update');
+        Route::delete('/referensi/{id}', [ReferensiController::class, 'destroy'])->name('referensi.destroy');
+        Route::post('/referensi/refresh', [ReferensiController::class, 'refresh'])->name('referensi.refresh');
+        Route::get('/data-monitoring', [DataMonitoringController::class, 'index'])->name('data_monitoring.index');
+        Route::get('/data-monitoring/create', [DataMonitoringController::class, 'create'])->name('data_monitoring.create');
+        Route::post('/data-monitoring', [DataMonitoringController::class, 'store'])->name('data_monitoring.store');
+        Route::get('/data-monitoring/{id}/edit', [DataMonitoringController::class, 'edit'])->name('data_monitoring.edit');
+        Route::put('/data-monitoring/{id}', [DataMonitoringController::class, 'update'])->name('data_monitoring.update');
+        Route::delete('/data-monitoring/{id}', [DataMonitoringController::class, 'destroy'])->name('data_monitoring.destroy');
+        Route::post('/data-monitoring/refresh', [DataMonitoringController::class, 'refresh'])->name('data_monitoring.refresh');
+        Route::get('/data-penduduk', [DataPendudukController::class, 'index'])->name('data_penduduk.index');
+        Route::get('/data-penduduk/create', [DataPendudukController::class, 'create'])->name('data_penduduk.create');
+        Route::post('/data-penduduk', [DataPendudukController::class, 'store'])->name('data_penduduk.store');
+        Route::get('/data-penduduk/{id}/edit', [DataPendudukController::class, 'edit'])->name('data_penduduk.edit');
+        Route::put('/data-penduduk/{id}', [DataPendudukController::class, 'update'])->name('data_penduduk.update');
+        Route::delete('/data-penduduk/{id}', [DataPendudukController::class, 'destroy'])->name('data_penduduk.destroy');
+        Route::post('/data-penduduk/refresh', [DataPendudukController::class, 'refresh'])->name('data_penduduk.refresh');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {

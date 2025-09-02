@@ -39,13 +39,13 @@ class GaleriProgramController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'gambar' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
+            'gambar' => ['required', 'image', 'mimes:jpeg,jpg,png', 'max:10000'],
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['required', 'string'],
             'kategori' => ['required', 'in:Penyuluhan,Posyandu,Pendampingan,Lainnya'],
             'link' => ['nullable', 'string', 'max:255', 'url'],
             'urutan' => ['required', 'integer', 'min:1'],
-            'status_aktif' => ['boolean'],
+            'status_aktif' => ['nullable', 'in:on'],
         ]);
 
         $data = $request->all();
@@ -69,13 +69,13 @@ class GaleriProgramController extends Controller
         $galeriProgram = GaleriProgram::findOrFail($id);
 
         $request->validate([
-            'gambar' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:10000'],
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['required', 'string'],
             'kategori' => ['required', 'in:Penyuluhan,Posyandu,Pendampingan,Lainnya'],
             'link' => ['nullable', 'string', 'max:255', 'url'],
             'urutan' => ['required', 'integer', 'min:1'],
-            'status_aktif' => ['boolean'],
+            'status_aktif' => ['nullable', 'in:on'],
         ]);
 
         $data = $request->all();
