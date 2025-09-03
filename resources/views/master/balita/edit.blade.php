@@ -12,6 +12,13 @@
             @csrf
             @method('PUT')
             <div class="mb-4">
+                <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
+                <input type="text" name="nik" id="nik" value="{{ old('nik', $balita->nik) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                @error('nik')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
                 <input type="text" name="nama" id="nama" value="{{ old('nama', $balita->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('nama')
@@ -20,7 +27,7 @@
             </div>
             <div class="mb-4">
                 <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
-                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', \Carbon\Carbon::parse($balita->tanggal_lahir)->format('Y-m-d')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $balita->tanggal_lahir ? $balita->tanggal_lahir->format('Y-m-d') : '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('tanggal_lahir')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -50,6 +57,13 @@
                 @enderror
             </div>
             <div class="mb-4">
+                <label for="kecamatan" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                <input type="text" name="kecamatan" id="kecamatan" value="{{ old('kecamatan', $balita->kecamatan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                @error('kecamatan')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="kelurahan" class="block text-sm font-medium text-gray-700">Kelurahan</label>
                 <input type="text" name="kelurahan" id="kelurahan" value="{{ old('kelurahan', $balita->kelurahan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('kelurahan')
@@ -57,9 +71,9 @@
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="kecamatan" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                <input type="text" name="kecamatan" id="kecamatan" value="{{ old('kecamatan', $balita->kecamatan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('kecamatan')
+                <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
+                <input type="text" name="alamat" id="alamat" value="{{ old('alamat', $balita->alamat) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                @error('alamat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -71,8 +85,12 @@
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="warna_label" class="block text-sm font-medium text-gray-700">Warna Label (Sehat/Waspada/Bahaya)</label>
-                <input type="text" name="warna_label" id="warna_label" value="{{ old('warna_label', $balita->warna_label) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="warna_label" class="block text-sm font-medium text-gray-700">Warna Label</label>
+                <select name="warna_label" id="warna_label" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="Sehat" {{ old('warna_label', $balita->warna_label) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
+                    <option value="Waspada" {{ old('warna_label', $balita->warna_label) == 'Waspada' ? 'selected' : '' }}>Waspada</option>
+                    <option value="Bahaya" {{ old('warna_label', $balita->warna_label) == 'Bahaya' ? 'selected' : '' }}>Bahaya</option>
+                </select>
                 @error('warna_label')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -86,10 +104,10 @@
             </div>
             <div class="mb-4">
                 <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
+                <input type="file" name="foto" id="foto" accept="image/*" class="mt-1 block w-full">
                 @if ($balita->foto)
-                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-16 h-16 object-cover rounded mb-2">
+                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-16 h-16 object-cover mt-2 rounded">
                 @endif
-                <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
                 @error('foto')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror

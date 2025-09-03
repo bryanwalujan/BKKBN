@@ -31,8 +31,8 @@ class User extends Authenticatable
         return $this->role === 'admin_kelurahan';
     }
 
-    public function isPerangkatDesa()
+    public function isPerangkatDaerah()
     {
-        return $this->role === 'perangkat_desa';
+        return $this->role === 'perangkat_daerah';
     }
 }

@@ -83,10 +83,24 @@
                 </ul>
             </li>
             <li>
-                <a href="{{ route('verifikasi.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('verifikasi.*') ? 'bg-blue-700' : '' }}">Verifikasi Akun</a>
-            </li>
-            <li>
-                <a href="{{ route('templates.index') }}" class="block p-4 hover:bg-blue-700 {{ Route::is('templates.*') ? 'bg-blue-700' : '' }}">Kelola Template</a>
+                <button class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('verifikasi.*', 'templates.*', 'users.*') ? 'bg-blue-700' : '' }}"
+                        onclick="document.getElementById('kelola-akun-dropdown').classList.toggle('hidden')">
+                    Kelola Akun
+                    <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <ul id="kelola-akun-dropdown" class="ml-4 {{ Route::is('verifikasi.*', 'templates.*', 'users.*') ? '' : 'hidden' }}">
+                    <li>
+                        <a href="{{ route('verifikasi.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('verifikasi.*') ? 'bg-blue-600' : '' }}">Verifikasi Akun</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('templates.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('templates.*') ? 'bg-blue-600' : '' }}">Kelola Template</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('users.index') }}" class="block p-4 hover:bg-blue-600 {{ Route::is('users.*') ? 'bg-blue-600' : '' }}">Kelola Pengguna</a>
+                    </li>
+                </ul>
             </li>
             <li>
                 <button class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('publikasi.*', 'referensi.*', 'data_monitoring.*', 'data_penduduk.*') ? 'bg-blue-700' : '' }}"

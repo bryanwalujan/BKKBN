@@ -21,6 +21,7 @@ use App\Http\Controllers\PublikasiController;
 use App\Http\Controllers\ReferensiController;
 use App\Http\Controllers\DataMonitoringController;
 use App\Http\Controllers\DataPendudukController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,12 +45,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
         Route::post('/templates', [TemplateController::class, 'store'])->name('templates.store');
         Route::delete('/templates/{id}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::get('/balita', [BalitaController::class, 'index'])->name('balita.index');
         Route::get('/balita/create', [BalitaController::class, 'create'])->name('balita.create');
         Route::post('/balita', [BalitaController::class, 'store'])->name('balita.store');
         Route::get('/balita/{id}/edit', [BalitaController::class, 'edit'])->name('balita.edit');
         Route::put('/balita/{id}', [BalitaController::class, 'update'])->name('balita.update');
         Route::delete('/balita/{id}', [BalitaController::class, 'destroy'])->name('balita.destroy');
+        Route::post('/balita/import', [BalitaController::class, 'import'])->name('balita.import');
+        Route::get('/balita/download-template', [BalitaController::class, 'downloadTemplate'])->name('balita.download-template');
         Route::get('/stunting', [StuntingController::class, 'index'])->name('stunting.index');
         Route::get('/stunting/create', [StuntingController::class, 'create'])->name('stunting.create');
         Route::post('/stunting', [StuntingController::class, 'store'])->name('stunting.store');
@@ -170,9 +177,9 @@ Route::middleware('auth')->group(function () {
             return view('admin_kelurahan.dashboard');
         })->name('admin_kelurahan.dashboard');
     });
-    Route::middleware('role:perangkat_desa')->group(function () {
-        Route::get('/perangkat-desa/dashboard', function () {
-            return view('perangkat_desa.dashboard');
-        })->name('perangkat_desa.dashboard');
+    Route::middleware('role:perangkat_daerah')->group(function () {
+        Route::get('/perangkat-daerah/dashboard', function () {
+            return view('perangkat_daerah.dashboard');
+        })->name('perangkat_daerah.dashboard');
     });
 });
