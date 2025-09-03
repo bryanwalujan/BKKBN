@@ -44,14 +44,14 @@
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                    <option value="">Pilih Kelurahan</option>
-                    @foreach ($kelurahans as $kelurahan)
-                        <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $user->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama }}</option>
+                <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="">Pilih Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $user->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
                     @endforeach
                 </select>
-                @error('kelurahan_id')
+                @error('kecamatan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -73,7 +73,7 @@
                 <label for="pas_foto" class="block text-sm font-medium text-gray-700">Pas Foto</label>
                 <input type="file" name="pas_foto" id="pas_foto" class="mt-1 block w-full">
                 @if ($user->pas_foto)
-                    <img src="{{ asset('storage/pas_foto/' . $user->pas_foto) }}" alt="Pas Foto" class="w-16 h-16 object-cover mt-2">
+                    <img src="{{ Storage::url('pas_foto/' . $user->pas_foto) }}" alt="Pas Foto" class="w-16 h-16 object-cover mt-2">
                 @endif
                 @error('pas_foto')
                     <span class="text-red-600 text-sm">{{ $message }}</span>

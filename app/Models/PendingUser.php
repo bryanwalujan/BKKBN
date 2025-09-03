@@ -9,8 +9,9 @@ class PendingUser extends Model
         'name', 'email', 'password', 'role', 'kelurahan_id', 'kelurahan_nama', 'penanggung_jawab', 'no_telepon', 'pas_foto', 'surat_pengajuan', 'status', 'catatan'
     ];
 
-    public function kelurahan()
+public function getKecamatanNamaAttribute()
     {
-        return $this->belongsTo(Kelurahan::class);
+        return null; // Belum ada kecamatan_id di pending_users
     }
+
 }

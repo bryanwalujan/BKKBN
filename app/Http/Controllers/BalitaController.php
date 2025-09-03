@@ -105,7 +105,7 @@ class BalitaController extends Controller
      public function import(Request $request)
 {
     $request->validate([
-        'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:2048'],
+        'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:70000'],
     ]);
 
     try {

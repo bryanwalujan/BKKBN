@@ -26,10 +26,10 @@
                         <option value="{{ $r }}" {{ $role == $r ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $r)) }}</option>
                     @endforeach
                 </select>
-                <select name="kelurahan_id" class="border-gray-300 rounded-md shadow-sm">
-                    <option value="">Semua Kelurahan</option>
-                    @foreach ($kelurahans as $kelurahan)
-                        <option value="{{ $kelurahan->id }}" {{ $kelurahan_id == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama }}</option>
+                <select name="kecamatan_id" class="border-gray-300 rounded-md shadow-sm">
+                    <option value="">Semua Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ $kecamatan_id == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
                     @endforeach
                 </select>
                 <button type="submit" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Filter</button>
@@ -42,7 +42,7 @@
                     <th class="p-4 text-left">Nama</th>
                     <th class="p-4 text-left">Email</th>
                     <th class="p-4 text-left">Role</th>
-                    <th class="p-4 text-left">Kelurahan</th>
+                    <th class="p-4 text-left">Kecamatan</th>
                     <th class="p-4 text-left">Penanggung Jawab</th>
                     <th class="p-4 text-left">No Telepon</th>
                     <th class="p-4 text-left">Pas Foto</th>
@@ -56,12 +56,12 @@
                         <td class="p-4">{{ $user->name }}</td>
                         <td class="p-4">{{ $user->email }}</td>
                         <td class="p-4">{{ ucfirst(str_replace('_', ' ', $user->role)) }}</td>
-                        <td class="p-4">{{ $user->kelurahan ? $user->kelurahan->nama : '-' }}</td>
+                        <td class="p-4">{{ $user->kecamatan_nama ?? '-' }}</td>
                         <td class="p-4">{{ $user->penanggung_jawab ?? '-' }}</td>
                         <td class="p-4">{{ $user->no_telepon ?? '-' }}</td>
                         <td class="p-4">
                             @if ($user->pas_foto)
-                                <img src="{{ asset('storage/pas_foto/' . $user->pas_foto) }}" alt="Pas Foto" class="w-16 h-16 object-cover">
+                                <img src="{{ Storage::url('pas_foto/' . $user->pas_foto) }}" alt="Pas Foto" class="w-16 h-16 object-cover">
                             @else
                                 -
                             @endif
@@ -81,7 +81,7 @@
             </tbody>
         </table>
         <div class="mt-4">
-            {{ $users->appends(['role' => $role, 'kelurahan_id' => $kelurahan_id])->links() }}
+            {{ $users->appends(['role' => $role, 'kecamatan_id' => $kecamatan_id])->links() }}
         </div>
     </div>
 </body>
