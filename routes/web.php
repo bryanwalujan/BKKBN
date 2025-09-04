@@ -21,7 +21,9 @@ use App\Http\Controllers\PublikasiController;
 use App\Http\Controllers\ReferensiController;
 use App\Http\Controllers\DataMonitoringController;
 use App\Http\Controllers\DataPendudukController;
+use App\Http\Controllers\KartuKeluargaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\KelurahanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -56,7 +58,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/balita/{id}', [BalitaController::class, 'update'])->name('balita.update');
         Route::delete('/balita/{id}', [BalitaController::class, 'destroy'])->name('balita.destroy');
         Route::post('/balita/import', [BalitaController::class, 'import'])->name('balita.import');
-        Route::get('/balita/download-template', [BalitaController::class, 'downloadTemplate'])->name('balita.download-template');
+        Route::get('/balita/download-template', [BalitaController::class, 'downloadTemplate'])->name('balita.downloadTemplate');
         Route::get('/stunting', [StuntingController::class, 'index'])->name('stunting.index');
         Route::get('/stunting/create', [StuntingController::class, 'create'])->name('stunting.create');
         Route::post('/stunting', [StuntingController::class, 'store'])->name('stunting.store');
@@ -171,6 +173,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/data-penduduk/{id}', [DataPendudukController::class, 'update'])->name('data_penduduk.update');
         Route::delete('/data-penduduk/{id}', [DataPendudukController::class, 'destroy'])->name('data_penduduk.destroy');
         Route::post('/data-penduduk/refresh', [DataPendudukController::class, 'refresh'])->name('data_penduduk.refresh');
+        Route::resource('balita', BalitaController::class);
+        Route::post('balita/import', [BalitaController::class, 'import'])->name('balita.import');
+        Route::get('balita/download-template', [BalitaController::class, 'downloadTemplate'])->name('balita.downloadTemplate');
+        Route::resource('kartu_keluarga', KartuKeluargaController::class);
+        Route::get('peta_geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
+        Route::get('kelurahans/by-kecamatan/{kecamatan_id}', [KelurahanController::class, 'getByKecamatan'])->name('kelurahans.by-kecamatan');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {
