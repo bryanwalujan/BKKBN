@@ -1,70 +1,31 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\PetaGeospasial;
+use App\Models\KartuKeluarga;
 use Illuminate\Http\Request;
 
 class PetaGeospasialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $petaGeospasials = PetaGeospasial::all();
-        return view('master.peta_geospasial.index', compact('petaGeospasials'));
-    }
+        $kecamatan = $request->query('kecamatan', '');
+        $status_gizi = $request->query('status_gizi', '');
 
-    public function create()
-    {
-        return view('master.peta_geospasial.create');
-    }
+        $query = KartuKeluarga::with(['balitas' => function ($query) use ($status_gizi) {
+            if ($status_gizi) {
+                $query->where('status_gizi', $status_gizi);
+            }
+        }])->whereNotNull('latitude')->whereNotNull('longitude');
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama_lokasi' => ['required', 'string', 'max:255'],
-            'kecamatan' => ['required', 'string', 'max:255'],
-            'kelurahan' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:Aktif,Non-Aktif'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'jenis' => ['nullable', 'string', 'max:50'],
-            'warna_marker' => ['required', 'in:Merah,Biru,Hijau'],
-        ]);
+        if ($kecamatan) {
+            $query->where('kecamatan', $kecamatan);
+        }
 
-        PetaGeospasial::create($request->all());
+        $kartuKeluargas = $query->get();
 
-        return redirect()->route('peta_geospasial.index')->with('success', 'Data Peta Geospasial berhasil ditambahkan.');
-    }
+        $kecamatans = KartuKeluarga::distinct()->pluck('kecamatan');
+        $statusGizis = ['Sehat', 'Waspada', 'Bahaya'];
 
-    public function edit($id)
-    {
-        $petaGeospasial = PetaGeospasial::findOrFail($id);
-        return view('master.peta_geospasial.edit', compact('petaGeospasial'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nama_lokasi' => ['required', 'string', 'max:255'],
-            'kecamatan' => ['required', 'string', 'max:255'],
-            'kelurahan' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:Aktif,Non-Aktif'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'jenis' => ['nullable', 'string', 'max:50'],
-            'warna_marker' => ['required', 'in:Merah,Biru,Hijau'],
-        ]);
-
-        $petaGeospasial = PetaGeospasial::findOrFail($id);
-        $petaGeospasial->update($request->all());
-
-        return redirect()->route('peta_geospasial.index')->with('success', 'Data Peta Geospasial berhasil diperbarui.');
-    }
-
-    public function destroy($id)
-    {
-        $petaGeospasial = PetaGeospasial::findOrFail($id);
-        $petaGeospasial->delete();
-
-        return redirect()->route('peta_geospasial.index')->with('success', 'Data Peta Geospasial berhasil dihapus.');
+        return view('master.peta_geospasial.index', compact('kartuKeluargas', 'kecamatans', 'statusGizis', 'kecamatan', 'status_gizi'));
     }
 }
