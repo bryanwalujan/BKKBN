@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TemplateController;
@@ -179,6 +180,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('kartu_keluarga', KartuKeluargaController::class);
         Route::get('peta_geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
         Route::get('kelurahans/by-kecamatan/{kecamatan_id}', [KelurahanController::class, 'getByKecamatan'])->name('kelurahans.by-kecamatan');
+        Route::resource('stunting', StuntingController::class);
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {
