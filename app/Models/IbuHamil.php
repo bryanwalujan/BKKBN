@@ -5,10 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class IbuHamil extends Model
 {
+    protected $table = 'ibu_hamils';
     protected $fillable = [
-        'nama',
-        'kelurahan',
-        'kecamatan',
+        'ibu_id',
         'trimester',
         'intervensi',
         'status_gizi',
@@ -16,6 +15,10 @@ class IbuHamil extends Model
         'usia_kehamilan',
         'berat',
         'tinggi',
-        'foto',
     ];
+
+    public function ibu()
+    {
+        return $this->belongsTo(Ibu::class, 'ibu_id');
+    }
 }

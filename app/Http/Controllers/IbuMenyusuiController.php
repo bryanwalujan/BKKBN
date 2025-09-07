@@ -2,92 +2,116 @@
 namespace App\Http\Controllers;
 
 use App\Models\IbuMenyusui;
+use App\Models\Ibu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class IbuMenyusuiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $ibuMenyusuis = IbuMenyusui::all();
-        return view('master.ibu_menyusui.index', compact('ibuMenyusuis'));
+        $search = $request->query('search');
+        $query = IbuMenyusui::with(['ibu.kartuKeluarga', 'ibu.kecamatan', 'ibu.kelurahan']);
+        
+        if ($search) {
+            $query->whereHas('ibu', function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhere('nik', 'like', '%' . $search . '%');
+            });
+        }
+
+        $ibuMenyusuis = $query->paginate(10);
+        return view('master.ibu_menyusui.index', compact('ibuMenyusuis', 'search'));
     }
 
     public function create()
     {
-        return view('master.ibu_menyusui.create');
+        $ibus = Ibu::all(); // Ambil semua ibu
+        return view('master.ibu_menyusui.create', compact('ibus'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'kelurahan' => ['required', 'string', 'max:255'],
-            'kecamatan' => ['required', 'string', 'max:255'],
+            'ibu_id' => ['required', 'exists:ibus,id'],
             'status_menyusui' => ['required', 'in:Eksklusif,Non-Eksklusif'],
             'frekuensi_menyusui' => ['required', 'integer', 'min:0', 'max:24'],
             'kondisi_ibu' => ['required', 'string', 'max:255'],
             'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
-        $data = $request->all();
-
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('ibu_menyusui_fotos', 'public');
+        try {
+            $ibu = Ibu::findOrFail($request->ibu_id);
+            // Perbarui status ibu menjadi 'Menyusui'
+            $ibu->update(['status' => 'Menyusui']);
+            // Hapus data dari tabel lain jika ada
+            if ($ibu->ibuHamil) {
+                $ibu->ibuHamil->delete();
+            }
+            if ($ibu->ibuNifas) {
+                $ibu->ibuNifas->delete();
+            }
+            IbuMenyusui::create($request->all());
+            return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan data ibu menyusui: ' . $e->getMessage(), ['data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data ibu menyusui: ' . $e->getMessage());
         }
-
-        IbuMenyusui::create($data);
-
-        return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil ditambahkan.');
     }
 
     public function edit($id)
     {
-        $ibuMenyusui = IbuMenyusui::findOrFail($id);
-        return view('master.ibu_menyusui.edit', compact('ibuMenyusui'));
+        $ibuMenyusui = IbuMenyusui::with(['ibu.kartuKeluarga', 'ibu.kecamatan', 'ibu.kelurahan'])->findOrFail($id);
+        $ibus = Ibu::all(); // Ambil semua ibu
+        return view('master.ibu_menyusui.edit', compact('ibuMenyusui', 'ibus'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'kelurahan' => ['required', 'string', 'max:255'],
-            'kecamatan' => ['required', 'string', 'max:255'],
+            'ibu_id' => ['required', 'exists:ibus,id'],
             'status_menyusui' => ['required', 'in:Eksklusif,Non-Eksklusif'],
             'frekuensi_menyusui' => ['required', 'integer', 'min:0', 'max:24'],
             'kondisi_ibu' => ['required', 'string', 'max:255'],
             'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
-        $ibuMenyusui = IbuMenyusui::findOrFail($id);
-        $data = $request->all();
-
-        if ($request->hasFile('foto')) {
-            if ($ibuMenyusui->foto) {
-                Storage::disk('public')->delete($ibuMenyusui->foto);
+        try {
+            $ibuMenyusui = IbuMenyusui::findOrFail($id);
+            $ibu = Ibu::findOrFail($request->ibu_id);
+            // Perbarui status ibu menjadi 'Menyusui'
+            $ibu->update(['status' => 'Menyusui']);
+            // Hapus data dari tabel lain jika ada
+            if ($ibu->ibuHamil) {
+                $ibu->ibuHamil->delete();
             }
-            $data['foto'] = $request->file('foto')->store('ibu_menyusui_fotos', 'public');
+            if ($ibu->ibuNifas) {
+                $ibu->ibuNifas->delete();
+            }
+            $ibuMenyusui->update($request->all());
+            return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Gagal memperbarui data ibu menyusui: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data ibu menyusui: ' . $e->getMessage());
         }
-
-        $ibuMenyusui->update($data);
-
-        return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $ibuMenyusui = IbuMenyusui::findOrFail($id);
-        if ($ibuMenyusui->foto) {
-            Storage::disk('public')->delete($ibuMenyusui->foto);
+        try {
+            $ibuMenyusui = IbuMenyusui::findOrFail($id);
+            $ibu = $ibuMenyusui->ibu;
+            $ibuMenyusui->delete();
+            // Ubah status ibu menjadi 'Tidak Aktif'
+            $ibu->update(['status' => 'Tidak Aktif']);
+            return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menghapus data ibu menyusui: ' . $e->getMessage(), ['id' => $id]);
+            return redirect()->route('ibu_menyusui.index')->with('error', 'Gagal menghapus data ibu menyusui: ' . $e->getMessage());
         }
-        $ibuMenyusui->delete();
-
-        return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil dihapus.');
     }
 }

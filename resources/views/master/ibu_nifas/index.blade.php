@@ -8,10 +8,21 @@
     @include('master.partials.sidebar')
     <div class="ml-64 p-6">
         <h2 class="text-2xl font-semibold mb-4">Data Ibu Nifas</h2>
+        <div class="mb-4">
+            <form action="{{ route('ibu_nifas.index') }}" method="GET" class="flex items-center">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama atau NIK" class="border-gray-300 rounded-md shadow-sm mr-2 p-2">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
+            </form>
+        </div>
         <a href="{{ route('ibu_nifas.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Ibu Nifas</a>
         @if (session('success'))
             <div class="bg-green-100 text-green-700 p-4 mb-4 rounded">
                 {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
+                {{ session('error') }}
             </div>
         @endif
         <table class="w-full bg-white shadow-md rounded">
@@ -33,17 +44,17 @@
             <tbody>
                 @foreach ($ibuNifas as $index => $ibu)
                     <tr>
-                        <td class="p-4">{{ $index + 1 }}</td>
+                        <td class="p-4">{{ $ibuNifas->firstItem() + $index }}</td>
                         <td class="p-4">
-                            @if ($ibu->foto)
-                                <img src="{{ Storage::url($ibu->foto) }}" alt="Foto Ibu Nifas" class="w-16 h-16 object-cover rounded">
+                            @if ($ibu->ibu->foto)
+                                <img src="{{ Storage::url($ibu->ibu->foto) }}" alt="Foto Ibu Nifas" class="w-16 h-16 object-cover rounded">
                             @else
                                 Tidak ada foto
                             @endif
                         </td>
-                        <td class="p-4">{{ $ibu->nama }}</td>
-                        <td class="p-4">{{ $ibu->kelurahan }}</td>
-                        <td class="p-4">{{ $ibu->kecamatan }}</td>
+                        <td class="p-4">{{ $ibu->ibu->nama }}</td>
+                        <td class="p-4">{{ $ibu->ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
+                        <td class="p-4">{{ $ibu->ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
                         <td class="p-4">{{ $ibu->hari_nifas }}</td>
                         <td class="p-4">{{ $ibu->kondisi_kesehatan }}</td>
                         <td class="p-4">
@@ -66,6 +77,9 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="mt-4">
+            {{ $ibuNifas->links() }}
+        </div>
     </div>
 </body>
 </html>
