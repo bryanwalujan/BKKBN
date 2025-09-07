@@ -11,13 +11,49 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class BalitaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $balitas = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])->paginate(10);
-        return view('master.balita.index', compact('balitas'));
+        // Ambil parameter pencarian dan kategori umur
+        $search = $request->query('search');
+        $kategoriUmur = $request->query('kategori_umur');
+
+        // Ambil data dengan relasi
+        $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan']);
+
+        // Terapkan filter pencarian berdasarkan nama atau NIK
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhere('nik', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Ambil data
+        $balitas = $query->get();
+
+        // Filter berdasarkan kategori umur
+        if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
+            $balitas = $balitas->filter(function ($balita) use ($kategoriUmur) {
+                return $balita->kategori_umur === $kategoriUmur;
+            });
+        }
+
+        // Implementasi pagination manual untuk koleksi
+        $perPage = 10;
+        $currentPage = $request->query('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $total = $balitas->count();
+        $paginatedBalitas = $balitas->slice($offset, $perPage);
+        $balitas = new LengthAwarePaginator($paginatedBalitas, $total, $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search'));
     }
 
     public function create()

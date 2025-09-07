@@ -3,6 +3,40 @@
 <head>
     <title>Edit Data Stunting</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        function fetchKelurahans(kecamatanId) {
+            const kelurahanSelect = document.getElementById('kelurahan_id');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (!kecamatanId) {
+                console.log('Kecamatan ID kosong');
+                return;
+            }
+
+            fetch('/kelurahans/by-kecamatan/' + kecamatanId)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.length === 0) {
+                        console.log('Tidak ada kelurahan ditemukan untuk kecamatan_id: ' + kecamatanId);
+                    }
+                    data.forEach(kelurahan => {
+                        kelurahanSelect.innerHTML += `<option value="${kelurahan.id}" ${kelurahan.id == {{ old('kelurahan_id', $stunting->kelurahan_id) }} ? 'selected' : ''}>${kelurahan.nama_kelurahan}</option>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Gagal mengambil data kelurahan:', error);
+                    kelurahanSelect.innerHTML = '<option value="">Gagal memuat kelurahan</option>';
+                });
+        }
+        window.onload = function() {
+            fetchKelurahans({{ old('kecamatan_id', $stunting->kecamatan_id) }});
+        };
+    </script>
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -12,6 +46,25 @@
             @csrf
             @method('PUT')
             <div class="mb-4">
+                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
+                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Pilih Kartu Keluarga</option>
+                    @foreach ($kartuKeluargas as $kk)
+                        <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $stunting->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
+                    @endforeach
+                </select>
+                @error('kartu_keluarga_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
+                <input type="text" name="nik" id="nik" value="{{ old('nik', $stunting->nik) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                @error('nik')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
                 <input type="text" name="nama" id="nama" value="{{ old('nama', $stunting->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('nama')
@@ -20,7 +73,7 @@
             </div>
             <div class="mb-4">
                 <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
-                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', \Carbon\Carbon::parse($stunting->tanggal_lahir)->format('Y-m-d')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $stunting->tanggal_lahir->format('Y-m-d')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('tanggal_lahir')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -50,29 +103,48 @@
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="kelurahan" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                <input type="text" name="kelurahan" id="kelurahan" value="{{ old('kelurahan', $stunting->kelurahan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('kelurahan')
+                <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required onchange="fetchKelurahans(this.value)">
+                    <option value="">Pilih Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $stunting->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
+                    @endforeach
+                </select>
+                @error('kecamatan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="kecamatan" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                <input type="text" name="kecamatan" id="kecamatan" value="{{ old('kecamatan', $stunting->kecamatan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('kecamatan')
+                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
+                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Pilih Kelurahan</option>
+                    @foreach ($kelurahans as $kelurahan)
+                        <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $stunting->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
+                    @endforeach
+                </select>
+                @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="status_gizi" class="block text-sm font-medium text-gray-700">Status Gizi</label>
-                <input type="text" name="status_gizi" id="status_gizi" value="{{ old('status_gizi', $stunting->status_gizi) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <select name="status_gizi" id="status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="Sehat" {{ old('status_gizi', $stunting->status_gizi) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
+                    <option value="Stunting" {{ old('status_gizi', $stunting->status_gizi) == 'Stunting' ? 'selected' : '' }}>Stunting</option>
+                    <option value="Kurang Gizi" {{ old('status_gizi', $stunting->status_gizi) == 'Kurang Gizi' ? 'selected' : '' }}>Kurang Gizi</option>
+                    <option value="Obesitas" {{ old('status_gizi', $stunting->status_gizi) == 'Obesitas' ? 'selected' : '' }}>Obesitas</option>
+                </select>
                 @error('status_gizi')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="warna_gizi" class="block text-sm font-medium text-gray-700">Warna Gizi (Sehat/Waspada/Bahaya)</label>
-                <input type="text" name="warna_gizi" id="warna_gizi" value="{{ old('warna_gizi', $stunting->warna_gizi) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="warna_gizi" class="block text-sm font-medium text-gray-700">Warna Gizi</label>
+                <select name="warna_gizi" id="warna_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="Sehat" {{ old('warna_gizi', $stunting->warna_gizi) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
+                    <option value="Waspada" {{ old('warna_gizi', $stunting->warna_gizi) == 'Waspada' ? 'selected' : '' }}>Waspada</option>
+                    <option value="Bahaya" {{ old('warna_gizi', $stunting->warna_gizi) == 'Bahaya' ? 'selected' : '' }}>Bahaya</option>
+                </select>
                 @error('warna_gizi')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -85,14 +157,18 @@
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="warna_tindak_lanjut" class="block text-sm font-medium text-gray-700">Warna Tindak Lanjut (Sehat/Waspada/Bahaya)</label>
-                <input type="text" name="warna_tindak_lanjut" id="warna_tindak_lanjut" value="{{ old('warna_tindak_lanjut', $stunting->warna_tindak_lanjut) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <label for="warna_tindak_lanjut" class="block text-sm font-medium text-gray-700">Warna Tindak Lanjut</label>
+                <select name="warna_tindak_lanjut" id="warna_tindak_lanjut" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="Sehat" {{ old('warna_tindak_lanjut', $stunting->warna_tindak_lanjut) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
+                    <option value="Waspada" {{ old('warna_tindak_lanjut', $stunting->warna_tindak_lanjut) == 'Waspada' ? 'selected' : '' }}>Waspada</option>
+                    <option value="Bahaya" {{ old('warna_tindak_lanjut', $stunting->warna_tindak_lanjut) == 'Bahaya' ? 'selected' : '' }}>Bahaya</option>
+                </select>
                 @error('warna_tindak_lanjut')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
+                <label for="foto" class="block text-sm font-medium text-gray-700">Foto Kartu Identitas</label>
                 @if ($stunting->foto)
                     <img src="{{ Storage::url($stunting->foto) }}" alt="Foto Stunting" class="w-16 h-16 object-cover rounded mb-2">
                 @endif

@@ -74,11 +74,6 @@
                 <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
                 <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kelurahan</option>
-                    @if (old('kecamatan_id') && $kelurahans)
-                        @foreach ($kelurahans as $kelurahan)
-                            <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id') == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
-                        @endforeach
-                    @endif
                 </select>
                 @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>

@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TemplateController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\DataPendudukController;
 use App\Http\Controllers\KartuKeluargaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\KelurahanController;
+use App\Http\Controllers\IbuController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -179,6 +181,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('kartu_keluarga', KartuKeluargaController::class);
         Route::get('peta_geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
         Route::get('kelurahans/by-kecamatan/{kecamatan_id}', [KelurahanController::class, 'getByKecamatan'])->name('kelurahans.by-kecamatan');
+        Route::resource('stunting', StuntingController::class);
+        Route::get('/ibu', [IbuController::class, 'index'])->name('ibu.index');
+        Route::get('/ibu/create', [IbuController::class, 'create'])->name('ibu.create');
+        Route::post('/ibu', [IbuController::class, 'store'])->name('ibu.store');
+        Route::get('/ibu/{id}/edit', [IbuController::class, 'edit'])->name('ibu.edit');
+        Route::put('/ibu/{id}', [IbuController::class, 'update'])->name('ibu.update');
+        Route::delete('/ibu/{id}', [IbuController::class, 'destroy'])->name('ibu.destroy');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {

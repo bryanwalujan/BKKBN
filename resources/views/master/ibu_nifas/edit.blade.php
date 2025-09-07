@@ -8,27 +8,18 @@
     @include('master.partials.sidebar')
     <div class="ml-64 p-6">
         <h2 class="text-2xl font-semibold mb-4">Edit Data Ibu Nifas</h2>
-        <form action="{{ route('ibu_nifas.update', $ibuNifas->id) }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+        <form action="{{ route('ibu_nifas.update', $ibuNifas->id) }}" method="POST" class="bg-white p-6 rounded shadow">
             @csrf
             @method('PUT')
             <div class="mb-4">
-                <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                <input type="text" name="nama" id="nama" value="{{ old('nama', $ibuNifas->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('nama')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kelurahan" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                <input type="text" name="kelurahan" id="kelurahan" value="{{ old('kelurahan', $ibuNifas->kelurahan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('kelurahan')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kecamatan" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                <input type="text" name="kecamatan" id="kecamatan" value="{{ old('kecamatan', $ibuNifas->kecamatan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('kecamatan')
+                <label for="ibu_id" class="block text-sm font-medium text-gray-700">Nama Ibu</label>
+                <select name="ibu_id" id="ibu_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">-- Pilih Ibu --</option>
+                    @foreach ($ibus as $ibu)
+                        <option value="{{ $ibu->id }}" {{ old('ibu_id', $ibuNifas->ibu_id) == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }})</option>
+                    @endforeach
+                </select>
+                @error('ibu_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -69,16 +60,6 @@
                 <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
                 <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $ibuNifas->tinggi) }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('tinggi')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
-                @if ($ibuNifas->foto)
-                    <img src="{{ Storage::url($ibuNifas->foto) }}" alt="Foto Ibu Nifas" class="w-16 h-16 object-cover rounded mb-2">
-                @endif
-                <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
-                @error('foto')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>

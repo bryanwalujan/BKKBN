@@ -6,7 +6,7 @@
         <ul>
             <li>
                 <button
-                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*') ? 'bg-blue-700' : '' }}"
+                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*') ? 'bg-blue-700' : '' }}"
                     onclick="document.getElementById('perdataan-dropdown').classList.toggle('hidden')">
                     Perdataan
                     <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -15,7 +15,11 @@
                     </svg>
                 </button>
                 <ul id="perdataan-dropdown"
-                    class="ml-4 {{ Route::is('balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*') ? '' : 'hidden' }}">
+                    class="ml-4 {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*') ? '' : 'hidden' }}">
+                    <li>
+                        <a href="{{ route('ibu.index') }}"
+                            class="block p-4 hover:bg-blue-600 {{ Route::is('ibu.*') ? 'bg-blue-600' : '' }}">Data Ibu</a>
+                    </li>
                     <li>
                         <a href="{{ route('balita.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('balita.*') ? 'bg-blue-600' : '' }}">Informasi
@@ -47,7 +51,8 @@
                             Remaja Putri</a>
                     </li>
                     <li class="mb-4">
-                        <a href="{{ route('kartu_keluarga.index') }}" class="hover:text-gray-300">Kelola Kartu
+                        <a href="{{ route('kartu_keluarga.index') }}"
+                            class="block p-4 hover:bg-blue-600 {{ Route::is('kartu_keluarga.*') ? 'bg-blue-600' : '' }}">Kelola Kartu
                             Keluarga</a>
                     </li>
                 </ul>
@@ -190,8 +195,6 @@
                     <button type="submit" class="block w-full text-left p-4 hover:bg-blue-700">Logout</button>
                 </form>
             </li>
-
-
-
+        </ul>
     </nav>
 </aside>

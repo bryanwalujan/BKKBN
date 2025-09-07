@@ -5,16 +5,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class IbuMenyusui extends Model
 {
+    protected $table = 'ibu_menyusuis';
     protected $fillable = [
-        'nama',
-        'kelurahan',
-        'kecamatan',
+        'ibu_id',
         'status_menyusui',
         'frekuensi_menyusui',
         'kondisi_ibu',
         'warna_kondisi',
         'berat',
         'tinggi',
-        'foto',
     ];
+
+    public function ibu()
+    {
+        return $this->belongsTo(Ibu::class, 'ibu_id');
+    }
 }
