@@ -35,4 +35,8 @@ class KartuKeluarga extends Model
     {
         return $this->belongsTo(Kelurahan::class);
     }
+    public function remajaPutris()
+    {
+        return $this->hasMany(RemajaPutri::class);
+    }
 }

@@ -3,6 +3,7 @@
 <head>
     <title>Kelola Balita</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -104,7 +105,7 @@
                             @if ($balita->foto)
                                 <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-16 h-16 object-cover">
                             @else
-                                -
+                                <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
                             @endif
                         </td>
                         <td class="p-4">

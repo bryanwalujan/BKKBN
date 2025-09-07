@@ -17,6 +17,7 @@ class IbuController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
+        $category = $request->query('category');
         $query = Ibu::with(['kecamatan', 'kelurahan', 'kartuKeluarga']);
         
         if ($search) {
@@ -24,8 +25,12 @@ class IbuController extends Controller
                   ->orWhere('nik', 'like', '%' . $search . '%');
         }
 
-        $ibus = $query->paginate(10);
-        return view('master.ibu.index', compact('ibus', 'search'));
+        if ($category) {
+            $query->where('status', $category);
+        }
+
+        $ibus = $query->paginate(10)->appends(['search' => $search, 'category' => $category]);
+        return view('master.ibu.index', compact('ibus', 'search', 'category'));
     }
 
     public function create()
@@ -63,7 +68,6 @@ class IbuController extends Controller
             }
             $ibu = Ibu::create($data);
 
-            // Buat entri di tabel terkait berdasarkan status
             if ($data['status'] === 'Hamil') {
                 IbuHamil::create([
                     'ibu_id' => $ibu->id,
@@ -135,7 +139,6 @@ class IbuController extends Controller
                 $data['foto'] = $request->file('foto')->store('ibu_fotos', 'public');
             }
 
-            // Jika status berubah, hapus data dari tabel terkait lama dan buat baru
             if ($ibu->status !== $data['status']) {
                 if ($ibu->ibuHamil) {
                     $ibu->ibuHamil->delete();
@@ -195,7 +198,6 @@ class IbuController extends Controller
             if ($ibu->foto) {
                 Storage::disk('public')->delete($ibu->foto);
             }
-            // Hapus data terkait di tabel ibu_hamils, ibu_nifas, dan ibu_menyusuis
             if ($ibu->ibuHamil) {
                 $ibu->ibuHamil->delete();
             }

@@ -11,6 +11,7 @@ class IbuMenyusuiController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
+        $category = $request->query('category');
         $query = IbuMenyusui::with(['ibu.kartuKeluarga', 'ibu.kecamatan', 'ibu.kelurahan']);
         
         if ($search) {
@@ -20,13 +21,17 @@ class IbuMenyusuiController extends Controller
             });
         }
 
-        $ibuMenyusuis = $query->paginate(10);
-        return view('master.ibu_menyusui.index', compact('ibuMenyusuis', 'search'));
+        if ($category) {
+            $query->where('status_menyusui', $category);
+        }
+
+        $ibuMenyusuis = $query->paginate(10)->appends(['search' => $search, 'category' => $category]);
+        return view('master.ibu_menyusui.index', compact('ibuMenyusuis', 'search', 'category'));
     }
 
     public function create()
     {
-        $ibus = Ibu::all(); // Ambil semua ibu
+        $ibus = Ibu::all();
         return view('master.ibu_menyusui.create', compact('ibus'));
     }
 
@@ -44,9 +49,7 @@ class IbuMenyusuiController extends Controller
 
         try {
             $ibu = Ibu::findOrFail($request->ibu_id);
-            // Perbarui status ibu menjadi 'Menyusui'
             $ibu->update(['status' => 'Menyusui']);
-            // Hapus data dari tabel lain jika ada
             if ($ibu->ibuHamil) {
                 $ibu->ibuHamil->delete();
             }
@@ -64,7 +67,7 @@ class IbuMenyusuiController extends Controller
     public function edit($id)
     {
         $ibuMenyusui = IbuMenyusui::with(['ibu.kartuKeluarga', 'ibu.kecamatan', 'ibu.kelurahan'])->findOrFail($id);
-        $ibus = Ibu::all(); // Ambil semua ibu
+        $ibus = Ibu::all();
         return view('master.ibu_menyusui.edit', compact('ibuMenyusui', 'ibus'));
     }
 
@@ -83,9 +86,7 @@ class IbuMenyusuiController extends Controller
         try {
             $ibuMenyusui = IbuMenyusui::findOrFail($id);
             $ibu = Ibu::findOrFail($request->ibu_id);
-            // Perbarui status ibu menjadi 'Menyusui'
             $ibu->update(['status' => 'Menyusui']);
-            // Hapus data dari tabel lain jika ada
             if ($ibu->ibuHamil) {
                 $ibu->ibuHamil->delete();
             }
@@ -106,7 +107,6 @@ class IbuMenyusuiController extends Controller
             $ibuMenyusui = IbuMenyusui::findOrFail($id);
             $ibu = $ibuMenyusui->ibu;
             $ibuMenyusui->delete();
-            // Ubah status ibu menjadi 'Tidak Aktif'
             $ibu->update(['status' => 'Tidak Aktif']);
             return redirect()->route('ibu_menyusui.index')->with('success', 'Data ibu menyusui berhasil dihapus.');
         } catch (\Exception $e) {
