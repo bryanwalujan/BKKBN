@@ -17,14 +17,13 @@ class BalitaController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil parameter pencarian dan kategori umur
         $search = $request->query('search');
         $kategoriUmur = $request->query('kategori_umur');
+        $kecamatan_id = $request->query('kecamatan_id');
+        $kelurahan_id = $request->query('kelurahan_id');
 
-        // Ambil data dengan relasi
         $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan']);
 
-        // Terapkan filter pencarian berdasarkan nama atau NIK
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', '%' . $search . '%')
@@ -32,17 +31,22 @@ class BalitaController extends Controller
             });
         }
 
-        // Ambil data
+        if ($kecamatan_id) {
+            $query->where('kecamatan_id', $kecamatan_id);
+        }
+
+        if ($kelurahan_id) {
+            $query->where('kelurahan_id', $kelurahan_id);
+        }
+
         $balitas = $query->get();
 
-        // Filter berdasarkan kategori umur
         if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
             $balitas = $balitas->filter(function ($balita) use ($kategoriUmur) {
                 return $balita->kategori_umur === $kategoriUmur;
             });
         }
 
-        // Implementasi pagination manual untuk koleksi
         $perPage = 10;
         $currentPage = $request->query('page', 1);
         $offset = ($currentPage - 1) * $perPage;
@@ -53,20 +57,18 @@ class BalitaController extends Controller
             'query' => $request->query(),
         ]);
 
-        return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search'));
+        $kecamatans = Kecamatan::all();
+
+        return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search', 'kecamatans', 'kecamatan_id', 'kelurahan_id'));
     }
 
     public function create()
     {
-        $kartuKeluargas = KartuKeluarga::where('status', 'Aktif')->get();
         $kecamatans = Kecamatan::all();
-        if ($kartuKeluargas->isEmpty()) {
-            return redirect()->route('kartu_keluarga.create')->with('error', 'Tambahkan Kartu Keluarga terlebih dahulu sebelum menambah data balita.');
-        }
         if ($kecamatans->isEmpty()) {
             return redirect()->route('balita.index')->with('error', 'Tambahkan Kecamatan terlebih dahulu sebelum menambah data balita.');
         }
-        return view('master.balita.create', compact('kartuKeluargas', 'kecamatans'));
+        return view('master.balita.create', compact('kecamatans'));
     }
 
     public function store(Request $request)
@@ -109,16 +111,12 @@ class BalitaController extends Controller
     public function edit($id)
     {
         $balita = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])->findOrFail($id);
-        $kartuKeluargas = KartuKeluarga::where('status', 'Aktif')->get();
         $kecamatans = Kecamatan::all();
         $kelurahans = $balita->kecamatan_id ? Kelurahan::where('kecamatan_id', $balita->kecamatan_id)->get() : collect([]);
-        if ($kartuKeluargas->isEmpty()) {
-            return redirect()->route('kartu_keluarga.create')->with('error', 'Tambahkan Kartu Keluarga terlebih dahulu sebelum mengedit data balita.');
-        }
         if ($kecamatans->isEmpty()) {
             return redirect()->route('balita.index')->with('error', 'Tambahkan Kecamatan terlebih dahulu sebelum mengedit data balita.');
         }
-        return view('master.balita.edit', compact('balita', 'kartuKeluargas', 'kecamatans', 'kelurahans'));
+        return view('master.balita.edit', compact('balita', 'kecamatans', 'kelurahans'));
     }
 
     public function update(Request $request, $id)

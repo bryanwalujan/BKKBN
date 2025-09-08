@@ -188,6 +188,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ibu/{id}/edit', [IbuController::class, 'edit'])->name('ibu.edit');
         Route::put('/ibu/{id}', [IbuController::class, 'update'])->name('ibu.update');
         Route::delete('/ibu/{id}', [IbuController::class, 'destroy'])->name('ibu.destroy');
+        Route::get('/kartu-keluarga/by-kecamatan-kelurahan', [App\Http\Controllers\KartuKeluargaController::class, 'getByKecamatanKelurahan'])->name('kartu_keluarga.by-kecamatan-kelurahan');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', function () {

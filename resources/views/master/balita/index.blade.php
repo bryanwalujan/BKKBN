@@ -4,6 +4,7 @@
     <title>Kelola Balita</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -20,37 +21,49 @@
             </div>
         @endif
         <div class="flex space-x-4 mb-4">
-            <a href="{{ route('balita.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Tambah Balita</a>
-            <a href="{{ route('balita.downloadTemplate') }}" class="bg-green-500 text-white px-4 py-2 rounded">Download Template Excel</a>
+            <a href="{{ route('balita.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Balita</a>
+            <a href="{{ route('balita.downloadTemplate') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Download Template Excel</a>
             <form action="{{ route('balita.import') }}" method="POST" enctype="multipart/form-data" class="flex space-x-2">
                 @csrf
                 <input type="file" name="file" accept=".xlsx,.xls" class="border-gray-300 rounded-md shadow-sm">
                 <button type="submit" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Import Excel</button>
             </form>
-            <a href="{{ route('peta_geospasial.index') }}" class="bg-purple-500 text-white px-4 py-2 rounded">Lihat Peta Geospasial</a>
+            <a href="{{ route('peta_geospasial.index') }}" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Lihat Peta Geospasial</a>
         </div>
         <div class="mb-4 flex space-x-4">
             <form action="{{ route('balita.index') }}" method="GET" class="flex space-x-2">
+                <select name="kecamatan_id" id="kecamatan_id" class="border-gray-300 rounded-md shadow-sm p-2">
+                    <option value="">Pilih Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ $kecamatan_id == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
+                    @endforeach
+                </select>
+                <select name="kelurahan_id" id="kelurahan_id" class="border-gray-300 rounded-md shadow-sm p-2">
+                    <option value="">Pilih Kelurahan</option>
+                </select>
                 <select name="kategori_umur" class="border-gray-300 rounded-md shadow-sm p-2">
                     <option value="" {{ $kategoriUmur == '' ? 'selected' : '' }}>Semua Kategori</option>
                     <option value="Baduata" {{ $kategoriUmur == 'Baduata' ? 'selected' : '' }}>Baduata (0-2 tahun)</option>
                     <option value="Balita" {{ $kategoriUmur == 'Balita' ? 'selected' : '' }}>Balita (2-5 tahun)</option>
                 </select>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
-            </form>
-            <form action="{{ route('balita.index') }}" method="GET" class="flex space-x-2">
                 <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari berdasarkan Nama atau NIK" class="border-gray-300 rounded-md shadow-sm p-2 w-64">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
-                @if ($search)
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
+                @if ($kecamatan_id || $kelurahan_id || $kategoriUmur || $search)
                     <a href="{{ route('balita.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</a>
                 @endif
             </form>
         </div>
-        @if ($kategoriUmur || $search)
+        @if ($kecamatan_id || $kelurahan_id || $kategoriUmur || $search)
             <p class="mt-2 text-sm text-gray-600">
                 Menampilkan data
+                @if ($kecamatan_id)
+                    untuk kecamatan: {{ $kecamatans->find($kecamatan_id)->nama_kecamatan ?? '-' }}
+                @endif
+                @if ($kelurahan_id)
+                    dan kelurahan: {{ \App\Models\Kelurahan::find($kelurahan_id)->nama_kelurahan ?? '-' }}
+                @endif
                 @if ($kategoriUmur)
-                    untuk kategori: {{ $kategoriUmur }}
+                    dengan kategori umur: {{ $kategoriUmur }}
                 @endif
                 @if ($search)
                     dengan pencarian: "{{ $search }}"
@@ -64,19 +77,15 @@
             <thead>
                 <tr class="bg-gray-200">
                     <th class="p-4 text-left">No</th>
-                    <th class="p-4 text-left">NIK</th>
                     <th class="p-4 text-left">Nama</th>
+                    <th class="p-4 text-left">NIK</th>
                     <th class="p-4 text-left">No KK</th>
-                    <th class="p-4 text-left">Kepala Keluarga</th>
                     <th class="p-4 text-left">Kecamatan</th>
                     <th class="p-4 text-left">Kelurahan</th>
-                    <th class="p-4 text-left">Tanggal Lahir</th>
                     <th class="p-4 text-left">Kategori Umur</th>
-                    <th class="p-4 text-left">Jenis Kelamin</th>
                     <th class="p-4 text-left">Berat/Tinggi</th>
                     <th class="p-4 text-left">Status Gizi</th>
                     <th class="p-4 text-left">Warna Label</th>
-                    <th class="p-4 text-left">Foto</th>
                     <th class="p-4 text-left">Aksi</th>
                 </tr>
             </thead>
@@ -84,38 +93,23 @@
                 @forelse ($balitas as $index => $balita)
                     <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-gray-200' }}">
                         <td class="p-4">{{ $balitas->firstItem() + $index }}</td>
-                        <td class="p-4">{{ $balita->nik ?? '-' }}</td>
                         <td class="p-4">{{ $balita->nama }}</td>
+                        <td class="p-4">{{ $balita->nik ?? '-' }}</td>
                         <td class="p-4">{{ $balita->kartuKeluarga->no_kk ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->kartuKeluarga->kepala_keluarga ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->kecamatan ? $balita->kecamatan->nama_kecamatan : '-' }}</td>
-                        <td class="p-4">{{ $balita->kelurahan ? $balita->kelurahan->nama_kelurahan : '-' }}</td>
-                        <td class="p-4">{{ $balita->tanggal_lahir ? $balita->tanggal_lahir->format('d/m/Y') : '-' }}</td>
+                        <td class="p-4">{{ $balita->kecamatan->nama_kecamatan ?? '-' }}</td>
+                        <td class="p-4">{{ $balita->kelurahan->nama_kelurahan ?? '-' }}</td>
                         <td class="p-4">{{ $balita->kategori_umur }}</td>
-                        <td class="p-4">{{ $balita->jenis_kelamin ?? '-' }}</td>
                         <td class="p-4">{{ $balita->berat_tinggi }}</td>
                         <td class="p-4">{{ $balita->status_gizi }}</td>
-                        <td class="p-4">
-                            <span class="inline-block px-2 py-1 rounded text-white
-                                {{ $balita->warna_label == 'Sehat' ? 'bg-green-500' : ($balita->warna_label == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                {{ $balita->warna_label }}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            @if ($balita->foto)
-                                <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-16 h-16 object-cover">
-                            @else
-                                <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
-                            @endif
-                        </td>
+                        <td class="p-4">{{ $balita->warna_label }}</td>
                         <td class="p-4">
                             <a href="{{ route('balita.edit', $balita->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                            <button type="button" class="text-red-500 hover:underline" onclick="showDeleteModal('{{ route('balita.destroy', $balita->id) }}', '{{ $balita->nama }}')">Hapus</button>
+                            <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('balita.destroy', $balita->id) }}', '{{ $balita->nama }}')">Hapus</button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="15" class="p-4 text-center">Tidak ada data balita yang sesuai dengan filter.</td>
+                        <td colspan="11" class="p-4 text-center">Tidak ada data balita yang sesuai dengan filter.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -141,15 +135,82 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        function showDeleteModal(url, name) {
-            document.getElementById('deleteModal').classList.remove('hidden');
-            document.getElementById('deleteName').textContent = name;
-            document.getElementById('deleteForm').action = url;
-        }
+        $(document).ready(function() {
+            // Initialize Select2
+            $('#kecamatan_id').select2({
+                placeholder: 'Pilih Kecamatan',
+                allowClear: true
+            });
 
-        document.getElementById('cancelDelete').addEventListener('click', function() {
-            document.getElementById('deleteModal').classList.add('hidden');
+            $('#kelurahan_id').select2({
+                placeholder: 'Pilih Kelurahan',
+                allowClear: true
+            });
+
+            // Load kelurahans for selected kecamatan on page load
+            var initialKecamatanId = '{{ $kecamatan_id ?? '' }}';
+            if (initialKecamatanId) {
+                $.ajax({
+                    url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', initialKecamatanId),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#kelurahan_id').empty();
+                        $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
+                        $.each(data, function(index, kelurahan) {
+                            var selected = kelurahan.id == '{{ $kelurahan_id ?? '' }}' ? 'selected' : '';
+                            $('#kelurahan_id').append('<option value="' + kelurahan.id + '" ' + selected + '>' + kelurahan.nama_kelurahan + '</option>');
+                        });
+                        $('#kelurahan_id').trigger('change');
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching kelurahans:', xhr);
+                        alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                    }
+                });
+            }
+
+            // Update kelurahans when kecamatan changes
+            $('#kecamatan_id').on('change', function() {
+                var kecamatanId = $(this).val();
+                if (kecamatanId) {
+                    $.ajax({
+                        url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', kecamatanId),
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $('#kelurahan_id').empty();
+                            $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
+                            $.each(data, function(index, kelurahan) {
+                                $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
+                            });
+                            $('#kelurahan_id').trigger('change');
+                        },
+                        error: function(xhr) {
+                            console.error('Error fetching kelurahans:', xhr);
+                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                        }
+                    });
+                } else {
+                    $('#kelurahan_id').empty();
+                    $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
+                    $('#kelurahan_id').trigger('change');
+                }
+            });
+
+            // Delete modal
+            function showDeleteModal(url, name) {
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.getElementById('deleteName').textContent = name;
+                document.getElementById('deleteForm').action = url;
+            }
+
+            document.getElementById('cancelDelete').addEventListener('click', function() {
+                document.getElementById('deleteModal').classList.add('hidden');
+            });
         });
     </script>
 </body>

@@ -3,36 +3,75 @@
 <head>
     <title>Tambah Data Stunting</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        function fetchKelurahans(kecamatanId) {
-            const kelurahanSelect = document.getElementById('kelurahan_id');
-            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
-            
-            if (!kecamatanId) {
-                console.log('Kecamatan ID kosong');
-                return;
-            }
+        $(document).ready(function() {
+            // Initialize Select2
+            $('#kecamatan_id').select2({
+                placeholder: 'Pilih Kecamatan',
+                allowClear: true
+            });
+            $('#kelurahan_id').select2({
+                placeholder: 'Pilih Kelurahan',
+                allowClear: true
+            });
+            $('#kartu_keluarga_id').select2({
+                placeholder: 'Pilih Kartu Keluarga',
+                allowClear: true
+            });
 
-            fetch('/kelurahans/by-kecamatan/' + kecamatanId)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.length === 0) {
-                        console.log('Tidak ada kelurahan ditemukan untuk kecamatan_id: ' + kecamatanId);
-                    }
-                    data.forEach(kelurahan => {
-                        kelurahanSelect.innerHTML += `<option value="${kelurahan.id}">${kelurahan.nama_kelurahan}</option>`;
+            // Fetch kelurahans when kecamatan changes
+            $('#kecamatan_id').on('change', function() {
+                var kecamatanId = $(this).val();
+                $('#kelurahan_id').empty().append('<option value="">Pilih Kelurahan</option>');
+                $('#kartu_keluarga_id').empty().append('<option value="">Pilih Kartu Keluarga</option>').trigger('change');
+
+                if (kecamatanId) {
+                    $.ajax({
+                        url: '/kelurahans/by-kecamatan/' + kecamatanId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $.each(data, function(index, kelurahan) {
+                                $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
+                            });
+                            $('#kelurahan_id').trigger('change');
+                        },
+                        error: function(xhr) {
+                            console.error('Gagal mengambil data kelurahan:', xhr);
+                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                        }
                     });
-                })
-                .catch(error => {
-                    console.error('Gagal mengambil data kelurahan:', error);
-                    kelurahanSelect.innerHTML = '<option value="">Gagal memuat kelurahan</option>';
-                });
-        }
+                }
+            });
+
+            // Fetch kartu keluarga when kelurahan changes
+            $('#kelurahan_id').on('change', function() {
+                var kecamatanId = $('#kecamatan_id').val();
+                var kelurahanId = $(this).val();
+                $('#kartu_keluarga_id').empty().append('<option value="">Pilih Kartu Keluarga</option>').trigger('change');
+
+                if (kecamatanId && kelurahanId) {
+                    $.ajax({
+                        url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + kecamatanId + '&kelurahan_id=' + kelurahanId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $.each(data, function(index, kk) {
+                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                            });
+                            $('#kartu_keluarga_id').trigger('change');
+                        },
+                        error: function(xhr) {
+                            console.error('Gagal mengambil data kartu keluarga:', xhr);
+                            alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
+                        }
+                    });
+                }
+            });
+        });
     </script>
 </head>
 <body class="bg-gray-100">
@@ -42,12 +81,30 @@
         <form action="{{ route('stunting.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
             @csrf
             <div class="mb-4">
+                <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Pilih Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
+                    @endforeach
+                </select>
+                @error('kecamatan_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
+                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Pilih Kelurahan</option>
+                </select>
+                @error('kelurahan_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                     <option value="">Pilih Kartu Keluarga</option>
-                    @foreach ($kartuKeluargas as $kk)
-                        <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
-                    @endforeach
                 </select>
                 @error('kartu_keluarga_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -95,27 +152,6 @@
                 <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
                 <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('tinggi')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required onchange="fetchKelurahans(this.value)">
-                    <option value="">Pilih Kecamatan</option>
-                    @foreach ($kecamatans as $kecamatan)
-                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
-                    @endforeach
-                </select>
-                @error('kecamatan_id')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                    <option value="">Pilih Kelurahan</option>
-                </select>
-                @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
