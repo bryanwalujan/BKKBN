@@ -148,6 +148,89 @@
                 </table>
             @endif
         </div>
+
+        <!-- Daftar Aksi Konvergensi -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-semibold mb-4">Daftar Aksi Konvergensi</h3>
+            <a href="{{ route('aksi_konvergensi.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Aksi Konvergensi</a>
+            @if ($kartuKeluarga->aksiKonvergensis->isEmpty())
+                <p class="text-gray-500">Tidak ada data aksi konvergensi terkait.</p>
+            @else
+                <table class="w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="p-4 text-left font-medium">No</th>
+                            <th class="p-4 text-left font-medium">Nama Aksi</th>
+                            <th class="p-4 text-left font-medium">Selesai</th>
+                            <th class="p-4 text-left font-medium">Tahun</th>
+                            <th class="p-4 text-left font-medium">Intervensi Sensitif</th>
+                            <th class="p-4 text-left font-medium">Intervensi Spesifik</th>
+                            <th class="p-4 text-left font-medium">Narasi</th>
+                            <th class="p-4 text-left font-medium">Pelaku</th>
+                            <th class="p-4 text-left font-medium">Waktu</th>
+                            <th class="p-4 text-left font-medium">Foto</th>
+                            <th class="p-4 text-left font-medium">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($kartuKeluarga->aksiKonvergensis as $index => $aksi)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4">{{ $index + 1 }}</td>
+                                <td class="p-4">{{ $aksi->nama_aksi }}</td>
+                                <td class="p-4">
+                                    <span class="inline-block px-2 py-1 rounded text-white {{ $aksi->selesai ? 'bg-green-500' : 'bg-red-500' }}">
+                                        {{ $aksi->selesai ? 'Selesai' : 'Belum Selesai' }}
+                                    </span>
+                                </td>
+                                <td class="p-4">{{ $aksi->tahun }}</td>
+                                <td class="p-4">
+                                    <ul class="list-disc">
+                                        <li>Ketersediaan Air Bersih dan Sanitasi: {{ $aksi->air_bersih_sanitasi ?? '-' }}</li>
+                                        <li>Ketersediaan Akses ke Layanan Kesehatan dan KB: {{ $aksi->akses_layanan_kesehatan_kb ?? '-' }}</li>
+                                        <li>Pendidikan Pengasuhan pada Orang Tua: {{ $aksi->pendidikan_pengasuhan_ortu ?? '-' }}</li>
+                                        <li>Edukasi Kesehatan Seksual dan Reproduksi serta Gizi pada Remaja: {{ $aksi->edukasi_kesehatan_remaja ?? '-' }}</li>
+                                        <li>Peningkatan Kesadaran Pengasuhan dan Gizi: {{ $aksi->kesadaran_pengasuhan_gizi ?? '-' }}</li>
+                                        <li>Peningkatan Akses Pangan Bergizi: {{ $aksi->akses_pangan_bergizi ?? '-' }}</li>
+                                    </ul>
+                                </td>
+                                <td class="p-4">
+                                    <ul class="list-disc">
+                                        <li>Pemberian Makanan pada Ibu Hamil: {{ $aksi->makanan_ibu_hamil ?? '-' }}</li>
+                                        <li>Konsumsi Tablet Tambah Darah bagi Ibu Hamil dan Remaja Putri: {{ $aksi->tablet_tambah_darah ?? '-' }}</li>
+                                        <li>Inisiasi Menyusui Dini (IMD): {{ $aksi->inisiasi_menyusui_dini ?? '-' }}</li>
+                                        <li>Pemberian ASI Eksklusif: {{ $aksi->asi_eksklusif ?? '-' }}</li>
+                                        <li>Pemberian ASI Didampingi oleh MPASI pada Usia 6-24 Bulan: {{ $aksi->asi_mpasi ?? '-' }}</li>
+                                        <li>Pemberian Imunisasi Lengkap pada Anak: {{ $aksi->imunisasi_lengkap ?? '-' }}</li>
+                                        <li>Pencegahan Infeksi: {{ $aksi->pencegahan_infeksi ?? '-' }}</li>
+                                        <li>Status Gizi Ibu: {{ $aksi->status_gizi_ibu ?? '-' }}</li>
+                                        <li>Penyakit Menular: {{ $aksi->penyakit_menular == 'ada' ? 'Ada ('.$aksi->jenis_penyakit.')' : ($aksi->penyakit_menular ?? '-') }}</li>
+                                        <li>Kesehatan Lingkungan: {{ $aksi->kesehatan_lingkungan ?? '-' }}</li>
+                                    </ul>
+                                </td>
+                                <td class="p-4">{{ Str::limit($aksi->narasi, 50) }}</td>
+                                <td class="p-4">{{ $aksi->pelaku_aksi ?? '-' }}</td>
+                                <td class="p-4">{{ $aksi->waktu_pelaksanaan ? $aksi->waktu_pelaksanaan->format('d-m-Y H:i') : '-' }}</td>
+                                <td class="p-4">
+                                    @if ($aksi->foto)
+                                        <img src="{{ Storage::url($aksi->foto) }}" alt="Foto Aksi Konvergensi" class="w-16 h-16 object-cover rounded">
+                                    @else
+                                        Tidak ada foto
+                                    @endif
+                                </td>
+                                <td class="p-4">
+                                    <a href="{{ route('aksi_konvergensi.edit', $aksi->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <form action="{{ route('aksi_konvergensi.destroy', $aksi->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Hapus data Aksi Konvergensi ini?')">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
     </div>
 </body>
 </html>

@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/aksi-konvergensi/{id}/edit', [AksiKonvergensiController::class, 'edit'])->name('aksi_konvergensi.edit');
         Route::put('/aksi-konvergensi/{id}', [AksiKonvergensiController::class, 'update'])->name('aksi_konvergensi.update');
         Route::delete('/aksi-konvergensi/{id}', [AksiKonvergensiController::class, 'destroy'])->name('aksi_konvergensi.destroy');
+        Route::get('/aksi-konvergensi/kartu-keluarga/{kartu_keluarga_id}', [AksiKonvergensiController::class, 'showByKK'])->name('aksi_konvergensi.show_by_kk');
         Route::get('/peta-geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
         Route::get('/peta-geospasial/create', [PetaGeospasialController::class, 'create'])->name('peta_geospasial.create');
         Route::post('/peta-geospasial', [PetaGeospasialController::class, 'store'])->name('peta_geospasial.store');
@@ -114,7 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pendamping-keluarga', [PendampingKeluargaController::class, 'index'])->name('pendamping_keluarga.index');
         Route::get('/pendamping-keluarga/create', [PendampingKeluargaController::class, 'create'])->name('pendamping_keluarga.create');
         Route::post('/pendamping-keluarga', [PendampingKeluargaController::class, 'store'])->name('pendamping_keluarga.store');
-        Route::get('/pendamping-keluarga/{id}/edit', [PendampingKeluargaController::class, 'edit'])->name('pendamping_keluarga.edit');
+        Route::get('/pendamping-keluarga/{id}/edit', [PendampingKeluargaController::class, 'edit'])->name('pendamping_keluarga.create');
         Route::put('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'update'])->name('pendamping_keluarga.update');
         Route::delete('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'destroy'])->name('pendamping_keluarga.destroy');
         Route::get('/carousel', [CarouselController::class, 'index'])->name('carousel.index');
@@ -190,14 +191,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/ibu/{id}', [IbuController::class, 'update'])->name('ibu.update');
         Route::delete('/ibu/{id}', [IbuController::class, 'destroy'])->name('ibu.destroy');
         Route::get('/kartu-keluarga/by-kecamatan-kelurahan', [KartuKeluargaController::class, 'getByKecamatanKelurahan'])->name('kartu_keluarga.by-kecamatan-kelurahan');
-        // Tambahkan routes ini di dalam middleware('role:master')->group(function () {
-
-Route::post('/backup', [BackupController::class, 'manualBackup'])->name('backup.manual');
-Route::post('/backup/direct', [BackupController::class, 'directBackup'])->name('backup.direct');
-Route::post('/backup/laravel', [BackupController::class, 'laravelBackup'])->name('backup.laravel');
-Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
-Route::get('/backup/debug', [BackupController::class, 'debugInfo'])->name('backup.debug');
-Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('backup.debug.html');
+        Route::post('/backup', [BackupController::class, 'manualBackup'])->name('backup.manual');
+        Route::post('/backup/direct', [BackupController::class, 'directBackup'])->name('backup.direct');
+        Route::post('/backup/laravel', [BackupController::class, 'laravelBackup'])->name('backup.laravel');
+        Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
+        Route::get('/backup/debug', [BackupController::class, 'debugInfo'])->name('backup.debug');
+        Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('backup.debug.html');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', [AuthController::class, 'dashboard'])->name('admin_kelurahan.dashboard');
