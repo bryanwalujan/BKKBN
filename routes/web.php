@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TemplateController;
@@ -26,23 +25,26 @@ use App\Http\Controllers\KartuKeluargaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\IbuController;
+use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.post');
 Route::get('/download-template', [AuthController::class, 'downloadTemplate'])->name('download.template');
+Route::get('/kelurahans/by-kecamatan/{kecamatan_id}', [KelurahanController::class, 'getByKecamatan'])->name('kelurahans.by-kecamatan');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::middleware('role:master')->group(function () {
+        Route::post('/backup', [BackupController::class, 'manualBackup'])->name('backup.manual');
+        Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
         Route::get('/verifikasi-akun', [VerificationController::class, 'index'])->name('verifikasi.index');
         Route::post('/verifikasi-akun/{id}/approve', [VerificationController::class, 'approve'])->name('verifikasi.approve');
         Route::post('/verifikasi-akun/{id}/reject', [VerificationController::class, 'reject'])->name('verifikasi.reject');
@@ -180,7 +182,6 @@ Route::middleware('auth')->group(function () {
         Route::get('balita/download-template', [BalitaController::class, 'downloadTemplate'])->name('balita.downloadTemplate');
         Route::resource('kartu_keluarga', KartuKeluargaController::class);
         Route::get('peta_geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
-        Route::get('kelurahans/by-kecamatan/{kecamatan_id}', [KelurahanController::class, 'getByKecamatan'])->name('kelurahans.by-kecamatan');
         Route::resource('stunting', StuntingController::class);
         Route::get('/ibu', [IbuController::class, 'index'])->name('ibu.index');
         Route::get('/ibu/create', [IbuController::class, 'create'])->name('ibu.create');
@@ -188,15 +189,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/ibu/{id}/edit', [IbuController::class, 'edit'])->name('ibu.edit');
         Route::put('/ibu/{id}', [IbuController::class, 'update'])->name('ibu.update');
         Route::delete('/ibu/{id}', [IbuController::class, 'destroy'])->name('ibu.destroy');
+        Route::get('/kartu-keluarga/by-kecamatan-kelurahan', [KartuKeluargaController::class, 'getByKecamatanKelurahan'])->name('kartu_keluarga.by-kecamatan-kelurahan');
+        // Tambahkan routes ini di dalam middleware('role:master')->group(function () {
+
+Route::post('/backup', [BackupController::class, 'manualBackup'])->name('backup.manual');
+Route::post('/backup/direct', [BackupController::class, 'directBackup'])->name('backup.direct');
+Route::post('/backup/laravel', [BackupController::class, 'laravelBackup'])->name('backup.laravel');
+Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
+Route::get('/backup/debug', [BackupController::class, 'debugInfo'])->name('backup.debug');
+Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('backup.debug.html');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
-        Route::get('/admin-kelurahan/dashboard', function () {
-            return view('admin_kelurahan.dashboard');
-        })->name('admin_kelurahan.dashboard');
+        Route::get('/admin-kelurahan/dashboard', [AuthController::class, 'dashboard'])->name('admin_kelurahan.dashboard');
     });
-    Route::middleware('role:perangkat_daerah')->group(function () {
-        Route::get('/perangkat-daerah/dashboard', function () {
-            return view('perangkat_daerah.dashboard');
-        })->name('perangkat_daerah.dashboard');
+    Route::middleware('role:perangkat_desa')->group(function () {
+        Route::get('/perangkat-desa/dashboard', [AuthController::class, 'dashboard'])->name('perangkat_desa.dashboard');
     });
 });

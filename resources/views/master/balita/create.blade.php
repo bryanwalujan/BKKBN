@@ -3,6 +3,7 @@
 <head>
     <title>Tambah Balita</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -16,12 +17,30 @@
         <form action="{{ route('balita.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
             @csrf
             <div class="mb-4">
+                <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <option value="">Pilih Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
+                    @endforeach
+                </select>
+                @error('kecamatan_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
+                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <option value="">Pilih Kelurahan</option>
+                </select>
+                @error('kelurahan_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kartu Keluarga</option>
-                    @foreach ($kartuKeluargas as $kk)
-                        <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
-                    @endforeach
                 </select>
                 @error('kartu_keluarga_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -55,27 +74,6 @@
                     <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                 </select>
                 @error('jenis_kelamin')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="">Pilih Kecamatan</option>
-                    @foreach ($kecamatans as $kecamatan)
-                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
-                    @endforeach
-                </select>
-                @error('kecamatan_id')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="">Pilih Kelurahan</option>
-                </select>
-                @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -141,8 +139,25 @@
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Initialize Select2
+            $('#kecamatan_id').select2({
+                placeholder: 'Pilih Kecamatan',
+                allowClear: true
+            });
+
+            $('#kelurahan_id').select2({
+                placeholder: 'Pilih Kelurahan',
+                allowClear: true
+            });
+
+            $('#kartu_keluarga_id').select2({
+                placeholder: 'Pilih Kartu Keluarga',
+                allowClear: true
+            });
+
             // Load kelurahans for old kecamatan_id on page load
             var initialKecamatanId = $('#kecamatan_id').val();
             if (initialKecamatanId) {
@@ -157,6 +172,7 @@
                             var selected = kelurahan.id == {{ old('kelurahan_id') ?? 'null' }} ? 'selected' : '';
                             $('#kelurahan_id').append('<option value="' + kelurahan.id + '" ' + selected + '>' + kelurahan.nama_kelurahan + '</option>');
                         });
+                        $('#kelurahan_id').trigger('change');
                     },
                     error: function(xhr) {
                         console.error('Error fetching kelurahans:', xhr);
@@ -165,7 +181,7 @@
                 });
             }
 
-            // Update kelurahans when kecamatan changes
+            // Update kelurahans and kartu keluarga when kecamatan changes
             $('#kecamatan_id').on('change', function() {
                 var kecamatanId = $(this).val();
                 if (kecamatanId) {
@@ -179,6 +195,7 @@
                             $.each(data, function(index, kelurahan) {
                                 $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
                             });
+                            $('#kelurahan_id').trigger('change');
                         },
                         error: function(xhr) {
                             console.error('Error fetching kelurahans:', xhr);
@@ -188,8 +205,43 @@
                 } else {
                     $('#kelurahan_id').empty();
                     $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
+                    $('#kelurahan_id').trigger('change');
                 }
+                updateKartuKeluarga();
             });
+
+            // Update kartu keluarga when kelurahan changes
+            $('#kelurahan_id').on('change', function() {
+                updateKartuKeluarga();
+            });
+
+            function updateKartuKeluarga() {
+                var kecamatanId = $('#kecamatan_id').val();
+                var kelurahanId = $('#kelurahan_id').val();
+                var url = '{{ route("kartu_keluarga.by-kecamatan-kelurahan") }}';
+                var data = {};
+                if (kecamatanId) data.kecamatan_id = kecamatanId;
+                if (kelurahanId) data.kelurahan_id = kelurahanId;
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: data,
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#kartu_keluarga_id').empty();
+                        $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
+                        $.each(data, function(index, kk) {
+                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                        });
+                        $('#kartu_keluarga_id').trigger('change');
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching kartu keluarga:', xhr);
+                        alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
+                    }
+                });
+            }
         });
     </script>
 </body>

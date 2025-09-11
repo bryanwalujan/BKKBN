@@ -3,26 +3,78 @@
 <head>
     <title>Tambah Data Ibu</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        function updateKelurahan(kecamatanId) {
-            if (!kecamatanId) {
-                document.getElementById('kelurahan_id').innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                return;
-            }
-            fetch(`/kelurahans/by-kecamatan/${kecamatanId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const kelurahanSelect = document.getElementById('kelurahan_id');
-                    kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                    data.forEach(kelurahan => {
-                        kelurahanSelect.innerHTML += `<option value="${kelurahan.id}" ${kelurahan.id == '{{ old('kelurahan_id') }}' ? 'selected' : ''}>${kelurahan.nama_kelurahan}</option>`;
+        $(document).ready(function() {
+            // Initialize Select2
+            $('#kecamatan_id').select2({
+                placeholder: '-- Pilih Kecamatan --',
+                allowClear: true
+            });
+            $('#kelurahan_id').select2({
+                placeholder: '-- Pilih Kelurahan --',
+                allowClear: true
+            });
+            $('#kartu_keluarga_id').select2({
+                placeholder: '-- Pilih Kartu Keluarga --',
+                allowClear: true
+            });
+
+            // Fetch kelurahans when kecamatan changes
+            $('#kecamatan_id').on('change', function() {
+                var kecamatanId = $(this).val();
+                $('#kelurahan_id').empty().append('<option value="">-- Pilih Kelurahan --</option>');
+                $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>').trigger('change');
+
+                if (kecamatanId) {
+                    $.ajax({
+                        url: '/kelurahans/by-kecamatan/' + kecamatanId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $.each(data, function(index, kelurahan) {
+                                $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
+                            });
+                            $('#kelurahan_id').trigger('change');
+                        },
+                        error: function(xhr) {
+                            console.error('Gagal mengambil data kelurahan:', xhr);
+                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                        }
                     });
-                })
-                .catch(error => {
-                    console.error('Error fetching kelurahans:', error);
-                    alert('Gagal memuat data kelurahan. Silakan coba lagi.');
-                });
-        }
+                }
+            });
+
+            // Fetch kartu keluarga when kelurahan changes
+            $('#kelurahan_id').on('change', function() {
+                var kecamatanId = $('#kecamatan_id').val();
+                var kelurahanId = $(this).val();
+                $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>').trigger('change');
+
+                if (kecamatanId && kelurahanId) {
+                    $.ajax({
+                        url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + kecamatanId + '&kelurahan_id=' + kelurahanId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            if (data.length === 0) {
+                                $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga. <a href="{{ route('kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
+                            }
+                            $.each(data, function(index, kk) {
+                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                            });
+                            $('#kartu_keluarga_id').trigger('change');
+                        },
+                        error: function(xhr) {
+                            console.error('Gagal mengambil data kartu keluarga:', xhr);
+                            alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
+                        }
+                    });
+                }
+            });
+        });
     </script>
 </head>
 <body class="bg-gray-100">
@@ -39,25 +91,16 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if (session('warning'))
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                {{ session('warning') }}
+            </div>
+        @endif
         <form action="{{ route('ibu.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
             @csrf
             <div class="mb-4">
-                <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                @error('nik')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                @error('nama')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
                 <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" onchange="updateKelurahan(this.value)" required>
+                <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kecamatan --</option>
                     @foreach ($kecamatans as $kecamatan)
                         <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
@@ -71,11 +114,6 @@
                 <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
                 <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kelurahan --</option>
-                    @if (old('kelurahan_id'))
-                        @foreach ($kelurahans as $kelurahan)
-                            <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id') == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
-                        @endforeach
-                    @endif
                 </select>
                 @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -83,17 +121,24 @@
             </div>
             <div class="mb-4">
                 <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
-                @if ($kartuKeluargas->isEmpty())
-                    <p class="text-red-600 text-sm">Tidak ada data Kartu Keluarga. <a href="{{ route('kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>
-                @else
-                    <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                        <option value="">-- Pilih Kartu Keluarga --</option>
-                        @foreach ($kartuKeluargas as $kk)
-                            <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
-                        @endforeach
-                    </select>
-                @endif
+                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="">-- Pilih Kartu Keluarga --</option>
+                </select>
                 @error('kartu_keluarga_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
+                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                @error('nik')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
+                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                @error('nama')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>

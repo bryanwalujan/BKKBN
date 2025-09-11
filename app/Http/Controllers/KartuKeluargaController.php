@@ -9,10 +9,39 @@ use Illuminate\Support\Facades\Log;
 
 class KartuKeluargaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kartuKeluargas = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas'])->withCount('balitas')->paginate(10);
-        return view('master.kartu_keluarga.index', compact('kartuKeluargas'));
+        $kecamatan_id = $request->query('kecamatan_id');
+        $kelurahan_id = $request->query('kelurahan_id');
+        $search = $request->query('search');
+
+        $query = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas'])->withCount('balitas');
+
+        if ($kecamatan_id) {
+            $query->where('kecamatan_id', $kecamatan_id);
+        }
+
+        if ($kelurahan_id) {
+            $query->where('kelurahan_id', $kelurahan_id);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('no_kk', 'like', '%' . $search . '%')
+                  ->orWhere('kepala_keluarga', 'like', '%' . $search . '%');
+            });
+        }
+
+        $kartuKeluargas = $query->paginate(10)->appends($request->query());
+        $kecamatans = Kecamatan::all();
+
+        return view('master.kartu_keluarga.index', compact('kartuKeluargas', 'kecamatans', 'kecamatan_id', 'kelurahan_id', 'search'));
+    }
+
+    public function show($id)
+    {
+        $kartuKeluarga = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas', 'ibu', 'remajaPutris'])->findOrFail($id);
+        return view('master.kartu_keluarga.show', compact('kartuKeluarga'));
     }
 
     public function create()
@@ -48,7 +77,7 @@ class KartuKeluargaController extends Controller
     {
         $kartuKeluarga = KartuKeluarga::findOrFail($id);
         $kecamatans = Kecamatan::all();
-        $kelurahans = Kelurahan::all();
+        $kelurahans = Kelurahan::where('kecamatan_id', $kartuKeluarga->kecamatan_id)->get();
         return view('master.kartu_keluarga.edit', compact('kartuKeluarga', 'kecamatans', 'kelurahans'));
     }
 
@@ -85,11 +114,34 @@ class KartuKeluargaController extends Controller
             if ($kartuKeluarga->ibu()->count() > 0) {
                 return redirect()->route('kartu_keluarga.index')->with('error', 'Kartu Keluarga tidak dapat dihapus karena masih memiliki data ibu terkait.');
             }
+            if ($kartuKeluarga->remajaPutris()->count() > 0) {
+                return redirect()->route('kartu_keluarga.index')->with('error', 'Kartu Keluarga tidak dapat dihapus karena masih memiliki data remaja putri terkait.');
+            }
             $kartuKeluarga->delete();
             return redirect()->route('kartu_keluarga.index')->with('success', 'Data Kartu Keluarga berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data Kartu Keluarga: ' . $e->getMessage(), ['id' => $id]);
             return redirect()->route('kartu_keluarga.index')->with('error', 'Gagal menghapus data Kartu Keluarga: ' . $e->getMessage());
         }
+    }
+
+    public function getByKecamatanKelurahan(Request $request)
+    {
+        $kecamatan_id = $request->query('kecamatan_id');
+        $kelurahan_id = $request->query('kelurahan_id');
+
+        $query = KartuKeluarga::where('status', 'Aktif');
+
+        if ($kecamatan_id) {
+            $query->where('kecamatan_id', $kecamatan_id);
+        }
+
+        if ($kelurahan_id) {
+            $query->where('kelurahan_id', $kelurahan_id);
+        }
+
+        $kartuKeluargas = $query->get(['id', 'no_kk', 'kepala_keluarga']);
+
+        return response()->json($kartuKeluargas);
     }
 }
