@@ -30,6 +30,7 @@ use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('welcome');
+Route::get('/peta', [\App\Http\Controllers\PetaGeospasialController::class, 'publicView'])->name('peta.public');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.post');

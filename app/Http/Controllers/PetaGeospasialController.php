@@ -9,6 +9,55 @@ use Illuminate\Support\Facades\Log;
 
 class PetaGeospasialController extends Controller
 {
+    public function publicView(Request $request)
+    {
+        $kecamatan_id = $request->query('kecamatan_id', '');
+        $kelurahan_id = $request->query('kelurahan_id', '');
+        $status_kesehatan = $request->query('status_kesehatan', '');
+
+        $query = KartuKeluarga::with(['balitas', 'remajaPutris', 'kecamatan', 'kelurahan'])
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude');
+
+        if ($kecamatan_id) {
+            $query->where('kecamatan_id', $kecamatan_id);
+        }
+        if ($kelurahan_id) {
+            $query->where('kelurahan_id', $kelurahan_id);
+        }
+        if ($status_kesehatan) {
+            $query->where(function ($q) use ($status_kesehatan) {
+                $q->whereHas('balitas', function ($qq) use ($status_kesehatan) {
+                    $qq->where('status_gizi', $status_kesehatan);
+                })->orWhereHas('remajaPutris', function ($qq) use ($status_kesehatan) {
+                    $qq->where('status_anemia', $status_kesehatan);
+                });
+            });
+        }
+
+        $points = $query->get()->map(function ($kk) {
+            return [
+                'id' => $kk->id,
+                'no_kk' => $kk->no_kk,
+                'kepala_keluarga' => $kk->kepala_keluarga,
+                'alamat' => $kk->alamat,
+                'latitude' => (float) $kk->latitude,
+                'longitude' => (float) $kk->longitude,
+                'kecamatan' => optional($kk->kecamatan)->nama_kecamatan,
+                'kelurahan' => optional($kk->kelurahan)->nama_kelurahan,
+                'balita_count' => $kk->balitas->count(),
+                'remaja_putri_count' => $kk->remajaPutris->count(),
+                'status' => $kk->status,
+            ];
+        })->values();
+
+        $kecamatans = Kecamatan::all();
+        $kelurahans = $kecamatan_id ? Kelurahan::where('kecamatan_id', $kecamatan_id)->get() : collect([]);
+
+        return view('public.peta_geospasial', compact(
+            'points', 'kecamatans', 'kelurahans', 'kecamatan_id', 'kelurahan_id', 'status_kesehatan'
+        ));
+    }
     public function index(Request $request)
     {
         try {
