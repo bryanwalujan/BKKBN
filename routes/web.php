@@ -26,11 +26,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\IbuController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/', [LandingController::class, 'index'])->name('welcome');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.post');
@@ -206,3 +205,4 @@ Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('
         Route::get('/perangkat-desa/dashboard', [AuthController::class, 'dashboard'])->name('perangkat_desa.dashboard');
     });
 });
+Route::get('/landing/data', [LandingController::class, 'data'])->name('landing.data');
