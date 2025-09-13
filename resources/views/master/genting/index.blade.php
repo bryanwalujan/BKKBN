@@ -18,12 +18,15 @@
             <thead>
                 <tr class="bg-gray-200">
                     <th class="p-4 text-left">No</th>
+                    <th class="p-4 text-left">Kartu Keluarga</th>
                     <th class="p-4 text-left">Dokumentasi</th>
                     <th class="p-4 text-left">Nama Kegiatan</th>
                     <th class="p-4 text-left">Tanggal</th>
                     <th class="p-4 text-left">Lokasi</th>
                     <th class="p-4 text-left">Sasaran</th>
                     <th class="p-4 text-left">Jenis Intervensi</th>
+                    <th class="p-4 text-left">Narasi</th>
+                    <th class="p-4 text-left">Pihak Ketiga</th>
                     <th class="p-4 text-left">Aksi</th>
                 </tr>
             </thead>
@@ -31,6 +34,15 @@
                 @foreach ($gentings as $index => $genting)
                     <tr>
                         <td class="p-4">{{ $index + 1 }}</td>
+                        <td class="p-4">
+                            @if ($genting->kartuKeluarga)
+                                <a href="{{ route('kartu_keluarga.show', $genting->kartuKeluarga->id) }}" class="text-blue-500 hover:underline">
+                                    {{ $genting->kartuKeluarga->no_kk }} - {{ $genting->kartuKeluarga->kepala_keluarga }}
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td class="p-4">
                             @if ($genting->dokumentasi)
                                 <img src="{{ Storage::url($genting->dokumentasi) }}" alt="Dokumentasi Kegiatan" class="w-16 h-16 object-cover rounded">
@@ -43,6 +55,44 @@
                         <td class="p-4">{{ $genting->lokasi }}</td>
                         <td class="p-4">{{ $genting->sasaran }}</td>
                         <td class="p-4">{{ $genting->jenis_intervensi }}</td>
+                        <td class="p-4">{{ $genting->narasi ? Str::limit($genting->narasi, 50) : '-' }}</td>
+                        <td class="p-4">
+                            <ul class="list-disc">
+                                @if ($genting->dunia_usaha == 'ada')
+                                    <li>Dunia Usaha: {{ $genting->dunia_usaha_frekuensi }}</li>
+                                @endif
+                                @if ($genting->pemerintah == 'ada')
+                                    <li>Pemerintah: {{ $genting->pemerintah_frekuensi }}</li>
+                                @endif
+                                @if ($genting->bumn_bumd == 'ada')
+                                    <li>BUMN dan BUMD: {{ $genting->bumn_bumd_frekuensi }}</li>
+                                @endif
+                                @if ($genting->individu_perseorangan == 'ada')
+                                    <li>Individu dan Perseorangan: {{ $genting->individu_perseorangan_frekuensi }}</li>
+                                @endif
+                                @if ($genting->lsm_komunitas == 'ada')
+                                    <li>LSM dan Komunitas: {{ $genting->lsm_komunitas_frekuensi }}</li>
+                                @endif
+                                @if ($genting->swasta == 'ada')
+                                    <li>Swasta: {{ $genting->swasta_frekuensi }}</li>
+                                @endif
+                                @if ($genting->perguruan_tinggi_akademisi == 'ada')
+                                    <li>Perguruan Tinggi dan Akademisi: {{ $genting->perguruan_tinggi_akademisi_frekuensi }}</li>
+                                @endif
+                                @if ($genting->media == 'ada')
+                                    <li>Media: {{ $genting->media_frekuensi }}</li>
+                                @endif
+                                @if ($genting->tim_pendamping_keluarga == 'ada')
+                                    <li>Tim Pendamping Keluarga: {{ $genting->tim_pendamping_keluarga_frekuensi }}</li>
+                                @endif
+                                @if ($genting->tokoh_masyarakat == 'ada')
+                                    <li>Tokoh Masyarakat: {{ $genting->tokoh_masyarakat_frekuensi }}</li>
+                                @endif
+                                @if (!$genting->dunia_usaha && !$genting->pemerintah && !$genting->bumn_bumd && !$genting->individu_perseorangan && !$genting->lsm_komunitas && !$genting->swasta && !$genting->perguruan_tinggi_akademisi && !$genting->media && !$genting->tim_pendamping_keluarga && !$genting->tokoh_masyarakat)
+                                    <li>Tidak ada pihak ketiga</li>
+                                @endif
+                            </ul>
+                        </td>
                         <td class="p-4">
                             <a href="{{ route('genting.edit', $genting->id) }}" class="text-blue-500 hover:underline">Edit</a>
                             <form action="{{ route('genting.destroy', $genting->id) }}" method="POST" class="inline">

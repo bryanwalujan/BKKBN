@@ -37,18 +37,6 @@ class AksiKonvergensi extends Model
 
     protected $casts = [
         'selesai' => 'boolean',
-        'akses_layanan_kesehatan_kb' => 'boolean',
-        'pendidikan_pengasuhan_ortu' => 'boolean',
-        'edukasi_kesehatan_remaja' => 'boolean',
-        'kesadaran_pengasuhan_gizi' => 'boolean',
-        'akses_pangan_bergizi' => 'boolean',
-        'makanan_ibu_hamil' => 'boolean',
-        'tablet_tambah_darah' => 'boolean',
-        'inisiasi_menyusui_dini' => 'boolean',
-        'asi_eksklusif' => 'boolean',
-        'asi_mpasi' => 'boolean',
-        'imunisasi_lengkap' => 'boolean',
-        'pencegahan_infeksi' => 'boolean',
         'waktu_pelaksanaan' => 'datetime',
     ];
 

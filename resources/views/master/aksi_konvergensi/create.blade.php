@@ -5,35 +5,24 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <style>
-        /* Mengatur warna teks menjadi hitam untuk semua elemen dropdown */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #000 !important; /* Warna teks hitam */
+            color: #000 !important;
         }
-        
-        /* Untuk opsi-opsi di dropdown */
         .select2-container--default .select2-results__option {
-            color: #000; /* Warna teks hitam */
+            color: #000;
         }
-        
-        /* Untuk placeholder */
         .select2-container--default .select2-selection--single .select2-selection__placeholder {
-            color: #000; /* Warna teks hitam */
+            color: #000;
         }
-        
-        /* Untuk dropdown yang sudah dipilih */
         .select2-container--default .select2-selection--single {
-            color: #000; /* Warna teks hitam */
+            color: #000;
         }
-        
-        /* Style tambahan untuk memastikan konsistensi */
         select, option {
-            color: #000 !important; /* Warna teks hitam */
+            color: #000 !important;
         }
-        
-        /* Untuk browser tertentu yang mungkin override warna */
         select option:checked,
         select option:hover {
-            color: #000 !important; /* Warna teks hitam */
+            color: #000 !important;
         }
     </style>
 </head>
@@ -295,7 +284,7 @@
                 </div>
                 <div class="mt-2" id="jenis_penyakit_container" style="display: {{ old('penyakit_menular') == 'ada' ? 'block' : 'none' }};">
                     <label for="jenis_penyakit" class="block text-sm font-medium text-gray-700">Jenis Penyakit</label>
-                    <input type="text" name="jenis_penyakit" id="jenis_penyakit" value="{{ old('jenis_penyakit') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <input type="text" name="jenis_penyakit" id="jenis_penyakit" value="{{ old('jenis_penyakit') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" {{ old('penyakit_menular') == 'ada' ? 'required' : '' }}>
                     @error('jenis_penyakit')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -422,7 +411,16 @@
 
             // Handle penyakit_menular change
             $('#penyakit_menular').on('change', function() {
-                $('#jenis_penyakit_container').css('display', this.value === 'ada' ? 'block' : 'none');
+                var jenisPenyakitContainer = $('#jenis_penyakit_container');
+                var jenisPenyakitInput = $('#jenis_penyakit');
+                if (this.value === 'ada') {
+                    jenisPenyakitContainer.css('display', 'block');
+                    jenisPenyakitInput.prop('required', true);
+                } else {
+                    jenisPenyakitContainer.css('display', 'none');
+                    jenisPenyakitInput.prop('required', false);
+                    jenisPenyakitInput.val('');
+                }
             });
         });
     </script>

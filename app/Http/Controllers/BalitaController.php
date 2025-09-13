@@ -43,7 +43,7 @@ class BalitaController extends Controller
 
         if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
             $balitas = $balitas->filter(function ($balita) use ($kategoriUmur) {
-                return $balita->kategori_umur === $kategoriUmur;
+                return $balita->kategoriUmur === $kategoriUmur;
             });
         }
 
@@ -83,6 +83,8 @@ class BalitaController extends Controller
             'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
+            'lingkar_kepala' => ['nullable', 'numeric', 'min:0'],
+            'lingkar_lengan' => ['nullable', 'numeric', 'min:0'],
             'alamat' => ['nullable', 'string', 'max:255'],
             'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
             'warna_label' => ['required', 'in:Sehat,Waspada,Bahaya'],
@@ -131,6 +133,8 @@ class BalitaController extends Controller
             'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
+            'lingkar_kepala' => ['nullable', 'numeric', 'min:0'],
+            'lingkar_lengan' => ['nullable', 'numeric', 'min:0'],
             'alamat' => ['nullable', 'string', 'max:255'],
             'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
             'warna_label' => ['required', 'in:Sehat,Waspada,Bahaya'],

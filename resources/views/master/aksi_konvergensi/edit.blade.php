@@ -5,35 +5,24 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <style>
-        /* Mengatur warna teks menjadi hitam untuk semua elemen dropdown */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #000 !important; /* Warna teks hitam */
+            color: #000 !important;
         }
-        
-        /* Untuk opsi-opsi di dropdown */
         .select2-container--default .select2-results__option {
-            color: #000; /* Warna teks hitam */
+            color: #000;
         }
-        
-        /* Untuk placeholder */
         .select2-container--default .select2-selection--single .select2-selection__placeholder {
-            color: #000; /* Warna teks hitam */
+            color: #000;
         }
-        
-        /* Untuk dropdown yang sudah dipilih */
         .select2-container--default .select2-selection--single {
-            color: #000; /* Warna teks hitam */
+            color: #000;
         }
-        
-        /* Style tambahan untuk memastikan konsistensi */
         select, option {
-            color: #000 !important; /* Warna teks hitam */
+            color: #000 !important;
         }
-        
-        /* Untuk browser tertentu yang mungkin override warna */
         select option:checked,
         select option:hover {
-            color: #000 !important; /* Warna teks hitam */
+            color: #000 !important;
         }
     </style>
 </head>
@@ -125,7 +114,7 @@
             <div class="mb-4">
                 <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
                 @if ($aksiKonvergensi->foto)
-                    <img src="{{ Storage::url($aksiKonvergensi->foto) }}" alt="Foto Aksi Konvergensi" class="w-32 h-32 object-cover rounded mb-2">
+                    <p class="text-sm text-gray-600">Foto saat ini: <a href="{{ Storage::url($aksiKonvergensi->foto) }}" target="_blank">Lihat Foto</a></p>
                 @endif
                 <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
                 @error('foto')
@@ -305,10 +294,10 @@
                 </div>
                 <div class="mt-2" id="jenis_penyakit_container" style="display: {{ old('penyakit_menular', $aksiKonvergensi->penyakit_menular) == 'ada' ? 'block' : 'none' }};">
                     <label for="jenis_penyakit" class="block text-sm font-medium text-gray-700">Jenis Penyakit</label>
-                    <input type="text" name="jenis_penyakit" id="jenis_penyakit" value="{{ old('jenis_penyakit', $aksiKonvergensi->jenis_penyakit) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <input type="text" name="jenis_penyakit" id="jenis_penyakit" value="{{ old('jenis_penyakit', $aksiKonvergensi->jenis_penyakit) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" {{ old('penyakit_menular', $aksiKonvergensi->penyakit_menular) == 'ada' ? 'required' : '' }}>
                     @error('jenis_penyakit')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @error
+                    @enderror
                 </div>
                 <div class="mt-2">
                     <label for="kesehatan_lingkungan" class="block text-sm font-medium text-gray-700">Kesehatan Lingkungan</label>
@@ -345,7 +334,7 @@
                 allowClear: true
             });
 
-            // Load initial kelurahan based on selected kecamatan
+            // Load kelurahans and kartu keluarga on page load
             var initialKecamatanId = $('#kecamatan_id').val();
             if (initialKecamatanId) {
                 $.ajax({
@@ -356,7 +345,7 @@
                         $('#kelurahan_id').empty();
                         $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
                         $.each(data, function(index, kelurahan) {
-                            var selected = kelurahan.id == '{{ old('kelurahan_id', $aksiKonvergensi->kelurahan_id) }}' ? 'selected' : '';
+                            var selected = kelurahan.id == {{ old('kelurahan_id', $aksiKonvergensi->kelurahan_id) ?? 'null' }} ? 'selected' : '';
                             $('#kelurahan_id').append('<option value="' + kelurahan.id + '" ' + selected + '>' + kelurahan.nama_kelurahan + '</option>');
                         });
                         $('#kelurahan_id').trigger('change');
@@ -368,43 +357,17 @@
                 });
             }
 
-            // Load initial kartu keluarga based on selected kelurahan
-            var initialKelurahanId = '{{ old('kelurahan_id', $aksiKonvergensi->kelurahan_id) }}';
-            if (initialKelurahanId) {
-                $.ajax({
-                    url: '{{ route("kartu_keluarga.by-kelurahan", ":kelurahan_id") }}'.replace(':kelurahan_id', initialKelurahanId),
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#kartu_keluarga_id').empty();
-                        $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
-                        $.each(data, function(index, kk) {
-                            var selected = kk.id == '{{ old('kartu_keluarga_id', $aksiKonvergensi->kartu_keluarga_id) }}' ? 'selected' : '';
-                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
-                        });
-                        $('#kartu_keluarga_id').trigger('change');
-                    },
-                    error: function(xhr) {
-                        console.error('Error fetching kartu keluarga:', xhr);
-                        alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                    }
-                });
-            }
-
-            // Handle kecamatan change
+            // Update kelurahans and kartu keluarga when kecamatan changes
             $('#kecamatan_id').on('change', function() {
                 var kecamatanId = $(this).val();
-                $('#kelurahan_id').empty();
-                $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
-                $('#kartu_keluarga_id').empty();
-                $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
-
                 if (kecamatanId) {
                     $.ajax({
                         url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', kecamatanId),
                         type: 'GET',
                         dataType: 'json',
                         success: function(data) {
+                            $('#kelurahan_id').empty();
+                            $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
                             $.each(data, function(index, kelurahan) {
                                 $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
                             });
@@ -416,39 +379,63 @@
                         }
                     });
                 } else {
+                    $('#kelurahan_id').empty();
+                    $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
                     $('#kelurahan_id').trigger('change');
                 }
+                updateKartuKeluarga();
             });
 
-            // Handle kelurahan change
+            // Update kartu keluarga when kelurahan changes
             $('#kelurahan_id').on('change', function() {
-                var kelurahanId = $(this).val();
-                $('#kartu_keluarga_id').empty();
-                $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
-
-                if (kelurahanId) {
-                    $.ajax({
-                        url: '{{ route("kartu_keluarga.by-kelurahan", ":kelurahan_id") }}'.replace(':kelurahan_id', kelurahanId),
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, kk) {
-                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
-                            });
-                            $('#kartu_keluarga_id').trigger('change');
-                        },
-                        error: function(xhr) {
-                            console.error('Error fetching kartu keluarga:', xhr);
-                            alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                        }
-                    });
-                }
+                updateKartuKeluarga();
             });
+
+            function updateKartuKeluarga() {
+                var kecamatanId = $('#kecamatan_id').val();
+                var kelurahanId = $('#kelurahan_id').val();
+                var url = '{{ route("kartu_keluarga.by-kecamatan-kelurahan") }}';
+                var data = {};
+                if (kecamatanId) data.kecamatan_id = kecamatanId;
+                if (kelurahanId) data.kelurahan_id = kelurahanId;
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: data,
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#kartu_keluarga_id').empty();
+                        $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
+                        $.each(data, function(index, kk) {
+                            var selected = kk.id == {{ old('kartu_keluarga_id', $aksiKonvergensi->kartu_keluarga_id) ?? 'null' }} ? 'selected' : '';
+                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                        });
+                        $('#kartu_keluarga_id').trigger('change');
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching kartu keluarga:', xhr);
+                        alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
+                    }
+                });
+            }
 
             // Handle penyakit_menular change
             $('#penyakit_menular').on('change', function() {
-                $('#jenis_penyakit_container').css('display', this.value === 'ada' ? 'block' : 'none');
+                var jenisPenyakitContainer = $('#jenis_penyakit_container');
+                var jenisPenyakitInput = $('#jenis_penyakit');
+                if (this.value === 'ada') {
+                    jenisPenyakitContainer.css('display', 'block');
+                    jenisPenyakitInput.prop('required', true);
+                } else {
+                    jenisPenyakitContainer.css('display', 'none');
+                    jenisPenyakitInput.prop('required', false);
+                    jenisPenyakitInput.val('');
+                }
             });
+
+            // Trigger initial state for penyakit_menular
+            $('#penyakit_menular').trigger('change');
         });
     </script>
 </body>

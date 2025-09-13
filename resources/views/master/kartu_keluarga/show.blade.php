@@ -62,7 +62,14 @@
                             <th class="p-4 text-left font-medium">No</th>
                             <th class="p-4 text-left font-medium">Nama</th>
                             <th class="p-4 text-left font-medium">NIK</th>
+                            <th class="p-4 text-left font-medium">Kecamatan</th>
+                            <th class="p-4 text-left font-medium">Kelurahan</th>
+                            <th class="p-4 text-left font-medium">Alamat</th>
                             <th class="p-4 text-left font-medium">Status</th>
+                            <th class="p-4 text-left font-medium">Status Kehamilan</th>
+                            <th class="p-4 text-left font-medium">Status Nifas</th>
+                            <th class="p-4 text-left font-medium">Status Menyusui</th>
+                            <th class="p-4 text-left font-medium">Foto</th>
                             <th class="p-4 text-left font-medium">Aksi</th>
                         </tr>
                     </thead>
@@ -72,9 +79,23 @@
                                 <td class="p-4">{{ $index + 1 }}</td>
                                 <td class="p-4">{{ $ibu->nama }}</td>
                                 <td class="p-4">{{ $ibu->nik ?? '-' }}</td>
+                                <td class="p-4">{{ $ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
+                                <td class="p-4">{{ $ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
+                                <td class="p-4">{{ $ibu->alamat ?? '-' }}</td>
                                 <td class="p-4">{{ $ibu->status }}</td>
+                                <td class="p-4">{{ $ibu->ibuHamil ? 'Hamil' : '-' }}</td>
+                                <td class="p-4">{{ $ibu->ibuNifas ? 'Nifas' : '-' }}</td>
+                                <td class="p-4">{{ $ibu->ibuMenyusui ? 'Menyusui' : '-' }}</td>
+                                <td class="p-4">
+                                    @if ($ibu->foto)
+                                        <img src="{{ Storage::url($ibu->foto) }}" alt="Foto Ibu" class="w-16 h-16 object-cover rounded">
+                                    @else
+                                        Tidak ada foto
+                                    @endif
+                                </td>
                                 <td class="p-4">
                                     <a href="{{ route('ibu.edit', $ibu->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('ibu.destroy', $ibu->id) }}', '{{ $ibu->nama }}')">Hapus</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -94,8 +115,21 @@
                         <tr class="bg-gray-200 text-gray-700">
                             <th class="p-4 text-left font-medium">No</th>
                             <th class="p-4 text-left font-medium">Nama</th>
+                            <th class="p-4 text-left font-medium">NIK</th>
                             <th class="p-4 text-left font-medium">Jenis Kelamin</th>
                             <th class="p-4 text-left font-medium">Tanggal Lahir</th>
+                            <th class="p-4 text-left font-medium">Usia</th>
+                            <th class="p-4 text-left font-medium">Kategori Umur</th>
+                            <th class="p-4 text-left font-medium">Kecamatan</th>
+                            <th class="p-4 text-left font-medium">Kelurahan</th>
+                            <th class="p-4 text-left font-medium">Berat/Tinggi</th>
+                            <th class="p-4 text-left font-medium">Lingkar Kepala</th>
+                            <th class="p-4 text-left font-medium">Lingkar Lengan</th>
+                            <th class="p-4 text-left font-medium">Alamat</th>
+                            <th class="p-4 text-left font-medium">Status Gizi</th>
+                            <th class="p-4 text-left font-medium">Warna Label</th>
+                            <th class="p-4 text-left font-medium">Status Pemantauan</th>
+                            <th class="p-4 text-left font-medium">Foto</th>
                             <th class="p-4 text-left font-medium">Aksi</th>
                         </tr>
                     </thead>
@@ -104,10 +138,30 @@
                             <tr class="border-b hover:bg-gray-50">
                                 <td class="p-4">{{ $index + 1 }}</td>
                                 <td class="p-4">{{ $balita->nama }}</td>
+                                <td class="p-4">{{ $balita->nik ?? '-' }}</td>
                                 <td class="p-4">{{ $balita->jenis_kelamin }}</td>
-                                <td class="p-4">{{ $balita->tanggal_lahir }}</td>
+                                <td class="p-4">{{ $balita->tanggal_lahir ? $balita->tanggal_lahir->format('d-m-Y') : '-' }}</td>
+                                <td class="p-4">{{ $balita->usia !== null ? $balita->usia . ' bulan' : '-' }}</td>
+                                <td class="p-4">{{ $balita->kategoriUmur }}</td>
+                                <td class="p-4">{{ $balita->kecamatan->nama_kecamatan ?? '-' }}</td>
+                                <td class="p-4">{{ $balita->kelurahan->nama_kelurahan ?? '-' }}</td>
+                                <td class="p-4">{{ $balita->berat_tinggi ?? '-' }}</td>
+                                <td class="p-4">{{ $balita->lingkar_kepala ? $balita->lingkar_kepala . ' cm' : '-' }}</td>
+                                <td class="p-4">{{ $balita->lingkar_lengan ? $balita->lingkar_lengan . ' cm' : '-' }}</td>
+                                <td class="p-4">{{ $balita->alamat ?? '-' }}</td>
+                                <td class="p-4">{{ $balita->status_gizi }}</td>
+                                <td class="p-4">{{ $balita->warna_label }}</td>
+                                <td class="p-4">{{ $balita->status_pemantauan ?? '-' }}</td>
+                                <td class="p-4">
+                                    @if ($balita->foto)
+                                        <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-16 h-16 object-cover rounded">
+                                    @else
+                                        Tidak ada foto
+                                    @endif
+                                </td>
                                 <td class="p-4">
                                     <a href="{{ route('balita.edit', $balita->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('balita.destroy', $balita->id) }}', '{{ $balita->nama }}')">Hapus</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -127,8 +181,14 @@
                         <tr class="bg-gray-200 text-gray-700">
                             <th class="p-4 text-left font-medium">No</th>
                             <th class="p-4 text-left font-medium">Nama</th>
-                            <th class="p-4 text-left font-medium">NIK</th>
-                            <th class="p-4 text-left font-medium">Tanggal Lahir</th>
+                            <th class="p-4 text-left font-medium">Sekolah</th>
+                            <th class="p-4 text-left font-medium">Kelas</th>
+                            <th class="p-4 text-left font-medium">Umur</th>
+                            <th class="p-4 text-left font-medium">Kecamatan</th>
+                            <th class="p-4 text-left font-medium">Kelurahan</th>
+                            <th class="p-4 text-left font-medium">Status Anemia</th>
+                            <th class="p-4 text-left font-medium">Konsumsi TTD</th>
+                            <th class="p-4 text-left font-medium">Foto</th>
                             <th class="p-4 text-left font-medium">Aksi</th>
                         </tr>
                     </thead>
@@ -137,10 +197,23 @@
                             <tr class="border-b hover:bg-gray-50">
                                 <td class="p-4">{{ $index + 1 }}</td>
                                 <td class="p-4">{{ $remaja->nama }}</td>
-                                <td class="p-4">{{ $remaja->nik ?? '-' }}</td>
-                                <td class="p-4">{{ $remaja->tanggal_lahir }}</td>
+                                <td class="p-4">{{ $remaja->sekolah ?? '-' }}</td>
+                                <td class="p-4">{{ $remaja->kelas ?? '-' }}</td>
+                                <td class="p-4">{{ $remaja->umur ? $remaja->umur . ' tahun' : '-' }}</td>
+                                <td class="p-4">{{ $remaja->kecamatan->nama_kecamatan ?? '-' }}</td>
+                                <td class="p-4">{{ $remaja->kelurahan->nama_kelurahan ?? '-' }}</td>
+                                <td class="p-4">{{ $remaja->status_anemia ?? '-' }}</td>
+                                <td class="p-4">{{ $remaja->konsumsi_ttd ?? '-' }}</td>
+                                <td class="p-4">
+                                    @if ($remaja->foto)
+                                        <img src="{{ Storage::url($remaja->foto) }}" alt="Foto Remaja Putri" class="w-16 h-16 object-cover rounded">
+                                    @else
+                                        Tidak ada foto
+                                    @endif
+                                </td>
                                 <td class="p-4">
                                     <a href="{{ route('remaja_putri.edit', $remaja->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('remaja_putri.destroy', $remaja->id) }}', '{{ $remaja->nama }}')">Hapus</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -222,7 +295,98 @@
                                     <form action="{{ route('aksi_konvergensi.destroy', $aksi->id) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Hapus data Aksi Konvergensi ini?')">Hapus</button>
+                                        <button type="submit" class="text-red-500 hover:underline ml-2" onclick="return confirm('Hapus data Aksi Konvergensi ini?')">Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+
+        <!-- Daftar Kegiatan Genting -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-semibold mb-4">Daftar Kegiatan Genting</h3>
+            <a href="{{ route('genting.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Kegiatan Genting</a>
+            @if ($kartuKeluarga->gentings->isEmpty())
+                <p class="text-gray-500">Tidak ada data kegiatan Genting terkait.</p>
+            @else
+                <table class="w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="p-4 text-left font-medium">No</th>
+                            <th class="p-4 text-left font-medium">Nama Kegiatan</th>
+                            <th class="p-4 text-left font-medium">Tanggal</th>
+                            <th class="p-4 text-left font-medium">Lokasi</th>
+                            <th class="p-4 text-left font-medium">Sasaran</th>
+                            <th class="p-4 text-left font-medium">Jenis Intervensi</th>
+                            <th class="p-4 text-left font-medium">Narasi</th>
+                            <th class="p-4 text-left font-medium">Pihak Ketiga</th>
+                            <th class="p-4 text-left font-medium">Dokumentasi</th>
+                            <th class="p-4 text-left font-medium">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($kartuKeluarga->gentings as $index => $genting)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4">{{ $index + 1 }}</td>
+                                <td class="p-4">{{ $genting->nama_kegiatan }}</td>
+                                <td class="p-4">{{ \Carbon\Carbon::parse($genting->tanggal)->format('d-m-Y') }}</td>
+                                <td class="p-4">{{ $genting->lokasi }}</td>
+                                <td class="p-4">{{ $genting->sasaran }}</td>
+                                <td class="p-4">{{ $genting->jenis_intervensi }}</td>
+                                <td class="p-4">{{ $genting->narasi ? Str::limit($genting->narasi, 50) : '-' }}</td>
+                                <td class="p-4">
+                                    <ul class="list-disc">
+                                        @if ($genting->dunia_usaha == 'ada')
+                                            <li>Dunia Usaha: {{ $genting->dunia_usaha_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->pemerintah == 'ada')
+                                            <li>Pemerintah: {{ $genting->pemerintah_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->bumn_bumd == 'ada')
+                                            <li>BUMN dan BUMD: {{ $genting->bumn_bumd_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->individu_perseorangan == 'ada')
+                                            <li>Individu dan Perseorangan: {{ $genting->individu_perseorangan_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->lsm_komunitas == 'ada')
+                                            <li>LSM dan Komunitas: {{ $genting->lsm_komunitas_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->swasta == 'ada')
+                                            <li>Swasta: {{ $genting->swasta_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->perguruan_tinggi_akademisi == 'ada')
+                                            <li>Perguruan Tinggi dan Akademisi: {{ $genting->perguruan_tinggi_akademisi_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->media == 'ada')
+                                            <li>Media: {{ $genting->media_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->tim_pendamping_keluarga == 'ada')
+                                            <li>Tim Pendamping Keluarga: {{ $genting->tim_pendamping_keluarga_frekuensi }}</li>
+                                        @endif
+                                        @if ($genting->tokoh_masyarakat == 'ada')
+                                            <li>Tokoh Masyarakat: {{ $genting->tokoh_masyarakat_frekuensi }}</li>
+                                        @endif
+                                        @if (!$genting->dunia_usaha && !$genting->pemerintah && !$genting->bumn_bumd && !$genting->individu_perseorangan && !$genting->lsm_komunitas && !$genting->swasta && !$genting->perguruan_tinggi_akademisi && !$genting->media && !$genting->tim_pendamping_keluarga && !$genting->tokoh_masyarakat)
+                                            <li>Tidak ada pihak ketiga</li>
+                                        @endif
+                                    </ul>
+                                </td>
+                                <td class="p-4">
+                                    @if ($genting->dokumentasi)
+                                        <img src="{{ Storage::url($genting->dokumentasi) }}" alt="Dokumentasi Kegiatan" class="w-16 h-16 object-cover rounded">
+                                    @else
+                                        Tidak ada dokumentasi
+                                    @endif
+                                </td>
+                                <td class="p-4">
+                                    <a href="{{ route('genting.edit', $genting->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <form action="{{ route('genting.destroy', $genting->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-500 hover:underline ml-2" onclick="return confirm('Hapus data kegiatan Genting ini?')">Hapus</button>
                                     </form>
                                 </td>
                             </tr>
@@ -232,5 +396,34 @@
             @endif
         </div>
     </div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 class="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
+            <p class="mb-4">Apakah Anda yakin ingin menghapus data <span id="deleteName" class="font-bold"></span>?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancelDelete" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
+                <form id="deleteForm" method="POST" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function showDeleteModal(url, name) {
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteName').textContent = name;
+            document.getElementById('deleteForm').action = url;
+        }
+
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        });
+    </script>
 </body>
 </html>

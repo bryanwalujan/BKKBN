@@ -45,4 +45,9 @@ class KartuKeluarga extends Model
     {
         return $this->hasMany(AksiKonvergensi::class);
     }
+
+    public function gentings()
+    {
+        return $this->hasMany(Genting::class);
+    }
 }

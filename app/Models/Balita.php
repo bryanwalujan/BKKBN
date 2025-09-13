@@ -19,6 +19,8 @@ class Balita extends Model
         'kecamatan_id',
         'kelurahan_id',
         'berat_tinggi',
+        'lingkar_kepala',
+        'lingkar_lengan',
         'alamat',
         'status_gizi',
         'warna_label',
@@ -33,15 +35,17 @@ class Balita extends Model
         'status_gizi' => 'string',
         'warna_label' => 'string',
         'tanggal_lahir' => 'date:Y-m-d',
+        'lingkar_kepala' => 'float',
+        'lingkar_lengan' => 'float',
     ];
 
-    // Accessor untuk menghitung usia
+    // Accessor untuk menghitung usia dalam bulan (dibulatkan)
     public function getUsiaAttribute()
     {
         if (!$this->tanggal_lahir) {
             return null;
         }
-        return Carbon::parse($this->tanggal_lahir)->age;
+        return round(Carbon::parse($this->tanggal_lahir)->diffInMonths(Carbon::now()));
     }
 
     // Accessor untuk menentukan kategori umur
@@ -50,10 +54,10 @@ class Balita extends Model
         if (!$this->tanggal_lahir) {
             return 'Tidak Diketahui';
         }
-        $usia = $this->usia;
-        if ($usia >= 0 && $usia <= 2) {
+        $usiaBulan = $this->usia;
+        if ($usiaBulan >= 0 && $usiaBulan <= 24) {
             return 'Baduata';
-        } elseif ($usia > 2 && $usia <= 6) { // Diperluas hingga 6 tahun
+        } elseif ($usiaBulan > 24 && $usiaBulan <= 60) {
             return 'Balita';
         }
         return 'Di Atas Balita';
