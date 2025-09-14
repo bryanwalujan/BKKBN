@@ -292,11 +292,7 @@
                                 </td>
                                 <td class="p-4">
                                     <a href="{{ route('aksi_konvergensi.edit', $aksi->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('aksi_konvergensi.destroy', $aksi->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2" onclick="return confirm('Hapus data Aksi Konvergensi ini?')">Hapus</button>
-                                    </form>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('aksi_konvergensi.destroy', $aksi->id) }}', '{{ $aksi->nama_aksi }}')">Hapus</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -383,11 +379,84 @@
                                 </td>
                                 <td class="p-4">
                                     <a href="{{ route('genting.edit', $genting->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('genting.destroy', $genting->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2" onclick="return confirm('Hapus data kegiatan Genting ini?')">Hapus</button>
-                                    </form>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('genting.destroy', $genting->id) }}', '{{ $genting->nama_kegiatan }}')">Hapus</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+
+        <!-- Riwayat Monitoring -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-semibold mb-4">Riwayat Monitoring</h3>
+            <a href="{{ route('data_monitoring.create') }}?kartu_keluarga_id={{ $kartuKeluarga->id }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Monitoring</a>
+            @if (empty($kartuKeluarga->dataMonitorings) || $kartuKeluarga->dataMonitorings->isEmpty())
+                <p class="text-gray-500">Tidak ada data monitoring terkait.</p>
+            @else
+                <table class="w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700">
+                            <th class="p-4 text-left font-medium">No</th>
+                            <th class="p-4 text-left font-medium">Nama</th>
+                            <th class="p-4 text-left font-medium">Target</th>
+                            <th class="p-4 text-left font-medium">Kategori</th>
+                            <th class="p-4 text-left font-medium">Perkembangan Anak</th>
+                            <th class="p-4 text-left font-medium">Kunjungan Rumah</th>
+                            <th class="p-4 text-left font-medium">Pemberian PMT</th>
+                            <th class="p-4 text-left font-medium">Hasil Audit Stunting</th>
+                            <th class="p-4 text-left font-medium">Status</th>
+                            <th class="p-4 text-left font-medium">Warna Badge</th>
+                            <th class="p-4 text-left font-medium">Tanggal Monitoring</th>
+                            <th class="p-4 text-left font-medium">Status Aktif</th>
+                            <th class="p-4 text-left font-medium">Tanggal Update</th>
+                            <th class="p-4 text-left font-medium">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($kartuKeluarga->dataMonitorings as $index => $monitoring)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4">{{ $index + 1 }}</td>
+                                <td class="p-4">{{ $monitoring->nama }}</td>
+                                <td class="p-4">{{ $monitoring->target }}</td>
+                                <td class="p-4">{{ $monitoring->kategori }}</td>
+                                <td class="p-4">{{ $monitoring->perkembangan_anak ? Str::limit($monitoring->perkembangan_anak, 50) : '-' }}</td>
+                                <td class="p-4">{{ $monitoring->kunjungan_rumah ? 'Ada (' . ($monitoring->frekuensi_kunjungan ?? '-') . ')' : 'Tidak Ada' }}</td>
+                                <td class="p-4">{{ $monitoring->pemberian_pmt ? 'Ada (' . ($monitoring->frekuensi_pmt ?? '-') . ')' : 'Tidak Ada' }}</td>
+                                <td class="p-4">{{ $monitoring->hasil_audit_stunting ? Str::limit($monitoring->hasil_audit_stunting, 50) : '-' }}</td>
+                                <td class="p-4">{{ $monitoring->status }}</td>
+                                <td class="p-4">
+                                    <span class="inline-block px-2 py-1 rounded text-white {{ $monitoring->warna_badge == 'Hijau' ? 'bg-green-500' : ($monitoring->warna_badge == 'Kuning' ? 'bg-yellow-500' : ($monitoring->warna_badge == 'Merah' ? 'bg-red-500' : 'bg-blue-500')) }}">
+                                        {{ $monitoring->warna_badge }}
+                                    </span>
+                                </td>
+                                <td class="p-4">
+                                    @if ($monitoring->tanggal_monitoring)
+                                        @if (is_string($monitoring->tanggal_monitoring))
+                                            {{ \Carbon\Carbon::parse($monitoring->tanggal_monitoring)->format('d-m-Y') }}
+                                        @else
+                                            {{ $monitoring->tanggal_monitoring->format('d-m-Y') }}
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="p-4">{{ $monitoring->status_aktif ? 'Aktif' : 'Non-Aktif' }}</td>
+                                <td class="p-4">
+                                    @if ($monitoring->tanggal_update)
+                                        @if (is_string($monitoring->tanggal_update))
+                                            {{ \Carbon\Carbon::parse($monitoring->tanggal_update)->format('d-m-Y H:i') }}
+                                        @else
+                                            {{ $monitoring->tanggal_update->format('d-m-Y H:i') }}
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="p-4">
+                                    <a href="{{ route('data_monitoring.edit', $monitoring->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('data_monitoring.destroy', $monitoring->id) }}', '{{ $monitoring->nama }}')">Hapus</button>
                                 </td>
                             </tr>
                         @endforeach

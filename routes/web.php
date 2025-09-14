@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TemplateController;
@@ -26,6 +27,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\IbuController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\AuditStuntingController;
+use App\Http\Controllers\EdukasiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -197,6 +200,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
         Route::get('/backup/debug', [BackupController::class, 'debugInfo'])->name('backup.debug');
         Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('backup.debug.html');
+        Route::get('/kartu-keluarga/{kartu_keluarga_id}/ibu-balita', [KartuKeluargaController::class, 'getIbuAndBalita'])->name('kartu_keluarga.get-ibu-balita');
+        Route::resource('audit_stunting', AuditStuntingController::class);
+        Route::resource('edukasi', EdukasiController::class);
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', [AuthController::class, 'dashboard'])->name('admin_kelurahan.dashboard');

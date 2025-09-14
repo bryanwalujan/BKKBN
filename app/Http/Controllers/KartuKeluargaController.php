@@ -144,4 +144,25 @@ class KartuKeluargaController extends Controller
 
         return response()->json($kartuKeluargas);
     }
+
+    public function getIbuAndBalita($kartu_keluarga_id)
+{
+    try {
+        $kartuKeluarga = KartuKeluarga::with(['ibu', 'balitas'])->find($kartu_keluarga_id);
+        if (!$kartuKeluarga) {
+            return response()->json(['error' => 'Kartu Keluarga tidak ditemukan'], 404);
+        }
+        return response()->json([
+            'ibus' => $kartuKeluarga->ibu->map(function ($ibu) {
+                return ['id' => $ibu->id, 'nama' => $ibu->nama];
+            })->toArray(),
+            'balitas' => $kartuKeluarga->balitas->map(function ($balita) {
+                return ['id' => $balita->id, 'nama' => $balita->nama];
+            })->toArray(),
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error fetching ibu and balita for kartu_keluarga_id: ' . $kartu_keluarga_id . ' - ' . $e->getMessage());
+        return response()->json(['error' => 'Gagal memuat data ibu dan balita'], 500);
+    }
+}
 }

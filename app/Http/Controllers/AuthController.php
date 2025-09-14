@@ -24,10 +24,12 @@ class AuthController extends Controller // Warisi Controller
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'captcha' => ['required', 'captcha'],
-        ], [
-            'captcha.captcha' => 'Kode CAPTCHA tidak valid.',
-        ]);
+            // 'captcha' => ['required', 'captcha'],
+        ]
+        // , [
+            // 'captcha.captcha' => 'Kode CAPTCHA tidak valid.',
+        // ]
+    );
 
         $credentials = $request->only('email', 'password');
 

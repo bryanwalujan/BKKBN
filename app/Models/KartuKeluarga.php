@@ -50,4 +50,9 @@ class KartuKeluarga extends Model
     {
         return $this->hasMany(Genting::class);
     }
+
+    public function dataMonitorings()
+    {
+        return $this->hasMany(DataMonitoring::class, 'kartu_keluarga_id');
+    }
 }
