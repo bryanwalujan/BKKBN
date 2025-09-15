@@ -35,6 +35,7 @@
             <div class="mb-4">
                 <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                 <select name="role" id="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Pilih Role</option>
                     @foreach ($roles as $r)
                         <option value="{{ $r }}" {{ old('role', $user->role) == $r ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $r)) }}</option>
                     @endforeach
@@ -56,15 +57,27 @@
                 @enderror
             </div>
             <div class="mb-4">
+                <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
+                <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="">Pilih Kelurahan</option>
+                    @foreach ($kelurahans as $kelurahan)
+                        <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $user->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
+                    @endforeach
+                </select>
+                @error('kelurahan_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="penanggung_jawab" class="block text-sm font-medium text-gray-700">Penanggung Jawab</label>
-                <input type="text" name="penanggung_jawab" id="penanggung_jawab" value="{{ old('penanggung_jawab', $user->penanggung_jawab) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <input type="text" name="penanggung_jawab" id="penanggung_jawab" value="{{ old('penanggung_jawab', $user->penanggung_jawab ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 @error('penanggung_jawab')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="no_telepon" class="block text-sm font-medium text-gray-700">No Telepon</label>
-                <input type="text" name="no_telepon" id="no_telepon" value="{{ old('no_telepon', $user->no_telepon) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <input type="text" name="no_telepon" id="no_telepon" value="{{ old('no_telepon', $user->no_telepon ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 @error('no_telepon')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror

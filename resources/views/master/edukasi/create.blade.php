@@ -21,57 +21,43 @@
                     @enderror
                 </div>
                 <div class="col-span-2">
-                    <label for="penyebaran_informasi_media" class="block text-sm font-medium text-gray-700">Penyebaran Informasi melalui Media</label>
-                    <textarea name="penyebaran_informasi_media" id="penyebaran_informasi_media" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('penyebaran_informasi_media') }}</textarea>
-                    @error('penyebaran_informasi_media')
+                    <label for="kategori" class="block text-sm font-medium text-gray-700">Kategori</label>
+                    <select name="kategori" id="kategori" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                        <option value="" {{ old('kategori') ? '' : 'selected' }} disabled>Pilih Kategori</option>
+                        @foreach (\App\Models\Edukasi::KATEGORI as $key => $label)
+                            <option value="{{ $key }}" {{ old('kategori') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('kategori')
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
-                <div class="col-span-2">
-                    <label for="konseling_perubahan_perilaku" class="block text-sm font-medium text-gray-700">Konseling Perubahan Perilaku Antar Pribadi</label>
-                    <textarea name="konseling_perubahan_perilaku" id="konseling_perubahan_perilaku" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('konseling_perubahan_perilaku') }}</textarea>
-                    @error('konseling_perubahan_perilaku')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="col-span-2">
-                    <label for="konseling_pengasuhan" class="block text-sm font-medium text-gray-700">Konseling Pengasuhan untuk Orang Tua</label>
-                    <textarea name="konseling_pengasuhan" id="konseling_pengasuhan" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('konseling_pengasuhan') }}</textarea>
-                    @error('konseling_pengasuhan')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="col-span-2">
-                    <label for="paud" class="block text-sm font-medium text-gray-700">PAUD (Pendidikan Anak Usia Dini)</label>
-                    <textarea name="paud" id="paud" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('paud') }}</textarea>
-                    @error('paud')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="col-span-2">
-                    <label for="konseling_kesehatan_reproduksi" class="block text-sm font-medium text-gray-700">Konseling Kesehatan Reproduksi untuk Remaja</label>
-                    <textarea name="konseling_kesehatan_reproduksi" id="konseling_kesehatan_reproduksi" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('konseling_kesehatan_reproduksi') }}</textarea>
-                    @error('konseling_kesehatan_reproduksi')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="col-span-2">
-                    <label for="ppa" class="block text-sm font-medium text-gray-700">PPA (Pemberdayaan Perempuan dan Perlindungan Anak)</label>
-                    <textarea name="ppa" id="ppa" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('ppa') }}</textarea>
-                    @error('ppa')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="col-span-2">
-                    <label for="modul_buku_saku" class="block text-sm font-medium text-gray-700">Modul dan Buku Saku Pencegahan dan Penanganan Stunting</label>
-                    <textarea name="modul_buku_saku" id="modul_buku_saku" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('modul_buku_saku') }}</textarea>
-                    @error('modul_buku_saku')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
+                <div class="col-span-2 hidden" id="additional-fields">
+                    <div class="mb-4">
+                        <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                        <textarea name="deskripsi" id="deskripsi" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('deskripsi') }}</textarea>
+                        @error('deskripsi')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="mb-4">
+                        <label for="tautan" class="block text-sm font-medium text-gray-700">Tautan Link</label>
+                        <input type="url" name="tautan" id="tautan" value="{{ old('tautan') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" placeholder="https://example.com">
+                        @error('tautan')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="mb-4">
+                        <label for="file" class="block text-sm font-medium text-gray-700">File (PDF/Word)</label>
+                        <input type="file" name="file" id="file" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" accept=".pdf,.doc,.docx">
+                        @error('file')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
                 <div>
                     <label for="gambar" class="block text-sm font-medium text-gray-700">Gambar</label>
-                    <input type="file" name="gambar" id="gambar" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <input type="file" name="gambar" id="gambar" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" accept=".jpg,.jpeg,.png">
                     @error('gambar')
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                     @enderror
@@ -90,5 +76,11 @@
             <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
         </form>
     </div>
+    <script>
+        document.getElementById('kategori').addEventListener('change', function() {
+            const additionalFields = document.getElementById('additional-fields');
+            additionalFields.classList.toggle('hidden', this.value === '');
+        });
+    </script>
 </body>
 </html>

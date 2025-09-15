@@ -55,4 +55,15 @@ class KartuKeluarga extends Model
     {
         return $this->hasMany(DataMonitoring::class, 'kartu_keluarga_id');
     }
+
+    public function pendampingKeluargas()
+    {
+        return $this->belongsToMany(PendampingKeluarga::class, 'kartu_keluarga_pendamping')
+                    ->withTimestamps();
+    }
+
+    public function laporan()
+    {
+        return $this->hasMany(LaporanPendamping::class);
+    }
 }

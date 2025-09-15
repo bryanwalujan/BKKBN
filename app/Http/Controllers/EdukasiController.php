@@ -23,19 +23,20 @@ class EdukasiController extends Controller
     {
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
-            'penyebaran_informasi_media' => ['nullable', 'string'],
-            'konseling_perubahan_perilaku' => ['nullable', 'string'],
-            'konseling_pengasuhan' => ['nullable', 'string'],
-            'paud' => ['nullable', 'string'],
-            'konseling_kesehatan_reproduksi' => ['nullable', 'string'],
-            'ppa' => ['nullable', 'string'],
-            'modul_buku_saku' => ['nullable', 'string'],
+            'kategori' => ['required', 'in:' . implode(',', array_keys(\App\Models\Edukasi::KATEGORI))],
+            'deskripsi' => ['nullable', 'string'],
+            'tautan' => ['nullable', 'url'],
+            'file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'], // Maks 5MB
             'gambar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'status_aktif' => ['required', 'boolean'],
         ]);
 
         if ($request->hasFile('gambar')) {
             $validated['gambar'] = $request->file('gambar')->store('edukasi', 'public');
+        }
+
+        if ($request->hasFile('file')) {
+            $validated['file'] = $request->file('file')->store('edukasi_files', 'public');
         }
 
         Edukasi::create($validated);
@@ -52,13 +53,10 @@ class EdukasiController extends Controller
     {
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
-            'penyebaran_informasi_media' => ['nullable', 'string'],
-            'konseling_perubahan_perilaku' => ['nullable', 'string'],
-            'konseling_pengasuhan' => ['nullable', 'string'],
-            'paud' => ['nullable', 'string'],
-            'konseling_kesehatan_reproduksi' => ['nullable', 'string'],
-            'ppa' => ['nullable', 'string'],
-            'modul_buku_saku' => ['nullable', 'string'],
+            'kategori' => ['required', 'in:' . implode(',', array_keys(\App\Models\Edukasi::KATEGORI))],
+            'deskripsi' => ['nullable', 'string'],
+            'tautan' => ['nullable', 'url'],
+            'file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
             'gambar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'status_aktif' => ['required', 'boolean'],
         ]);
@@ -72,6 +70,15 @@ class EdukasiController extends Controller
             $validated['gambar'] = $edukasi->gambar;
         }
 
+        if ($request->hasFile('file')) {
+            if ($edukasi->file) {
+                Storage::disk('public')->delete($edukasi->file);
+            }
+            $validated['file'] = $request->file('file')->store('edukasi_files', 'public');
+        } else {
+            $validated['file'] = $edukasi->file;
+        }
+
         $edukasi->update($validated);
 
         return redirect()->route('edukasi.index')->with('success', 'Data edukasi berhasil diperbarui.');
@@ -82,6 +89,9 @@ class EdukasiController extends Controller
         if ($edukasi->gambar) {
             Storage::disk('public')->delete($edukasi->gambar);
         }
+        if ($edukasi->file) {
+            Storage::disk('public')->delete($edukasi->file);
+        }
         $edukasi->delete();
 
         return redirect()->route('edukasi.index')->with('success', 'Data edukasi berhasil dihapus.');
@@ -91,6 +101,7 @@ class EdukasiController extends Controller
     {
         Edukasi::truncate();
         Storage::disk('public')->deleteDirectory('edukasi');
+        Storage::disk('public')->deleteDirectory('edukasi_files');
         return redirect()->route('edukasi.index')->with('success', 'Data edukasi telah di-refresh.');
     }
 }

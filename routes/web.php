@@ -203,6 +203,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/kartu-keluarga/{kartu_keluarga_id}/ibu-balita', [KartuKeluargaController::class, 'getIbuAndBalita'])->name('kartu_keluarga.get-ibu-balita');
         Route::resource('audit_stunting', AuditStuntingController::class);
         Route::resource('edukasi', EdukasiController::class);
+        Route::resource('pendamping_keluarga', PendampingKeluargaController::class);
+        Route::post('/pendamping-keluarga/{pendamping}/laporan', [PendampingKeluargaController::class, 'storeLaporan'])->name('pendamping_keluarga.storeLaporan');
+        Route::get('/pendamping-keluarga/by-kecamatan-kelurahan', [PendampingKeluargaController::class, 'getByKecamatanKelurahan'])->name('pendamping_keluarga.by-kecamatan-kelurahan');
+        Route::get('/pendamping-keluarga/kelurahans/{kecamatan_id}', [PendampingKeluargaController::class, 'getKelurahans'])->name('pendamping_keluarga.kelurahans');
     });
     Route::middleware('role:admin_kelurahan')->group(function () {
         Route::get('/admin-kelurahan/dashboard', [AuthController::class, 'dashboard'])->name('admin_kelurahan.dashboard');

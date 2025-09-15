@@ -32,6 +32,12 @@
                         <option value="{{ $kecamatan->id }}" {{ $kecamatan_id == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
                     @endforeach
                 </select>
+                <select name="kelurahan_id" class="border-gray-300 rounded-md shadow-sm">
+                    <option value="">Semua Kelurahan</option>
+                    @foreach ($kelurahans as $kelurahan)
+                        <option value="{{ $kelurahan->id }}" {{ $kelurahan_id == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
+                    @endforeach
+                </select>
                 <button type="submit" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Filter</button>
             </form>
         </div>
@@ -43,6 +49,7 @@
                     <th class="p-4 text-left">Email</th>
                     <th class="p-4 text-left">Role</th>
                     <th class="p-4 text-left">Kecamatan</th>
+                    <th class="p-4 text-left">Kelurahan</th>
                     <th class="p-4 text-left">Penanggung Jawab</th>
                     <th class="p-4 text-left">No Telepon</th>
                     <th class="p-4 text-left">Pas Foto</th>
@@ -57,6 +64,7 @@
                         <td class="p-4">{{ $user->email }}</td>
                         <td class="p-4">{{ ucfirst(str_replace('_', ' ', $user->role)) }}</td>
                         <td class="p-4">{{ $user->kecamatan_nama ?? '-' }}</td>
+                        <td class="p-4">{{ $user->kelurahan_nama ?? '-' }}</td>
                         <td class="p-4">{{ $user->penanggung_jawab ?? '-' }}</td>
                         <td class="p-4">{{ $user->no_telepon ?? '-' }}</td>
                         <td class="p-4">
@@ -81,7 +89,7 @@
             </tbody>
         </table>
         <div class="mt-4">
-            {{ $users->appends(['role' => $role, 'kecamatan_id' => $kecamatan_id])->links() }}
+            {{ $users->appends(['role' => $role, 'kecamatan_id' => $kecamatan_id, 'kelurahan_id' => $kelurahan_id])->links() }}
         </div>
     </div>
 </body>

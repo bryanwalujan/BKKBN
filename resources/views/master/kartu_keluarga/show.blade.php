@@ -50,6 +50,83 @@
             </table>
         </div>
 
+        <!-- Detail Pendamping Keluarga -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-semibold mb-4">Detail Pendamping Keluarga</h3>
+            @if ($kartuKeluarga->pendampingKeluargas->isEmpty())
+                <p class="text-gray-500">Tidak ada data pendamping keluarga terkait.</p>
+            @else
+                @foreach ($kartuKeluarga->pendampingKeluargas as $index => $pendamping)
+                    <div class="mb-6 p-4 bg-gray-50 rounded">
+                        <h4 class="text-lg font-medium mb-2">Pendamping {{ $index + 1 }}: {{ $pendamping->nama }}</h4>
+                        <table class="w-full">
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Nama</td>
+                                <td class="p-2">{{ $pendamping->nama }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Peran</td>
+                                <td class="p-2">{{ $pendamping->peran }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Kecamatan</td>
+                                <td class="p-2">{{ $pendamping->kecamatan->nama_kecamatan ?? '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Kelurahan</td>
+                                <td class="p-2">{{ $pendamping->kelurahan->nama_kelurahan ?? '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Status</td>
+                                <td class="p-2">{{ $pendamping->status }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Tahun Bergabung</td>
+                                <td class="p-2">{{ $pendamping->tahun_bergabung }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Penyuluhan dan Edukasi</td>
+                                <td class="p-2">{{ $pendamping->penyuluhan ? ($pendamping->penyuluhan_frekuensi ?? '-') : '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Memfasilitasi Pelayanan Rujukan</td>
+                                <td class="p-2">{{ $pendamping->rujukan ? ($pendamping->rujukan_frekuensi ?? '-') : '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Kunjungan Keluarga Berisiko Stunting (KRS)</td>
+                                <td class="p-2">{{ $pendamping->kunjungan_krs ? ($pendamping->kunjungan_krs_frekuensi ?? '-') : '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Pendataan dan Rekomendasi Bantuan Sosial</td>
+                                <td class="p-2">{{ $pendamping->pendataan_bansos ? ($pendamping->pendataan_bansos_frekuensi ?? '-') : '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Pemantauan Kesehatan dan Perkembangan Keluarga</td>
+                                <td class="p-2">{{ $pendamping->pemantauan_kesehatan ? ($pendamping->pemantauan_kesehatan_frekuensi ?? '-') : '-' }}</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-medium">Foto</td>
+                                <td class="p-2">
+                                    @if ($pendamping->foto)
+                                        <img src="{{ Storage::url($pendamping->foto) }}" alt="Foto Pendamping" class="w-24 h-24 object-cover rounded">
+                                    @else
+                                        Tidak ada foto
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-medium">Aksi</td>
+                                <td class="p-2">
+                                    <a href="{{ route('pendamping_keluarga.edit', $pendamping->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                    <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('pendamping_keluarga.destroy', $pendamping->id) }}', '{{ $pendamping->nama }}')">Hapus</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                @endforeach
+            @endif
+        </div>
+
         <!-- Daftar Ibu -->
         <div class="bg-white p-6 rounded shadow mb-6">
             <h3 class="text-xl font-semibold mb-4">Daftar Ibu</h3>

@@ -16,15 +16,17 @@
         @endif
         <div class="flex space-x-4 mb-4">
             <a href="{{ route('edukasi.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Edukasi</a>
-                @csrf
-               
-            </form>
         </div>
         <div class="bg-white p-6 rounded shadow">
             <table class="min-w-full bg-white">
                 <thead>
                     <tr>
                         <th class="py-2 px-4 border-b">Judul</th>
+                        <th class="py-2 px-4 border-b">Kategori</th>
+                        <th class="py-2 px-4 border-b">Deskripsi</th>
+                        <th class="py-2 px-4 border-b">Tautan</th>
+                        <th class="py-2 px-4 border-b">File</th>
+                        <th class="py-2 px-4 border-b">Gambar</th>
                         <th class="py-2 px-4 border-b">Status Aktif</th>
                         <th class="py-2 px-4 border-b">Aksi</th>
                     </tr>
@@ -33,6 +35,29 @@
                     @foreach ($edukasis as $edukasi)
                         <tr>
                             <td class="py-2 px-4 border-b">{{ $edukasi->judul }}</td>
+                            <td class="py-2 px-4 border-b">{{ \App\Models\Edukasi::KATEGORI[$edukasi->kategori] ?? '-' }}</td>
+                            <td class="py-2 px-4 border-b">{{ $edukasi->deskripsi ? Str::limit($edukasi->deskripsi, 50) : '-' }}</td>
+                            <td class="py-2 px-4 border-b">
+                                @if ($edukasi->tautan)
+                                    <a href="{{ $edukasi->tautan }}" target="_blank" class="text-blue-500 hover:underline">Lihat Tautan</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="py-2 px-4 border-b">
+                                @if ($edukasi->file)
+                                    <a href="{{ Storage::url($edukasi->file) }}" target="_blank" class="text-blue-500 hover:underline">Lihat File</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="py-2 px-4 border-b">
+                                @if ($edukasi->gambar)
+                                    <img src="{{ Storage::url($edukasi->gambar) }}" alt="Gambar Edukasi" class="w-16 h-16 object-cover rounded">
+                                @else
+                                    Tidak ada gambar
+                                @endif
+                            </td>
                             <td class="py-2 px-4 border-b">{{ $edukasi->status_aktif ? 'Aktif' : 'Non-Aktif' }}</td>
                             <td class="py-2 px-4 border-b">
                                 <a href="{{ route('edukasi.edit', $edukasi->id) }}" class="text-blue-500 hover:underline">Edit</a>
