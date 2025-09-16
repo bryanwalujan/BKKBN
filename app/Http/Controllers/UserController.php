@@ -32,16 +32,20 @@ class UserController extends Controller
         $kecamatans = Kecamatan::all();
         $kelurahans = Kelurahan::all();
 
+         // Log untuk debugging path pas_foto
+        foreach ($users as $user) {
+            if ($user->pas_foto && !Storage::disk('public')->exists($user->pas_foto)) {
+                Log::warning('Pas foto tidak ditemukan di storage: ' . $user->pas_foto, [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+            }
+        }
+
         return view('master.users.index', compact('users', 'roles', 'role', 'kecamatan_id', 'kelurahan_id', 'kecamatans', 'kelurahans'));
     }
 
-    public function create()
-    {
-        $roles = ['master', 'admin_kecamatan', 'admin_kelurahan', 'perangkat_daerah'];
-        $kecamatans = Kecamatan::all();
-        $kelurahans = Kelurahan::all();
-        return view('master.users.create', compact('roles', 'kecamatans', 'kelurahans'));
-    }
+
 
     public function store(Request $request)
     {

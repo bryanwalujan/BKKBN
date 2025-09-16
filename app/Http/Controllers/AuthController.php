@@ -166,9 +166,9 @@ class AuthController extends Controller
         if ($user->isMaster()) {
             return view('master.dashboard');
         } elseif ($user->isAdminKecamatan()) {
-            return view('admin_kecamatan.dashboard');
+            return view('kecamatan.dashboard');
         } elseif ($user->isAdminKelurahan()) {
-            return view('admin_kelurahan.dashboard');
+            return view('kelurahan.dashboard');
         } else {
             return view('perangkat_daerah.dashboard');
         }

@@ -30,6 +30,8 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\AuditStuntingController;
 use App\Http\Controllers\EdukasiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KecamatanBalitaController;
+use App\Http\Controllers\KelurahanBalitaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -208,10 +210,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/pendamping-keluarga/by-kecamatan-kelurahan', [PendampingKeluargaController::class, 'getByKecamatanKelurahan'])->name('pendamping_keluarga.by-kecamatan-kelurahan');
         Route::get('/pendamping-keluarga/kelurahans/{kecamatan_id}', [PendampingKeluargaController::class, 'getKelurahans'])->name('pendamping_keluarga.kelurahans');
     });
+     // Routes untuk Admin Kelurahan
     Route::middleware('role:admin_kelurahan')->group(function () {
-        Route::get('/admin-kelurahan/dashboard', [AuthController::class, 'dashboard'])->name('admin_kelurahan.dashboard');
+       Route::get('/kelurahan/balita', [KelurahanBalitaController::class, 'index'])->name('kelurahan.balita.index');
+        Route::get('/kelurahan/balita/create', [KelurahanBalitaController::class, 'create'])->name('kelurahan.balita.create');
+        Route::post('/kelurahan/balita', [KelurahanBalitaController::class, 'store'])->name('kelurahan.balita.store');
+        Route::get('/kelurahan/balita/{id}/edit/{source?}', [KelurahanBalitaController::class, 'edit'])->name('kelurahan.balita.edit');
+        Route::put('/kelurahan/balita/{id}/{source?}', [KelurahanBalitaController::class, 'update'])->name('kelurahan.balita.update');
+        Route::delete('/kelurahan/balita/{id}', [KelurahanBalitaController::class, 'destroy'])->name('kelurahan.balita.destroy');
     });
-    Route::middleware('role:perangkat_desa')->group(function () {
-        Route::get('/perangkat-desa/dashboard', [AuthController::class, 'dashboard'])->name('perangkat_desa.dashboard');
+
+    // Routes untuk Admin Kecamatan
+    Route::middleware('role:admin_kecamatan')->group(function () {
+       Route::get('/kecamatan/balita', [KecamatanBalitaController::class, 'index'])->name('kecamatan.balita.index');
+        Route::post('/kecamatan/balita/{id}/approve', [KecamatanBalitaController::class, 'approve'])->name('kecamatan.balita.approve');
+        Route::post('/kecamatan/balita/{id}/reject', [KecamatanBalitaController::class, 'reject'])->name('kecamatan.balita.reject');
     });
 });

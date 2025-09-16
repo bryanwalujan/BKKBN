@@ -3,6 +3,58 @@
 <head>
     <title>Kelola Pengguna</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #ccc;
+        }
+        
+        .photo-thumbnail {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .photo-thumbnail:hover {
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -63,15 +115,19 @@
                         <td class="p-4">{{ $user->name }}</td>
                         <td class="p-4">{{ $user->email }}</td>
                         <td class="p-4">{{ ucfirst(str_replace('_', ' ', $user->role)) }}</td>
-                        <td class="p-4">{{ $user->kecamatan_nama ?? '-' }}</td>
-                        <td class="p-4">{{ $user->kelurahan_nama ?? '-' }}</td>
+                        <td class="p-4">{{ $user->kecamatan->nama_kecamatan ?? '-' }}</td>
+                        <td class="p-4">{{ $user->kelurahan->nama_kelurahan ?? '-' }}</td>
                         <td class="p-4">{{ $user->penanggung_jawab ?? '-' }}</td>
                         <td class="p-4">{{ $user->no_telepon ?? '-' }}</td>
                         <td class="p-4">
-                            @if ($user->pas_foto)
-                                <img src="{{ Storage::url('pas_foto/' . $user->pas_foto) }}" alt="Pas Foto" class="w-16 h-16 object-cover">
+                            @if ($user->pas_foto && Storage::disk('public')->exists($user->pas_foto))
+                                <img src="{{ Storage::url($user->pas_foto) }}" 
+                                     alt="Pas Foto {{ $user->name }}" 
+                                     class="w-16 h-16 object-cover photo-thumbnail rounded-lg shadow-sm border border-gray-200"
+                                     onclick="openModal('{{ Storage::url($user->pas_foto) }}', '{{ $user->name }}')"
+                                     title="Klik untuk melihat foto lebih besar">
                             @else
-                                -
+                                <span class="text-red-500">Foto tidak ditemukan</span>
                             @endif
                         </td>
                         <td class="p-4">
@@ -80,7 +136,7 @@
                                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Hapus akun ini?')">Hapus</button>
+                                    <button type="submit" class="text-red-500 hover:underline ml-2" onclick="return confirm('Hapus akun ini?')">Hapus</button>
                                 </form>
                             @endif
                         </td>
@@ -92,5 +148,50 @@
             {{ $users->appends(['role' => $role, 'kecamatan_id' => $kecamatan_id, 'kelurahan_id' => $kelurahan_id])->links() }}
         </div>
     </div>
+
+    <!-- Modal untuk menampilkan foto besar -->
+    <div id="photoModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image" src="" alt="">
+        </div>
+    </div>
+
+    <script>
+        function openModal(imageSrc, userName) {
+            const modal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            modal.style.display = 'block';
+            modalImage.src = imageSrc;
+            modalImage.alt = 'Pas Foto ' + userName;
+            
+            // Prevent scrolling when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'none';
+            
+            // Restore scrolling when modal is closed
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById('photoModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>
