@@ -39,6 +39,8 @@ class LandingController extends Controller
         $services = LayananKami::where('status_aktif', true)->orderBy('urutan')->get();
         $publications = Publikasi::where('status_aktif', true)->orderBy('urutan')->get();
         $stats = DataRiset::orderBy('updated_at', 'desc')->get();
+        $about = TentangKami::first();
+        $gallery = GaleriProgram::where('status_aktif', true)->orderBy('urutan')->get();
 
         // Aggregate only the requested public metrics
         $entityCounts = [
@@ -56,7 +58,12 @@ class LandingController extends Controller
             'carousels' => $carousels,
             'services' => $services,
             'publications' => $publications,
+            // keep original key for backwards-compat if used elsewhere
             'stats' => $stats,
+            // explicit keys for redesigned public landing sections
+            'data_riset' => $stats,
+            'tentang_kami' => $about,
+            'galeri_program' => $gallery,
             'entity_counts' => $entityCounts,
         ]);
     }

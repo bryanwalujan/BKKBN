@@ -9,3 +9,69 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Motion tokens */
+:root {
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --dur-fast: 200ms;
+    --dur-med: 350ms;
+    --dur-slow: 700ms;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Mobile menu slide animation controlled by [data-open] */
+#mobile-menu {
+    transition: max-height var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+#mobile-menu[data-open="true"] {
+    max-height: 420px;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+#mobile-menu:not([data-open="true"]) {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+}
+
+/* Reveal on scroll utility */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+}
+.reveal-on-scroll.in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Manual stagger fade-up for programmatic triggers (hero text) */
+.fade-up {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+}
+.fade-up.in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Pulse update for numbers after refresh/count */
+@keyframes pulseHighlight {
+    0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.35); }
+    100% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+}
+.pulse-update {
+    animation: pulseHighlight 700ms var(--ease-out) 1;
+}
