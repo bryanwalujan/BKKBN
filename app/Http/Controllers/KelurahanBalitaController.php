@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PendingBalita;
 use App\Models\Balita;
 use App\Models\KartuKeluarga;
+use App\Models\PendingKartuKeluarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -99,7 +100,26 @@ class KelurahanBalitaController extends Controller
             return redirect()->route('kelurahan.balita.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
-        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->get();
+        // Ambil kartu keluarga dari kartu_keluargas dan pending_kartu_keluargas
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                $kk->source = 'verified';
+                return $kk;
+            });
+
+        $pendingKartuKeluargas = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->where('status_verifikasi', 'pending')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                $kk->source = 'pending';
+                return $kk;
+            });
+
+        $kartuKeluargas = $kartuKeluargas->merge($pendingKartuKeluargas);
+
         return view('kelurahan.balita.create', compact('kartuKeluargas'));
     }
 
@@ -162,7 +182,26 @@ class KelurahanBalitaController extends Controller
             $balita = PendingBalita::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
         }
 
-        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->get();
+        // Ambil kartu keluarga dari kartu_keluargas dan pending_kartu_keluargas
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                $kk->source = 'verified';
+                return $kk;
+            });
+
+        $pendingKartuKeluargas = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->where('status_verifikasi', 'pending')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                $kk->source = 'pending';
+                return $kk;
+            });
+
+        $kartuKeluargas = $kartuKeluargas->merge($pendingKartuKeluargas);
+
         $beratTinggi = explode('/', $balita->berat_tinggi ?? '0/0');
         $balita->tanggal_lahir = $balita->tanggal_lahir instanceof \Carbon\Carbon 
             ? $balita->tanggal_lahir->format('Y-m-d') 
@@ -277,5 +316,44 @@ class KelurahanBalitaController extends Controller
             Log::error('Gagal menghapus data balita: ' . $e->getMessage(), ['id' => $id]);
             return redirect()->route('kelurahan.balita.index')->with('error', 'Gagal menghapus data balita: ' . $e->getMessage());
         }
+    }
+
+    public function getKartuKeluarga(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->kelurahan_id) {
+            return response()->json(['error' => 'Admin kelurahan tidak terkait dengan kelurahan.'], 403);
+        }
+
+        // Ambil kartu keluarga dari kartu_keluargas
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                return [
+                    'id' => $kk->id,
+                    'no_kk' => $kk->no_kk,
+                    'kepala_keluarga' => $kk->kepala_keluarga,
+                    'source' => 'verified',
+                ];
+            });
+
+        // Ambil kartu keluarga dari pending_kartu_keluargas
+        $pendingKartuKeluargas = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->where('status_verifikasi', 'pending')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                return [
+                    'id' => $kk->id,
+                    'no_kk' => $kk->no_kk,
+                    'kepala_keluarga' => $kk->kepala_keluarga,
+                    'source' => 'pending',
+                ];
+            });
+
+        $kartuKeluargas = $kartuKeluargas->merge($pendingKartuKeluargas);
+
+        return response()->json($kartuKeluargas);
     }
 }

@@ -32,6 +32,9 @@ use App\Http\Controllers\EdukasiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KecamatanBalitaController;
 use App\Http\Controllers\KelurahanBalitaController;
+use App\Http\Controllers\KelurahanKartuKeluargaController;
+use App\Http\Controllers\KelurahanIbuController;
+use App\Http\Controllers\KelurahanIbuHamilController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -210,15 +213,43 @@ Route::middleware('auth')->group(function () {
         Route::get('/pendamping-keluarga/by-kecamatan-kelurahan', [PendampingKeluargaController::class, 'getByKecamatanKelurahan'])->name('pendamping_keluarga.by-kecamatan-kelurahan');
         Route::get('/pendamping-keluarga/kelurahans/{kecamatan_id}', [PendampingKeluargaController::class, 'getKelurahans'])->name('pendamping_keluarga.kelurahans');
     });
-     // Routes untuk Admin Kelurahan
-    Route::middleware('role:admin_kelurahan')->group(function () {
-       Route::get('/kelurahan/balita', [KelurahanBalitaController::class, 'index'])->name('kelurahan.balita.index');
-        Route::get('/kelurahan/balita/create', [KelurahanBalitaController::class, 'create'])->name('kelurahan.balita.create');
-        Route::post('/kelurahan/balita', [KelurahanBalitaController::class, 'store'])->name('kelurahan.balita.store');
-        Route::get('/kelurahan/balita/{id}/edit/{source?}', [KelurahanBalitaController::class, 'edit'])->name('kelurahan.balita.edit');
-        Route::put('/kelurahan/balita/{id}/{source?}', [KelurahanBalitaController::class, 'update'])->name('kelurahan.balita.update');
-        Route::delete('/kelurahan/balita/{id}', [KelurahanBalitaController::class, 'destroy'])->name('kelurahan.balita.destroy');
-    });
+    // Rute untuk Admin Kelurahan mengelola Balita
+Route::prefix('kelurahan/balita')->middleware(['auth', 'role:admin_kelurahan'])->group(function () {
+    Route::get('/', [KelurahanBalitaController::class, 'index'])->name('kelurahan.balita.index');
+    Route::get('/create', [KelurahanBalitaController::class, 'create'])->name('kelurahan.balita.create');
+    Route::post('/', [KelurahanBalitaController::class, 'store'])->name('kelurahan.balita.store');
+    Route::get('/{id}/edit/{source?}', [KelurahanBalitaController::class, 'edit'])->name('kelurahan.balita.edit');
+    Route::put('/{id}/{source?}', [KelurahanBalitaController::class, 'update'])->name('kelurahan.balita.update');
+    Route::delete('/{id}', [KelurahanBalitaController::class, 'destroy'])->name('kelurahan.balita.destroy');
+    Route::get('/kartu-keluarga', [KelurahanBalitaController::class, 'getKartuKeluarga'])->name('kelurahan.balita.getKartuKeluarga');
+});
+
+// Rute untuk Admin Kelurahan mengelola Kartu Keluarga
+Route::prefix('kelurahan/kartu_keluarga')->middleware(['auth', 'role:admin_kelurahan'])->group(function () {
+    Route::get('/', [KelurahanKartuKeluargaController::class, 'index'])->name('kelurahan.kartu_keluarga.index');
+    Route::get('/create', [KelurahanKartuKeluargaController::class, 'create'])->name('kelurahan.kartu_keluarga.create');
+    Route::post('/', [KelurahanKartuKeluargaController::class, 'store'])->name('kelurahan.kartu_keluarga.store');
+    Route::get('/{id}/edit/{source?}', [KelurahanKartuKeluargaController::class, 'edit'])->name('kelurahan.kartu_keluarga.edit');
+    Route::put('/{id}/{source?}', [KelurahanKartuKeluargaController::class, 'update'])->name('kelurahan.kartu_keluarga.update');
+    Route::delete('/{id}', [KelurahanKartuKeluargaController::class, 'destroy'])->name('kelurahan.kartu_keluarga.destroy');
+});
+
+Route::middleware(['auth', 'role:admin_kelurahan'])->group(function () {
+    Route::get('/kelurahan/ibu', [KelurahanIbuController::class, 'index'])->name('kelurahan.ibu.index');
+    Route::get('/kelurahan/ibu/create', [KelurahanIbuController::class, 'create'])->name('kelurahan.ibu.create');
+    Route::post('/kelurahan/ibu', [KelurahanIbuController::class, 'store'])->name('kelurahan.ibu.store');
+    Route::get('/kelurahan/ibu/{id}/edit/{source?}', [KelurahanIbuController::class, 'edit'])->name('kelurahan.ibu.edit');
+    Route::put('/kelurahan/ibu/{id}/{source?}', [KelurahanIbuController::class, 'update'])->name('kelurahan.ibu.update');
+    Route::delete('/kelurahan/ibu/{id}', [KelurahanIbuController::class, 'destroy'])->name('kelurahan.ibu.destroy');
+    Route::get('/kelurahan/ibu/get-kartu-keluarga', [KelurahanIbuController::class, 'getKartuKeluarga'])->name('kelurahan.ibu.getKartuKeluarga');
+
+    Route::get('/kelurahan/ibu-hamil', [KelurahanIbuHamilController::class, 'index'])->name('kelurahan.ibu_hamil.index');
+    Route::get('/kelurahan/ibu-hamil/create', [KelurahanIbuHamilController::class, 'create'])->name('kelurahan.ibu_hamil.create');
+    Route::post('/kelurahan/ibu-hamil', [KelurahanIbuHamilController::class, 'store'])->name('kelurahan.ibu_hamil.store');
+    Route::get('/kelurahan/ibu-hamil/{id}/edit/{source?}', [KelurahanIbuHamilController::class, 'edit'])->name('kelurahan.ibu_hamil.edit');
+    Route::put('/kelurahan/ibu-hamil/{id}/{source?}', [KelurahanIbuHamilController::class, 'update'])->name('kelurahan.ibu_hamil.update');
+    Route::delete('/kelurahan/ibu-hamil/{id}', [KelurahanIbuHamilController::class, 'destroy'])->name('kelurahan.ibu_hamil.destroy');
+});
 
     // Routes untuk Admin Kecamatan
     Route::middleware('role:admin_kecamatan')->group(function () {
