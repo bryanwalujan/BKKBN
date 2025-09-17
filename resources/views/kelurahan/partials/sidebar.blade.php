@@ -35,6 +35,21 @@
                 <li class="px-4 py-2 hover:bg-gray-700">
                     <a href="{{ route('kelurahan.ibu_hamil.index') }}">Data Ibu Hamil</a>
                 </li>
+                <li class="px-4 py-2 hover:bg-gray-700">
+                    <a href="{{ route('kelurahan.ibu_nifas.index') }}">Data Ibu Nifas</a>
+                </li>
+                <li class="px-4 py-2 hover:bg-gray-700">
+                    <a href="{{ route('kelurahan.ibu_menyusui.index') }}">Data Ibu Menyusui</a>
+                </li>
+                <li class="px-4 py-2 hover:bg-gray-700">
+                    <a href="{{ route('kelurahan.remaja_putri.index') }}">Data Remaja Putri</a>
+                </li>
+                <li class="px-4 py-2 hover:bg-gray-700">
+                    <a href="{{ route('kelurahan.stunting.index') }}">Data Stunting</a>
+                </li>
+                <li class="px-4 py-2 hover:bg-gray-700">
+                    <a href="{{ route('kelurahan.peta_geospasial.index') }}">Peta Geospasial</a>
+                </li>
             </ul>
         </nav>
     </div>

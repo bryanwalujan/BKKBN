@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tambah Kartu Keluarga</title>
+    <title>Tambah Kartu Keluarga - Admin Kelurahan</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map { height: 400px; margin-bottom: 1rem; }
+        #map { height: 400px; margin-bottom: 1rem; border-radius: 0.5rem; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -40,7 +40,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                    <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" onchange="updateKelurahan(this.value)" required disabled>
+                    <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled required>
                         @foreach ($kecamatans as $kecamatan)
                             <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $kecamatans->first()->id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
                         @endforeach
@@ -105,10 +105,10 @@
         @endif
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Inisialisasi peta
-        var map = L.map('map').setView([1.319558, 124.838108], 13);
+        var map = L.map('map').setView([1.319558, 124.838108], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
@@ -136,26 +136,6 @@
             marker = L.marker([oldLat, oldLng]).addTo(map);
             map.setView([oldLat, oldLng], 15);
             updateCoordinates(oldLat, oldLng);
-        }
-
-        function updateKelurahan(kecamatanId) {
-            if (!kecamatanId) {
-                document.getElementById('kelurahan_id').innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                return;
-            }
-            fetch(`/kelurahans/by-kecamatan/${kecamatanId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const kelurahanSelect = document.getElementById('kelurahan_id');
-                    kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                    data.forEach(kelurahan => {
-                        kelurahanSelect.innerHTML += `<option value="${kelurahan.id}">${kelurahan.nama_kelurahan}</option>`;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching kelurahans:', error);
-                    alert('Gagal memuat data kelurahan. Silakan coba lagi.');
-                });
         }
     </script>
 </body>

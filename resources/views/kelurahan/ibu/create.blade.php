@@ -14,49 +14,48 @@
                 {{ session('error') }}
             </div>
         @endif
-        @if (session('warning'))
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                {{ session('warning') }}
-            </div>
-        @endif
         <form action="{{ route('kelurahan.ibu.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
             @csrf
             <div class="mb-4">
                 <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
-                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="">Pilih Kartu Keluarga</option>
+                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">-- Pilih Kartu Keluarga --</option>
                     @foreach ($kartuKeluargas as $kk)
-                        <option value="{{ $kk->id }}" data-source="{{ $kk->source }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }} ({{ $kk->source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi' }})</option>
+                        <option value="{{ $kk->id }}" data-source="{{ $kk->source }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->nomor_kk }} - {{ $kk->source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi' }}</option>
                     @endforeach
                 </select>
+                <input type="hidden" name="kartu_keluarga_source" id="kartu_keluarga_source" value="{{ old('kartu_keluarga_source') }}">
                 @error('kartu_keluarga_id')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+                @error('kartu_keluarga_source')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" maxlength="16">
                 @error('nik')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 @error('nama')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                <textarea name="alamat" id="alamat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('alamat') }}</textarea>
+                <textarea name="alamat" id="alamat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ old('alamat') }}</textarea>
                 @error('alamat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                     <option value="" {{ old('status') == '' ? 'selected' : '' }}>-- Pilih Status --</option>
                     <option value="Hamil" {{ old('status') == 'Hamil' ? 'selected' : '' }}>Hamil</option>
                     <option value="Nifas" {{ old('status') == 'Nifas' ? 'selected' : '' }}>Nifas</option>
@@ -67,10 +66,19 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div id="ibu_hamil_fields" class="hidden">
+            <div class="mb-4">
+                <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
+                <input type="file" name="foto" id="foto" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                @error('foto')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Fields untuk status Hamil -->
+            <div id="hamil_fields" class="hidden">
                 <div class="mb-4">
                     <label for="trimester" class="block text-sm font-medium text-gray-700">Trimester</label>
-                    <select name="trimester" id="trimester" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <select name="trimester" id="trimester" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="" {{ old('trimester') == '' ? 'selected' : '' }}>-- Pilih Trimester --</option>
                         <option value="Trimester 1" {{ old('trimester') == 'Trimester 1' ? 'selected' : '' }}>Trimester 1</option>
                         <option value="Trimester 2" {{ old('trimester') == 'Trimester 2' ? 'selected' : '' }}>Trimester 2</option>
@@ -82,7 +90,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="intervensi" class="block text-sm font-medium text-gray-700">Intervensi</label>
-                    <select name="intervensi" id="intervensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <select name="intervensi" id="intervensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="" {{ old('intervensi') == '' ? 'selected' : '' }}>-- Pilih Intervensi --</option>
                         <option value="Tidak Ada" {{ old('intervensi') == 'Tidak Ada' ? 'selected' : '' }}>Tidak Ada</option>
                         <option value="Gizi" {{ old('intervensi') == 'Gizi' ? 'selected' : '' }}>Gizi</option>
@@ -95,7 +103,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="status_gizi" class="block text-sm font-medium text-gray-700">Status Gizi</label>
-                    <select name="status_gizi" id="status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <select name="status_gizi" id="status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="" {{ old('status_gizi') == '' ? 'selected' : '' }}>-- Pilih Status Gizi --</option>
                         <option value="Normal" {{ old('status_gizi') == 'Normal' ? 'selected' : '' }}>Normal</option>
                         <option value="Kurang Gizi" {{ old('status_gizi') == 'Kurang Gizi' ? 'selected' : '' }}>Kurang Gizi</option>
@@ -107,7 +115,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="warna_status_gizi" class="block text-sm font-medium text-gray-700">Warna Status Gizi</label>
-                    <select name="warna_status_gizi" id="warna_status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <select name="warna_status_gizi" id="warna_status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="" {{ old('warna_status_gizi') == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
                         <option value="Sehat" {{ old('warna_status_gizi') == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                         <option value="Waspada" {{ old('warna_status_gizi') == 'Waspada' ? 'selected' : '' }}>Waspada</option>
@@ -119,33 +127,131 @@
                 </div>
                 <div class="mb-4">
                     <label for="usia_kehamilan" class="block text-sm font-medium text-gray-700">Usia Kehamilan (minggu)</label>
-                    <input type="number" name="usia_kehamilan" id="usia_kehamilan" value="{{ old('usia_kehamilan') }}" min="0" max="40" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <input type="number" name="usia_kehamilan" id="usia_kehamilan" value="{{ old('usia_kehamilan') }}" min="0" max="40" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                     @error('usia_kehamilan')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                    <input type="number" name="berat" id="berat" value="{{ old('berat') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                    @error('berat')
+                    <label for="berat_hamil" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
+                    <input type="number" name="berat_hamil" id="berat_hamil" value="{{ old('berat_hamil') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('berat_hamil')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                    <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                    @error('tinggi')
+                    <label for="tinggi_hamil" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
+                    <input type="number" name="tinggi_hamil" id="tinggi_hamil" value="{{ old('tinggi_hamil') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('tinggi_hamil')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
             </div>
-            <div class="mb-4">
-                <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
-                <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
-                @error('foto')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
+
+            <!-- Fields untuk status Nifas -->
+            <div id="nifas_fields" class="hidden">
+                <div class="mb-4">
+                    <label for="hari_nifas" class="block text-sm font-medium text-gray-700">Hari Nifas</label>
+                    <input type="number" name="hari_nifas" id="hari_nifas" value="{{ old('hari_nifas') }}" min="0" max="42" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('hari_nifas')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="kondisi_kesehatan" class="block text-sm font-medium text-gray-700">Kondisi Kesehatan</label>
+                    <select name="kondisi_kesehatan" id="kondisi_kesehatan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="" {{ old('kondisi_kesehatan') == '' ? 'selected' : '' }}>-- Pilih Kondisi --</option>
+                        <option value="Normal" {{ old('kondisi_kesehatan') == 'Normal' ? 'selected' : '' }}>Normal</option>
+                        <option value="Butuh Perhatian" {{ old('kondisi_kesehatan') == 'Butuh Perhatian' ? 'selected' : '' }}>Butuh Perhatian</option>
+                        <option value="Kritis" {{ old('kondisi_kesehatan') == 'Kritis' ? 'selected' : '' }}>Kritis</option>
+                    </select>
+                    @error('kondisi_kesehatan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="warna_kondisi_nifas" class="block text-sm font-medium text-gray-700">Warna Kondisi</label>
+                    <select name="warna_kondisi_nifas" id="warna_kondisi_nifas" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="" {{ old('warna_kondisi_nifas') == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
+                        <option value="Hijau (success)" {{ old('warna_kondisi_nifas') == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
+                        <option value="Kuning (warning)" {{ old('warna_kondisi_nifas') == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
+                        <option value="Merah (danger)" {{ old('warna_kondisi_nifas') == 'Merah (danger)' ? 'selected' : '' }}>Merah (danger)</option>
+                    </select>
+                    @error('warna_kondisi_nifas')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="berat_nifas" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
+                    <input type="number" name="berat_nifas" id="berat_nifas" value="{{ old('berat_nifas') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('berat_nifas')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="tinggi_nifas" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
+                    <input type="number" name="tinggi_nifas" id="tinggi_nifas" value="{{ old('tinggi_nifas') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('tinggi_nifas')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
+
+            <!-- Fields untuk status Menyusui -->
+            <div id="menyusui_fields" class="hidden">
+                <div class="mb-4">
+                    <label for="status_menyusui" class="block text-sm font-medium text-gray-700">Status Menyusui</label>
+                    <select name="status_menyusui" id="status_menyusui" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="" {{ old('status_menyusui') == '' ? 'selected' : '' }}>-- Pilih Status --</option>
+                        <option value="Eksklusif" {{ old('status_menyusui') == 'Eksklusif' ? 'selected' : '' }}>Eksklusif</option>
+                        <option value="Non-Eksklusif" {{ old('status_menyusui') == 'Non-Eksklusif' ? 'selected' : '' }}>Non-Eksklusif</option>
+                    </select>
+                    @error('status_menyusui')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="frekuensi_menyusui" class="block text-sm font-medium text-gray-700">Frekuensi Menyusui (kali/hari)</label>
+                    <input type="number" name="frekuensi_menyusui" id="frekuensi_menyusui" value="{{ old('frekuensi_menyusui') }}" min="0" max="24" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('frekuensi_menyusui')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="kondisi_ibu" class="block text-sm font-medium text-gray-700">Kondisi Ibu</label>
+                    <input type="text" name="kondisi_ibu" id="kondisi_ibu" value="{{ old('kondisi_ibu') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('kondisi_ibu')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="warna_kondisi_menyusui" class="block text-sm font-medium text-gray-700">Warna Kondisi</label>
+                    <select name="warna_kondisi_menyusui" id="warna_kondisi_menyusui" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="" {{ old('warna_kondisi_menyusui') == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
+                        <option value="Hijau (success)" {{ old('warna_kondisi_menyusui') == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
+                        <option value="Kuning (warning)" {{ old('warna_kondisi_menyusui') == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
+                        <option value="Merah (danger)" {{ old('warna_kondisi_menyusui') == 'Merah (danger)' ? 'selected' : '' }}>Merah (danger)</option>
+                    </select>
+                    @error('warna_kondisi_menyusui')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="berat_menyusui" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
+                    <input type="number" name="berat_menyusui" id="berat_menyusui" value="{{ old('berat_menyusui') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('berat_menyusui')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="tinggi_menyusui" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
+                    <input type="number" name="tinggi_menyusui" id="tinggi_menyusui" value="{{ old('tinggi_menyusui') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    @error('tinggi_menyusui')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
             <div class="flex space-x-4">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
                 <a href="{{ route('kelurahan.ibu.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
@@ -161,41 +267,33 @@
                 allowClear: true
             });
 
-            $.ajax({
-                url: '{{ route("kelurahan.ibu.getKartuKeluarga") }}',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    $('#kartu_keluarga_id').empty();
-                    $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
-                    $.each(data, function(index, kk) {
-                        var text = `${kk.no_kk} - ${kk.kepala_keluarga} (${kk.source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi'})`;
-                        var selected = kk.id == {{ old('kartu_keluarga_id') ?? 'null' }} ? 'selected' : '';
-                        $('#kartu_keluarga_id').append(`<option value="${kk.id}" data-source="${kk.source}" ${selected}>${text}</option>`);
-                    });
-                },
-                error: function(xhr) {
-                    console.error('Error fetching kartu keluarga:', xhr);
-                    alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                }
+            $('#kartu_keluarga_id').on('change', function() {
+                var source = $(this).find('option:selected').data('source');
+                $('#kartu_keluarga_source').val(source);
             });
 
-            // Show/hide ibu hamil fields based on status
-            $('#status').on('change', function() {
-                if ($(this).val() === 'Hamil') {
-                    $('#ibu_hamil_fields').removeClass('hidden');
-                    $('#trimester, #intervensi, #status_gizi, #warna_status_gizi, #usia_kehamilan, #berat, #tinggi').attr('required', true);
-                } else {
-                    $('#ibu_hamil_fields').addClass('hidden');
-                    $('#trimester, #intervensi, #status_gizi, #warna_status_gizi, #usia_kehamilan, #berat, #tinggi').removeAttr('required');
-                }
-            });
-
-            // Trigger change on page load to handle old input
-            if ($('#status').val() === 'Hamil') {
-                $('#ibu_hamil_fields').removeClass('hidden');
-                $('#trimester, #intervensi, #status_gizi, #warna_status_gizi, #usia_kehamilan, #berat, #tinggi').attr('required', true);
+            var initialSource = $('#kartu_keluarga_id').find('option:selected').data('source');
+            if (initialSource) {
+                $('#kartu_keluarga_source').val(initialSource);
             }
+
+            function toggleFields() {
+                var status = $('#status').val();
+                $('#hamil_fields').addClass('hidden');
+                $('#nifas_fields').addClass('hidden');
+                $('#menyusui_fields').addClass('hidden');
+
+                if (status === 'Hamil') {
+                    $('#hamil_fields').removeClass('hidden');
+                } else if (status === 'Nifas') {
+                    $('#nifas_fields').removeClass('hidden');
+                } else if (status === 'Menyusui') {
+                    $('#menyusui_fields').removeClass('hidden');
+                }
+            }
+
+            $('#status').on('change', toggleFields);
+            toggleFields();
         });
     </script>
 </body>
