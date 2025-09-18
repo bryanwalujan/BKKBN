@@ -6,7 +6,7 @@
         <ul>
             <li>
                 <button
-                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*') ? 'bg-blue-700' : '' }}"
+                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*', 'kartu_keluarga.*') ? 'bg-blue-700' : '' }}"
                     onclick="document.getElementById('perdataan-dropdown').classList.toggle('hidden')">
                     Perdataan
                     <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -15,7 +15,7 @@
                     </svg>
                 </button>
                 <ul id="perdataan-dropdown"
-                    class="ml-4 {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*') ? '' : 'hidden' }}">
+                    class="ml-4 {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*', 'kartu_keluarga.*') ? '' : 'hidden' }}">
                     <li>
                         <a href="{{ route('ibu.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('ibu.*') ? 'bg-blue-600' : '' }}">Data Ibu</a>
@@ -59,7 +59,7 @@
             </li>
             <li>
                 <button
-                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('genting.*', 'aksi_konvergensi.*', 'peta_geospasial.*', 'pendamping_keluarga.*') ? 'bg-blue-700' : '' }}"
+                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('genting.*', 'aksi_konvergensi.*', 'peta_geospasial.*', 'pendamping_keluarga.*', 'data_monitoring.*', 'audit_stunting.*') ? 'bg-blue-700' : '' }}"
                     onclick="document.getElementById('kelola-kegiatan-dropdown').classList.toggle('hidden')">
                     Kelola Kegiatan
                     <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -68,7 +68,7 @@
                     </svg>
                 </button>
                 <ul id="kelola-kegiatan-dropdown"
-                    class="ml-4 {{ Route::is('genting.*', 'aksi_konvergensi.*', 'peta_geospasial.*', 'pendamping_keluarga.*') ? '' : 'hidden' }}">
+                    class="ml-4 {{ Route::is('genting.*', 'aksi_konvergensi.*', 'peta_geospasial.*', 'pendamping_keluarga.*', 'data_monitoring.*', 'audit_stunting.*') ? '' : 'hidden' }}">
                     <li>
                         <a href="{{ route('genting.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('genting.*') ? 'bg-blue-600' : '' }}">Genting</a>
@@ -88,11 +88,21 @@
                             class="block p-4 hover:bg-blue-600 {{ Route::is('pendamping_keluarga.*') ? 'bg-blue-600' : '' }}">Pendamping
                             Keluarga</a>
                     </li>
+                    <li>
+                        <a href="{{ route('data_monitoring.index') }}"
+                            class="block p-4 hover:bg-blue-600 {{ Route::is('data_monitoring.*') ? 'bg-blue-600' : '' }}">Data
+                            Monitoring</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('audit_stunting.index') }}"
+                            class="block p-4 hover:bg-blue-600 {{ Route::is('audit_stunting.*') ? 'bg-blue-600' : '' }}">Audit
+                            Stunting</a>
+                    </li>
                 </ul>
             </li>
             <li>
                 <button
-                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('carousel.*', 'data_riset.*', 'tentang_kami.*', 'layanan_kami.*', 'galeri_program.*') ? 'bg-blue-700' : '' }}"
+                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('carousel.*', 'data_riset.*', 'tentang_kami.*', 'layanan_kami.*', 'galeri_program.*', 'edukasi.*') ? 'bg-blue-700' : '' }}"
                     onclick="document.getElementById('kelola-beranda-dropdown').classList.toggle('hidden')">
                     Kelola Beranda
                     <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -101,7 +111,7 @@
                     </svg>
                 </button>
                 <ul id="kelola-beranda-dropdown"
-                    class="ml-4 {{ Route::is('carousel.*', 'data_riset.*', 'tentang_kami.*', 'layanan_kami.*', 'galeri_program.*') ? '' : 'hidden' }}">
+                    class="ml-4 {{ Route::is('carousel.*', 'data_riset.*', 'tentang_kami.*', 'layanan_kami.*', 'galeri_program.*', 'edukasi.*') ? '' : 'hidden' }}">
                     <li>
                         <a href="{{ route('carousel.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('carousel.*') ? 'bg-blue-600' : '' }}">Carousel</a>
@@ -125,6 +135,10 @@
                         <a href="{{ route('galeri_program.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('galeri_program.*') ? 'bg-blue-600' : '' }}">Galeri
                             Program</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('edukasi.index') }}"
+                            class="block p-4 hover:bg-blue-600 {{ Route::is('edukasi.*') ? 'bg-blue-600' : '' }}">Edukasi</a>
                     </li>
                 </ul>
             </li>
@@ -159,7 +173,7 @@
             </li>
             <li>
                 <button
-                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('publikasi.*', 'referensi.*', 'data_monitoring.*', 'data_penduduk.*') ? 'bg-blue-700' : '' }}"
+                    class="block w-full text-left p-4 hover:bg-blue-700 {{ Route::is('publikasi.*', 'referensi.*', 'data_penduduk.*') ? 'bg-blue-700' : '' }}"
                     onclick="document.getElementById('lainnya-dropdown').classList.toggle('hidden')">
                     Lainnya
                     <svg class="inline-block w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -168,7 +182,7 @@
                     </svg>
                 </button>
                 <ul id="lainnya-dropdown"
-                    class="ml-4 {{ Route::is('publikasi.*', 'referensi.*', 'data_monitoring.*', 'data_penduduk.*') ? '' : 'hidden' }}">
+                    class="ml-4 {{ Route::is('publikasi.*', 'referensi.*', 'data_penduduk.*') ? '' : 'hidden' }}">
                     <li>
                         <a href="{{ route('publikasi.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('publikasi.*') ? 'bg-blue-600' : '' }}">Publikasi</a>
@@ -176,11 +190,6 @@
                     <li>
                         <a href="{{ route('referensi.index') }}"
                             class="block p-4 hover:bg-blue-600 {{ Route::is('referensi.*') ? 'bg-blue-600' : '' }}">Referensi</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('data_monitoring.index') }}"
-                            class="block p-4 hover:bg-blue-600 {{ Route::is('data_monitoring.*') ? 'bg-blue-600' : '' }}">Data
-                            Monitoring</a>
                     </li>
                     <li>
                         <a href="{{ route('data_penduduk.index') }}"

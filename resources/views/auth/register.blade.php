@@ -21,6 +21,15 @@
                 {{ session('error') }}
             </div>
         @endif
+        @if ($errors->any())
+            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
             @csrf
             <div class="mb-4">
@@ -51,8 +60,9 @@
             <div class="mb-4">
                 <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                 <select name="role" id="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="">-- Pilih Role --</option>
                     <option value="admin_kelurahan" {{ old('role') == 'admin_kelurahan' ? 'selected' : '' }}>Admin Kelurahan</option>
-                    <option value="perangkat_desa" {{ old('role') == 'perangkat_desa' ? 'selected' : '' }}>Perangkat Desa</option>
+                    <option value="perangkat_daerah" {{ old('role') == 'perangkat_daerah' ? 'selected' : '' }}>Perangkat Daerah</option>
                 </select>
                 @error('role')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -62,7 +72,7 @@
                 <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
                 <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kecamatan --</option>
-                    @foreach (\App\Models\Kecamatan::all() as $kecamatan)
+                    @foreach ($kecamatans as $kecamatan)
                         <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
                     @endforeach
                 </select>
@@ -74,6 +84,11 @@
                 <label for="kelurahan_id" class="block text-sm font-medium text-gray-700" id="kelurahan_label">Kelurahan/Desa</label>
                 <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kelurahan/Desa --</option>
+                    @if (old('kecamatan_id'))
+                        @foreach (\App\Models\Kelurahan::where('kecamatan_id', old('kecamatan_id'))->get() as $kelurahan)
+                            <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id') == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
+                        @endforeach
+                    @endif
                 </select>
                 @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -108,6 +123,17 @@
                 @enderror
             </div>
             
+            {{-- <div class="mb-4">
+                <label for="captcha" class="block text-sm font-medium text-gray-700">CAPTCHA</label>
+                <div class="flex items-center space-x-2">
+                    <img src="{{ captcha_src() }}" alt="CAPTCHA" class="h-10" id="captcha-img">
+                    <a href="#" onclick="document.getElementById('captcha-img').src='{{ captcha_src() }}'+'?'+Math.random()" class="text-blue-500 hover:underline">Refresh</a>
+                </div>
+                <input type="text" name="captcha" id="captcha" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                @error('captcha')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div> --}}
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Daftar</button>
         </form>
         <p class="mt-4 text-center">
@@ -141,6 +167,10 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(data) {
+                            if (data.error) {
+                                alert(data.error);
+                                return;
+                            }
                             $.each(data, function(index, kelurahan) {
                                 $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
                             });
@@ -156,8 +186,13 @@
 
             $('#role').on('change', function() {
                 const kelurahanLabel = $('#kelurahan_label');
-                kelurahanLabel.text(kelurahanLabel.text().replace('Kelurahan/Desa', this.value === 'perangkat_desa' ? 'Desa' : 'Kelurahan'));
+                kelurahanLabel.text(kelurahanLabel.text().replace(/Kelurahan|Desa/g, this.value === 'perangkat_daerah' ? 'Desa' : 'Kelurahan'));
             }).trigger('change');
+
+            // Trigger change untuk memuat kelurahan jika ada old('kecamatan_id')
+            @if (old('kecamatan_id'))
+                $('#kecamatan_id').val('{{ old('kecamatan_id') }}').trigger('change');
+            @endif
         });
     </script>
 </body>

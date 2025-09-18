@@ -43,8 +43,8 @@
                 </select>
                 <select name="kategori_umur" class="border-gray-300 rounded-md shadow-sm p-2">
                     <option value="" {{ $kategoriUmur == '' ? 'selected' : '' }}>Semua Kategori</option>
-                    <option value="Baduata" {{ $kategoriUmur == 'Baduata' ? 'selected' : '' }}>Baduata (0-2 tahun)</option>
-                    <option value="Balita" {{ $kategoriUmur == 'Balita' ? 'selected' : '' }}>Balita (2-5 tahun)</option>
+                    <option value="Baduata" {{ $kategoriUmur == 'Baduata' ? 'selected' : '' }}>Baduata (0-24 bulan)</option>
+                    <option value="Balita" {{ $kategoriUmur == 'Balita' ? 'selected' : '' }}>Balita (25-60 bulan)</option>
                 </select>
                 <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari berdasarkan Nama atau NIK" class="border-gray-300 rounded-md shadow-sm p-2 w-64">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
@@ -63,7 +63,7 @@
                     dan kelurahan: {{ \App\Models\Kelurahan::find($kelurahan_id)->nama_kelurahan ?? '-' }}
                 @endif
                 @if ($kategoriUmur)
-                    dengan kategori umur: {{ $kategoriUmur }}
+                    dengan kategori umur: {{ $kategoriUmur }} ({{ $kategoriUmur == 'Baduata' ? '0-24 bulan' : '25-60 bulan' }})
                 @endif
                 @if ($search)
                     dengan pencarian: "{{ $search }}"
@@ -82,8 +82,11 @@
                     <th class="p-4 text-left">No KK</th>
                     <th class="p-4 text-left">Kecamatan</th>
                     <th class="p-4 text-left">Kelurahan</th>
+                    <th class="p-4 text-left">Usia</th>
                     <th class="p-4 text-left">Kategori Umur</th>
                     <th class="p-4 text-left">Berat/Tinggi</th>
+                    <th class="p-4 text-left">Lingkar Kepala</th>
+                    <th class="p-4 text-left">Lingkar Lengan</th>
                     <th class="p-4 text-left">Status Gizi</th>
                     <th class="p-4 text-left">Warna Label</th>
                     <th class="p-4 text-left">Aksi</th>
@@ -98,8 +101,11 @@
                         <td class="p-4">{{ $balita->kartuKeluarga->no_kk ?? '-' }}</td>
                         <td class="p-4">{{ $balita->kecamatan->nama_kecamatan ?? '-' }}</td>
                         <td class="p-4">{{ $balita->kelurahan->nama_kelurahan ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->kategori_umur }}</td>
+                        <td class="p-4">{{ $balita->usia !== null ? $balita->usia . ' bulan' : '-' }}</td>
+                        <td class="p-4">{{ $balita->kategoriUmur }}</td>
                         <td class="p-4">{{ $balita->berat_tinggi }}</td>
+                        <td class="p-4">{{ $balita->lingkar_kepala ? $balita->lingkar_kepala . ' cm' : '-' }}</td>
+                        <td class="p-4">{{ $balita->lingkar_lengan ? $balita->lingkar_lengan . ' cm' : '-' }}</td>
                         <td class="p-4">{{ $balita->status_gizi }}</td>
                         <td class="p-4">{{ $balita->warna_label }}</td>
                         <td class="p-4">
@@ -109,7 +115,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="p-4 text-center">Tidak ada data balita yang sesuai dengan filter.</td>
+                        <td colspan="14" class="p-4 text-center">Tidak ada data balita yang sesuai dengan filter.</td>
                     </tr>
                 @endforelse
             </tbody>

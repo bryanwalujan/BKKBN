@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TemplateController;
@@ -26,8 +27,15 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\IbuController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\AuditStuntingController;
+use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KecamatanBalitaController;
+use App\Http\Controllers\KelurahanBalitaController;
+use App\Http\Controllers\KelurahanKartuKeluargaController;
+use App\Http\Controllers\KelurahanIbuController;
+use App\Http\Controllers\KelurahanIbuHamilController;
 
 Route::get('/', [LandingController::class, 'index'])->name('welcome');
 Route::get('/peta', [\App\Http\Controllers\PetaGeospasialController::class, 'publicView'])->name('peta.public');
@@ -105,6 +113,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/aksi-konvergensi/{id}/edit', [AksiKonvergensiController::class, 'edit'])->name('aksi_konvergensi.edit');
         Route::put('/aksi-konvergensi/{id}', [AksiKonvergensiController::class, 'update'])->name('aksi_konvergensi.update');
         Route::delete('/aksi-konvergensi/{id}', [AksiKonvergensiController::class, 'destroy'])->name('aksi_konvergensi.destroy');
+        Route::get('/aksi-konvergensi/kartu-keluarga/{kartu_keluarga_id}', [AksiKonvergensiController::class, 'showByKK'])->name('aksi_konvergensi.show_by_kk');
         Route::get('/peta-geospasial', [PetaGeospasialController::class, 'index'])->name('peta_geospasial.index');
         Route::get('/peta-geospasial/create', [PetaGeospasialController::class, 'create'])->name('peta_geospasial.create');
         Route::post('/peta-geospasial', [PetaGeospasialController::class, 'store'])->name('peta_geospasial.store');
@@ -114,7 +123,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pendamping-keluarga', [PendampingKeluargaController::class, 'index'])->name('pendamping_keluarga.index');
         Route::get('/pendamping-keluarga/create', [PendampingKeluargaController::class, 'create'])->name('pendamping_keluarga.create');
         Route::post('/pendamping-keluarga', [PendampingKeluargaController::class, 'store'])->name('pendamping_keluarga.store');
-        Route::get('/pendamping-keluarga/{id}/edit', [PendampingKeluargaController::class, 'edit'])->name('pendamping_keluarga.edit');
+        Route::get('/pendamping-keluarga/{id}/edit', [PendampingKeluargaController::class, 'edit'])->name('pendamping_keluarga.create');
         Route::put('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'update'])->name('pendamping_keluarga.update');
         Route::delete('/pendamping-keluarga/{id}', [PendampingKeluargaController::class, 'destroy'])->name('pendamping_keluarga.destroy');
         Route::get('/carousel', [CarouselController::class, 'index'])->name('carousel.index');
@@ -190,20 +199,63 @@ Route::middleware('auth')->group(function () {
         Route::put('/ibu/{id}', [IbuController::class, 'update'])->name('ibu.update');
         Route::delete('/ibu/{id}', [IbuController::class, 'destroy'])->name('ibu.destroy');
         Route::get('/kartu-keluarga/by-kecamatan-kelurahan', [KartuKeluargaController::class, 'getByKecamatanKelurahan'])->name('kartu_keluarga.by-kecamatan-kelurahan');
-        // Tambahkan routes ini di dalam middleware('role:master')->group(function () {
+        Route::post('/backup', [BackupController::class, 'manualBackup'])->name('backup.manual');
+        Route::post('/backup/direct', [BackupController::class, 'directBackup'])->name('backup.direct');
+        Route::post('/backup/laravel', [BackupController::class, 'laravelBackup'])->name('backup.laravel');
+        Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
+        Route::get('/backup/debug', [BackupController::class, 'debugInfo'])->name('backup.debug');
+        Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('backup.debug.html');
+        Route::get('/kartu-keluarga/{kartu_keluarga_id}/ibu-balita', [KartuKeluargaController::class, 'getIbuAndBalita'])->name('kartu_keluarga.get-ibu-balita');
+        Route::resource('audit_stunting', AuditStuntingController::class);
+        Route::resource('edukasi', EdukasiController::class);
+        Route::resource('pendamping_keluarga', PendampingKeluargaController::class);
+        Route::post('/pendamping-keluarga/{pendamping}/laporan', [PendampingKeluargaController::class, 'storeLaporan'])->name('pendamping_keluarga.storeLaporan');
+        Route::get('/pendamping-keluarga/by-kecamatan-kelurahan', [PendampingKeluargaController::class, 'getByKecamatanKelurahan'])->name('pendamping_keluarga.by-kecamatan-kelurahan');
+        Route::get('/pendamping-keluarga/kelurahans/{kecamatan_id}', [PendampingKeluargaController::class, 'getKelurahans'])->name('pendamping_keluarga.kelurahans');
+    });
+    // Rute untuk Admin Kelurahan mengelola Balita
+Route::prefix('kelurahan/balita')->middleware(['auth', 'role:admin_kelurahan'])->group(function () {
+    Route::get('/', [KelurahanBalitaController::class, 'index'])->name('kelurahan.balita.index');
+    Route::get('/create', [KelurahanBalitaController::class, 'create'])->name('kelurahan.balita.create');
+    Route::post('/', [KelurahanBalitaController::class, 'store'])->name('kelurahan.balita.store');
+    Route::get('/{id}/edit/{source?}', [KelurahanBalitaController::class, 'edit'])->name('kelurahan.balita.edit');
+    Route::put('/{id}/{source?}', [KelurahanBalitaController::class, 'update'])->name('kelurahan.balita.update');
+    Route::delete('/{id}', [KelurahanBalitaController::class, 'destroy'])->name('kelurahan.balita.destroy');
+    Route::get('/kartu-keluarga', [KelurahanBalitaController::class, 'getKartuKeluarga'])->name('kelurahan.balita.getKartuKeluarga');
+});
 
-Route::post('/backup', [BackupController::class, 'manualBackup'])->name('backup.manual');
-Route::post('/backup/direct', [BackupController::class, 'directBackup'])->name('backup.direct');
-Route::post('/backup/laravel', [BackupController::class, 'laravelBackup'])->name('backup.laravel');
-Route::get('/backup/list', [BackupController::class, 'listBackups'])->name('backup.list');
-Route::get('/backup/debug', [BackupController::class, 'debugInfo'])->name('backup.debug');
-Route::get('/backup/debug/html', [BackupController::class, 'debugHtml'])->name('backup.debug.html');
-    });
-    Route::middleware('role:admin_kelurahan')->group(function () {
-        Route::get('/admin-kelurahan/dashboard', [AuthController::class, 'dashboard'])->name('admin_kelurahan.dashboard');
-    });
-    Route::middleware('role:perangkat_desa')->group(function () {
-        Route::get('/perangkat-desa/dashboard', [AuthController::class, 'dashboard'])->name('perangkat_desa.dashboard');
+// Rute untuk Admin Kelurahan mengelola Kartu Keluarga
+Route::prefix('kelurahan/kartu_keluarga')->middleware(['auth', 'role:admin_kelurahan'])->group(function () {
+    Route::get('/', [KelurahanKartuKeluargaController::class, 'index'])->name('kelurahan.kartu_keluarga.index');
+    Route::get('/create', [KelurahanKartuKeluargaController::class, 'create'])->name('kelurahan.kartu_keluarga.create');
+    Route::post('/', [KelurahanKartuKeluargaController::class, 'store'])->name('kelurahan.kartu_keluarga.store');
+    Route::get('/{id}/edit/{source?}', [KelurahanKartuKeluargaController::class, 'edit'])->name('kelurahan.kartu_keluarga.edit');
+    Route::put('/{id}/{source?}', [KelurahanKartuKeluargaController::class, 'update'])->name('kelurahan.kartu_keluarga.update');
+    Route::delete('/{id}', [KelurahanKartuKeluargaController::class, 'destroy'])->name('kelurahan.kartu_keluarga.destroy');
+});
+
+Route::middleware(['auth', 'role:admin_kelurahan'])->group(function () {
+    Route::get('/kelurahan/ibu', [KelurahanIbuController::class, 'index'])->name('kelurahan.ibu.index');
+    Route::get('/kelurahan/ibu/create', [KelurahanIbuController::class, 'create'])->name('kelurahan.ibu.create');
+    Route::post('/kelurahan/ibu', [KelurahanIbuController::class, 'store'])->name('kelurahan.ibu.store');
+    Route::get('/kelurahan/ibu/{id}/edit/{source?}', [KelurahanIbuController::class, 'edit'])->name('kelurahan.ibu.edit');
+    Route::put('/kelurahan/ibu/{id}/{source?}', [KelurahanIbuController::class, 'update'])->name('kelurahan.ibu.update');
+    Route::delete('/kelurahan/ibu/{id}', [KelurahanIbuController::class, 'destroy'])->name('kelurahan.ibu.destroy');
+    Route::get('/kelurahan/ibu/get-kartu-keluarga', [KelurahanIbuController::class, 'getKartuKeluarga'])->name('kelurahan.ibu.getKartuKeluarga');
+
+    Route::get('/kelurahan/ibu-hamil', [KelurahanIbuHamilController::class, 'index'])->name('kelurahan.ibu_hamil.index');
+    Route::get('/kelurahan/ibu-hamil/create', [KelurahanIbuHamilController::class, 'create'])->name('kelurahan.ibu_hamil.create');
+    Route::post('/kelurahan/ibu-hamil', [KelurahanIbuHamilController::class, 'store'])->name('kelurahan.ibu_hamil.store');
+    Route::get('/kelurahan/ibu-hamil/{id}/edit/{source?}', [KelurahanIbuHamilController::class, 'edit'])->name('kelurahan.ibu_hamil.edit');
+    Route::put('/kelurahan/ibu-hamil/{id}/{source?}', [KelurahanIbuHamilController::class, 'update'])->name('kelurahan.ibu_hamil.update');
+    Route::delete('/kelurahan/ibu-hamil/{id}', [KelurahanIbuHamilController::class, 'destroy'])->name('kelurahan.ibu_hamil.destroy');
+});
+
+    // Routes untuk Admin Kecamatan
+    Route::middleware('role:admin_kecamatan')->group(function () {
+       Route::get('/kecamatan/balita', [KecamatanBalitaController::class, 'index'])->name('kecamatan.balita.index');
+        Route::post('/kecamatan/balita/{id}/approve', [KecamatanBalitaController::class, 'approve'])->name('kecamatan.balita.approve');
+        Route::post('/kecamatan/balita/{id}/reject', [KecamatanBalitaController::class, 'reject'])->name('kecamatan.balita.reject');
     });
 });
 Route::get('/landing/data', [LandingController::class, 'data'])->name('landing.data');

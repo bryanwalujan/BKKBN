@@ -35,8 +35,35 @@ class KartuKeluarga extends Model
     {
         return $this->belongsTo(Kelurahan::class);
     }
+
     public function remajaPutris()
     {
         return $this->hasMany(RemajaPutri::class);
+    }
+
+    public function aksiKonvergensis()
+    {
+        return $this->hasMany(AksiKonvergensi::class);
+    }
+
+    public function gentings()
+    {
+        return $this->hasMany(Genting::class);
+    }
+
+    public function dataMonitorings()
+    {
+        return $this->hasMany(DataMonitoring::class, 'kartu_keluarga_id');
+    }
+
+    public function pendampingKeluargas()
+    {
+        return $this->belongsToMany(PendampingKeluarga::class, 'kartu_keluarga_pendamping')
+                    ->withTimestamps();
+    }
+
+    public function laporan()
+    {
+        return $this->hasMany(LaporanPendamping::class);
     }
 }

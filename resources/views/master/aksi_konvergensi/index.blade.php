@@ -18,7 +18,7 @@
             <thead>
                 <tr class="bg-gray-200">
                     <th class="p-4 text-left">No</th>
-                    <th class="p-4 text-left">Foto</th>
+                    <th class="p-4 text-left">No KK</th>
                     <th class="p-4 text-left">Kecamatan</th>
                     <th class="p-4 text-left">Kelurahan</th>
                     <th class="p-4 text-left">Nama Aksi</th>
@@ -32,14 +32,12 @@
                     <tr>
                         <td class="p-4">{{ $index + 1 }}</td>
                         <td class="p-4">
-                            @if ($aksi->foto)
-                                <img src="{{ Storage::url($aksi->foto) }}" alt="Foto Aksi Konvergensi" class="w-16 h-16 object-cover rounded">
-                            @else
-                                Tidak ada foto
-                            @endif
+                            <a href="{{ route('kartu_keluarga.show', $aksi->kartuKeluarga->id) }}" class="text-blue-500 hover:underline">
+                                {{ $aksi->kartuKeluarga->no_kk ?? '-' }}
+                            </a>
                         </td>
-                        <td class="p-4">{{ $aksi->kecamatan }}</td>
-                        <td class="p-4">{{ $aksi->kelurahan }}</td>
+                        <td class="p-4">{{ $aksi->kecamatan->nama_kecamatan ?? '-' }}</td>
+                        <td class="p-4">{{ $aksi->kelurahan->nama_kelurahan ?? '-' }}</td>
                         <td class="p-4">{{ $aksi->nama_aksi }}</td>
                         <td class="p-4">
                             <span class="inline-block px-2 py-1 rounded text-white {{ $aksi->selesai ? 'bg-green-500' : 'bg-red-500' }}">

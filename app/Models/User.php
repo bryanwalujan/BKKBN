@@ -17,18 +17,17 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'penanggung_jawab' => 'encrypted',
-        'no_telepon' => 'encrypted',
+        'email_verified_at' => 'datetime',
     ];
 
     public function kecamatan()
     {
-        return $this->belongsTo(Kecamatan::class);
+        return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
     }
 
     public function kelurahan()
     {
-        return $this->belongsTo(Kelurahan::class);
+        return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
     }
 
     public function getKecamatanNamaAttribute()
@@ -36,9 +35,19 @@ class User extends Authenticatable
         return $this->kecamatan ? $this->kecamatan->nama_kecamatan : null;
     }
 
+    public function getKelurahanNamaAttribute()
+    {
+        return $this->kelurahan ? $this->kelurahan->nama_kelurahan : null;
+    }
+
     public function isMaster()
     {
         return $this->role === 'master';
+    }
+
+    public function isAdminKecamatan()
+    {
+        return $this->role === 'admin_kecamatan';
     }
 
     public function isAdminKelurahan()

@@ -18,17 +18,6 @@
             @csrf
             @method('PUT')
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Kartu Keluarga Saat Ini</label>
-                <p class="mt-1 text-gray-600">
-                    @if ($balita->kartuKeluarga)
-                        Nomor KK: {{ $balita->kartuKeluarga->no_kk }} <br>
-                        Kepala Keluarga: {{ $balita->kartuKeluarga->kepala_keluarga }}
-                    @else
-                        Tidak ada Kartu Keluarga terkait.
-                    @endif
-                </p>
-            </div>
-            <div class="mb-4">
                 <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
                 <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kecamatan</option>
@@ -53,9 +42,12 @@
                 @enderror
             </div>
             <div class="mb-4">
-                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Pilih Kartu Keluarga Baru (opsional)</label>
+                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kartu Keluarga</option>
+                    @if ($balita->kartuKeluarga)
+                        <option value="{{ $balita->kartuKeluarga->id }}" selected>{{ $balita->kartuKeluarga->no_kk }} - {{ $balita->kartuKeluarga->kepala_keluarga }}</option>
+                    @endif
                 </select>
                 @error('kartu_keluarga_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -94,15 +86,29 @@
             </div>
             <div class="mb-4">
                 <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                <input type="number" step="0.1" name="berat" id="berat" value="{{ old('berat', explode('/', $balita->berat_tinggi)[0] ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="number" step="0.1" name="berat" id="berat" value="{{ old('berat', explode('/', $balita->berat_tinggi)[0]) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('berat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                <input type="number" step="0.1" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $balita->berat_tinggi)[1] ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="number" step="0.1" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $balita->berat_tinggi)[1]) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('tinggi')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="lingkar_kepala" class="block text-sm font-medium text-gray-700">Lingkar Kepala (cm)</label>
+                <input type="number" step="0.1" name="lingkar_kepala" id="lingkar_kepala" value="{{ old('lingkar_kepala', $balita->lingkar_kepala) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                @error('lingkar_kepala')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="lingkar_lengan" class="block text-sm font-medium text-gray-700">Lingkar Lengan (cm)</label>
+                <input type="number" step="0.1" name="lingkar_lengan" id="lingkar_lengan" value="{{ old('lingkar_lengan', $balita->lingkar_lengan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                @error('lingkar_lengan')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -146,7 +152,7 @@
             <div class="mb-4">
                 <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
                 @if ($balita->foto)
-                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-32 h-32 object-cover mb-2">
+                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-32 h-32 object-cover rounded mb-2">
                 @endif
                 <input type="file" name="foto" id="foto" class="mt-1 block w-full">
                 @error('foto')
@@ -176,30 +182,25 @@
                 allowClear: true
             });
 
-            // Load kartu keluarga for selected kecamatan and kelurahan on page load
-            var initialKecamatanId = $('#kecamatan_id').val();
-            var initialKelurahanId = $('#kelurahan_id').val();
+            // Load kelurahans and kartu keluarga for selected kecamatan on page load
+            var initialKecamatanId = '{{ old('kecamatan_id', $balita->kecamatan_id) }}';
             if (initialKecamatanId) {
                 $.ajax({
-                    url: '{{ route("kartu_keluarga.by-kecamatan-kelurahan") }}',
+                    url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', initialKecamatanId),
                     type: 'GET',
-                    data: {
-                        kecamatan_id: initialKecamatanId,
-                        kelurahan_id: initialKelurahanId
-                    },
                     dataType: 'json',
                     success: function(data) {
-                        $('#kartu_keluarga_id').empty();
-                        $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
-                        $.each(data, function(index, kk) {
-                            var selected = kk.id == {{ old('kartu_keluarga_id', $balita->kartu_keluarga_id) ?? 'null' }} ? 'selected' : '';
-                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                        $('#kelurahan_id').empty();
+                        $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
+                        $.each(data, function(index, kelurahan) {
+                            var selected = kelurahan.id == '{{ old('kelurahan_id', $balita->kelurahan_id) }}' ? 'selected' : '';
+                            $('#kelurahan_id').append('<option value="' + kelurahan.id + '" ' + selected + '>' + kelurahan.nama_kelurahan + '</option>');
                         });
-                        $('#kartu_keluarga_id').trigger('change');
+                        $('#kelurahan_id').trigger('change');
                     },
                     error: function(xhr) {
-                        console.error('Error fetching kartu keluarga:', xhr);
-                        alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
+                        console.error('Error fetching kelurahans:', xhr);
+                        alert('Gagal memuat kelurahan. Silakan coba lagi.');
                     }
                 });
             }
@@ -255,7 +256,8 @@
                         $('#kartu_keluarga_id').empty();
                         $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
                         $.each(data, function(index, kk) {
-                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                            var selected = kk.id == '{{ old('kartu_keluarga_id', $balita->kartu_keluarga_id) }}' ? 'selected' : '';
+                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
                         });
                         $('#kartu_keluarga_id').trigger('change');
                     },

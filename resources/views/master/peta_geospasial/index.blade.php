@@ -7,11 +7,19 @@
     <style>
         #map { height: 600px; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
         .custom-icon { transition: transform 0.2s; }
-        .custom-icon:hover { transform: scale(1.2); }
-        .popup-content { max-width: 300px; font-size: 14px; }
+        .custom-icon:hover { transform: scale(1.3); }
+        .popup-content { max-width: 350px; font-size: 14px; }
         .popup-content table { width: 100%; border-collapse: collapse; }
-        .popup-content th, .popup-content td { padding: 4px; border-bottom: 1px solid #e5e7eb; }
+        .popup-content th, .popup-content td { padding: 6px; border-bottom: 1px solid #e5e7eb; }
         .popup-content th { text-align: left; font-weight: bold; }
+        .tabs { display: flex; border-bottom: 1px solid #e5e7eb; margin-bottom: 10px; }
+        .tab { padding: 8px 12px; cursor: pointer; font-weight: bold; color: #4b5563; }
+        .tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .legend { position: absolute; bottom: 30px; right: 10px; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 1000; }
+        .legend div { display: flex; align-items: center; margin-bottom: 5px; }
+        .legend span { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -23,9 +31,9 @@
                 {{ session('success') }}
             </div>
         @endif
-        @if (session('error'))
+        @if (session('error') || $errorMessage)
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {{ session('error') }}
+                {{ session('error') ?? $errorMessage }}
             </div>
         @endif
         <form action="{{ route('peta_geospasial.index') }}" method="GET" class="flex flex-wrap gap-4 mb-4">
@@ -80,6 +88,9 @@
         // Data Kartu Keluarga dari PHP
         var kartuKeluargas = @json($kartuKeluargas);
 
+        // Base URL untuk route kartu_keluarga.show
+        const showKkBaseUrl = '{{ route("kartu_keluarga.show", ["kartu_keluarga" => ":id"]) }}';
+
         // Warna marker berdasarkan status kesehatan terburuk
         function getMarkerColor(status) {
             switch(status) {
@@ -109,45 +120,83 @@
             return 'Sehat';
         }
 
+        // Tambahkan legenda
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <div><span style="background: #dc2626"></span>Bahaya/Anemia Berat</div>
+                <div><span style="background: #f59e0b"></span>Waspada/Anemia Sedang</div>
+                <div><span style="background: #eab308"></span>Anemia Ringan</div>
+                <div><span style="background: #22c55e"></span>Sehat/Tidak Anemia</div>
+                <div><span style="background: #3b82f6"></span>Tidak Diketahui</div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+
         // Tambahkan marker untuk setiap Kartu Keluarga
         var markers = [];
         kartuKeluargas.forEach(function(kk) {
-            if (kk.latitude && kk.longitude) {
+            if (kk.latitude && kk.longitude && !isNaN(kk.latitude) && !isNaN(kk.longitude)) {
                 const balitas = kk.balitas || [];
                 const remajaPutris = kk.remaja_putris || [];
+                const ibus = kk.ibu || [];
 
                 // Buat tabel balita
-                let balitaTable = '<table><tr><th>Nama</th><th>Status Gizi</th></tr>';
+                let balitaTable = '<table><tr><th>Nama</th><th>Usia (bln)</th><th>Tanggal Lahir</th><th>Status Gizi</th></tr>';
                 balitas.forEach(b => {
                     const statusColor = getMarkerColor(b.status_gizi);
-                    balitaTable += `<tr><td>${b.nama}</td><td><span style="color: ${statusColor}">${b.status_gizi}</span></td></tr>`;
+                    const usia = b.usia !== null ? b.usia : 'Tanggal Lahir Tidak Tersedia';
+                    const tanggalLahir = b.tanggal_lahir ? new Date(b.tanggal_lahir).toLocaleDateString('id-ID') : '-';
+                    balitaTable += `<tr><td>${b.nama || '-'}</td><td>${usia}</td><td>${tanggalLahir}</td><td><span style="color: ${statusColor}">${b.status_gizi || '-'}</span></td></tr>`;
                 });
                 balitaTable += balitas.length ? '</table>' : '<p>Tidak ada balita</p>';
 
                 // Buat tabel remaja putri
-                let remajaTable = '<table><tr><th>Nama</th><th>Status Anemia</th></tr>';
+                let remajaTable = '<table><tr><th>Nama</th><th>Umur</th><th>Status Anemia</th></tr>';
                 remajaPutris.forEach(r => {
                     const statusColor = getMarkerColor(r.status_anemia);
-                    remajaTable += `<tr><td>${r.nama}</td><td><span style="color: ${statusColor}">${r.status_anemia}</span></td></tr>`;
+                    remajaTable += `<tr><td>${r.nama || '-'}</td><td>${r.umur || '-'}</td><td><span style="color: ${statusColor}">${r.status_anemia || '-'}</span></td></tr>`;
                 });
                 remajaTable += remajaPutris.length ? '</table>' : '<p>Tidak ada remaja putri</p>';
 
-                // Buat popup content
+                // Buat tabel ibu
+                let ibuTable = '<table><tr><th>Nama</th><th>Status</th></tr>';
+                ibus.forEach(i => {
+                    let status = 'Tidak Diketahui';
+                    if (i.ibu_hamil) status = 'Hamil';
+                    else if (i.ibu_nifas) status = 'Nifas';
+                    else if (i.ibu_menyusui) status = 'Menyusui';
+                    ibuTable += `<tr><td>${i.nama || '-'}</td><td>${status}</td></tr>`;
+                });
+                ibuTable += ibus.length ? '</table>' : '<p>Tidak ada data ibu</p>';
+
+                // Buat popup content dengan tab
                 const popupContent = `
                     <div class="popup-content">
-                        <p><b>No KK:</b> ${kk.no_kk}</p>
-                        <p><b>Kepala Keluarga:</b> ${kk.kepala_keluarga}</p>
-                        <p><b>Alamat:</b> ${kk.alamat || '-'}</p>
-                        <p><b>Kecamatan:</b> ${kk.kecamatan?.nama_kecamatan || '-'}</p>
-                        <p><b>Kelurahan:</b> ${kk.kelurahan?.nama_kelurahan || '-'}</p>
-                        <p><b>Jumlah Balita:</b> ${balitas.length}</p>
-                        <p><b>Jumlah Remaja Putri:</b> ${remajaPutris.length}</p>
-                        <h3 class="font-semibold mt-2">Balita:</h3>
-                        ${balitaTable}
-                        <h3 class="font-semibold mt-2">Remaja Putri:</h3>
-                        ${remajaTable}
+                        <div class="tabs">
+                            <div class="tab active" data-tab="info">Informasi</div>
+                            <div class="tab" data-tab="balita">Balita</div>
+                            <div class="tab" data-tab="remaja">Remaja Putri</div>
+                            <div class="tab" data-tab="ibu">Ibu</div>
+                        </div>
+                        <div class="tab-content active" id="tab-info">
+                            <p><b>No KK:</b> ${kk.no_kk || '-'}</p>
+                            <p><b>Kepala Keluarga:</b> ${kk.kepala_keluarga || '-'}</p>
+                            <p><b>Alamat:</b> ${kk.alamat || '-'}</p>
+                            <p><b>Kecamatan:</b> ${kk.kecamatan?.nama_kecamatan || '-'}</p>
+                            <p><b>Kelurahan:</b> ${kk.kelurahan?.nama_kelurahan || '-'}</p>
+                            <p><b>Jumlah Balita:</b> ${balitas.length}</p>
+                            <p><b>Jumlah Remaja Putri:</b> ${remajaPutris.length}</p>
+                            <p><b>Jumlah Ibu:</b> ${ibus.length}</p>
+                        </div>
+                        <div class="tab-content" id="tab-balita">${balitaTable}</div>
+                        <div class="tab-content" id="tab-remaja">${remajaTable}</div>
+                        <div class="tab-content" id="tab-ibu">${ibuTable}</div>
                         <div class="mt-2 flex gap-2">
-                            <a href="{{ url('kartu_keluarga') }}/${kk.id}/edit" class="text-blue-500 hover:underline">Edit KK</a>
+                            <a href="{{ url('kartu_keluarga') }}/${kk.id}/edit" class="text-blue-500 hover:underline">Edit Alamat</a>
+                            <a href="${showKkBaseUrl.replace(':id', kk.id)}" class="text-blue-500 hover:underline">Lihat Keluarga</a>
                             <a href="https://www.google.com/maps?q=${kk.latitude},${kk.longitude}" target="_blank" class="text-blue-500 hover:underline">Buka di Google Maps</a>
                         </div>
                     </div>
@@ -157,17 +206,32 @@
                 const worstStatus = getWorstStatus(kk);
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
-                    html: `<div style="background-color: ${getMarkerColor(worstStatus)}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 12],
-                    popupAnchor: [0, -12]
+                    html: `<div style="background-color: ${getMarkerColor(worstStatus)}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14],
+                    popupAnchor: [0, -14]
                 });
 
-                // Tambahkan marker ke peta
+                // Tambahkan marker ke peta dengan tooltip
                 const marker = L.marker([kk.latitude, kk.longitude], { icon: markerIcon })
                     .addTo(map)
-                    .bindPopup(popupContent, { maxWidth: 300 });
+                    .bindPopup(popupContent, { maxWidth: 350 })
+                    .bindTooltip(kk.kepala_keluarga || 'Tidak Diketahui', { direction: 'top', offset: [0, -15] });
                 markers.push(marker);
+
+                // Tambahkan event listener untuk tab
+                marker.on('popupopen', function() {
+                    const tabs = document.querySelectorAll('.tab');
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabs.forEach(tab => {
+                        tab.addEventListener('click', function() {
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tabContents.forEach(c => c.classList.remove('active'));
+                            this.classList.add('active');
+                            document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
+                        });
+                    });
+                });
             }
         });
 
@@ -175,6 +239,8 @@
         if (markers.length > 0) {
             const group = new L.featureGroup(markers);
             map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        } else {
+            map.setView([1.319558, 124.838108], 13);
         }
 
         // Fungsi untuk memperbarui dropdown kelurahan
@@ -183,8 +249,11 @@
             kelurahanSelect.innerHTML = '<option value="">Semua Kelurahan</option>';
             if (!kecamatanId) return;
 
-            fetch(`/kelurahans/by-kecamatan/${kecamatanId}`)
-                .then(response => response.json())
+            fetch(`/kelurahans/by-kecamatan/${kecamatanId}`, { headers: { 'Accept': 'application/json' } })
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal memuat kelurahan: ' + response.statusText);
+                    return response.json();
+                })
                 .then(data => {
                     data.forEach(kelurahan => {
                         kelurahanSelect.innerHTML += `<option value="${kelurahan.id}" ${kelurahan.id == '{{ $kelurahan_id }}' ? 'selected' : ''}>${kelurahan.nama_kelurahan}</option>`;
