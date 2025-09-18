@@ -48,14 +48,14 @@
 /* Reveal on scroll utility */
 .reveal-on-scroll {
     opacity: 0;
-    transform: translateY(16px);
+    transform: var(--reveal-transform, translateY(16px));
     transition: opacity var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+    will-change: opacity, transform;
 }
 .reveal-on-scroll.in {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
 }
-
 /* Manual stagger fade-up for programmatic triggers (hero text) */
 .fade-up {
     opacity: 0;
@@ -74,4 +74,14 @@
 }
 .pulse-update {
     animation: pulseHighlight 700ms var(--ease-out) 1;
+}
+
+/* Soft lift hover utility for cards */
+.soft-lift {
+    transition: transform 450ms var(--ease-out),
+        box-shadow 450ms var(--ease-out);
+}
+.soft-lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px -20px rgba(37, 99, 235, 0.35);
 }

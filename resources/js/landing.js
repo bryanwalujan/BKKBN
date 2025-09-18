@@ -18,6 +18,7 @@ async function fetchLandingData() {
     renderServices(data.services || data.layanan_kami || []);
     renderDataRiset(data.data_riset || data.stats || []);
     renderGaleri(data.galeri_program || []);
+    observeStaticReveals();
   } catch (e) {
     console.error('Failed fetching landing data', e);
   }
@@ -106,6 +107,68 @@ function ensureRevealObserver() {
   return revealObserver;
 }
 
+function setupReveal(el, opts = {}) {
+  if (!el) return;
+  const alreadyBound = el.getAttribute('data-reveal-bound') === '1';
+  const directionAttr = opts.direction || el.getAttribute('data-reveal-direction') || 'up';
+  const direction = typeof directionAttr === 'string' ? directionAttr.toLowerCase() : 'up';
+  const distanceAttr = opts.distance !== undefined ? opts.distance : el.getAttribute('data-reveal-distance');
+  const distanceNum = Number(distanceAttr);
+  const dist = Number.isFinite(distanceNum) ? Math.max(distanceNum, 0) : 16;
+  let transform = `translate3d(0, ${dist}px, 0)`;
+  switch (direction) {
+    case 'down':
+      transform = `translate3d(0, ${-dist}px, 0)`;
+      break;
+    case 'left':
+      transform = `translate3d(${-dist}px, 0, 0)`;
+      break;
+    case 'right':
+      transform = `translate3d(${dist}px, 0, 0)`;
+      break;
+    case 'none':
+    case 'static':
+      transform = 'translate3d(0, 0, 0)';
+      break;
+    default:
+      transform = `translate3d(0, ${dist}px, 0)`;
+  }
+  if (dist === 0) transform = 'translate3d(0, 0, 0)';
+  el.style.setProperty('--reveal-transform', transform);
+
+  const delayAttr = opts.delay !== undefined ? opts.delay : el.getAttribute('data-reveal-delay');
+  if (delayAttr !== null && delayAttr !== undefined && delayAttr !== '') {
+    const delay = Number(delayAttr);
+    if (Number.isFinite(delay) && delay >= 0) {
+      el.style.transitionDelay = `${delay}ms`;
+    }
+  }
+
+  const durationAttr = opts.duration !== undefined ? opts.duration : el.getAttribute('data-reveal-duration');
+  if (durationAttr !== null && durationAttr !== undefined && durationAttr !== '') {
+    const duration = Number(durationAttr);
+    if (Number.isFinite(duration) && duration > 0) {
+      el.style.transitionDuration = `${duration}ms`;
+    }
+  }
+
+  const easingAttr = opts.easing || el.getAttribute('data-reveal-easing');
+  if (easingAttr) {
+    el.style.transitionTimingFunction = easingAttr;
+  }
+
+  if (!alreadyBound) {
+    ensureRevealObserver().observe(el);
+    el.setAttribute('data-reveal-bound', '1');
+  }
+}
+
+function observeStaticReveals() {
+  document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
+    setupReveal(el);
+  });
+}
+
 // Count-up observer that replays each time the element re-enters view
 let countUpObserver;
 function ensureCountUpObserver() {
@@ -135,8 +198,8 @@ function ensureCountUpObserver() {
 
 function renderServices(list) {
   const grid = document.getElementById('services-grid');
+  if (!grid) return;
   grid.innerHTML = '';
-  const obs = ensureRevealObserver();
   list.forEach((s, idx) => {
     const card = document.createElement('div');
     card.className = 'border border-gray-200 bg-white rounded p-4 flex gap-3 hover:shadow-lg transition-shadow reveal-on-scroll';
@@ -151,12 +214,12 @@ function renderServices(list) {
     const desc = document.createElement('p');
     desc.className = 'text-sm text-gray-600';
     desc.textContent = s.deskripsi_singkat || '';
-    body.appendChild(title); body.appendChild(desc);
-    card.appendChild(icon); card.appendChild(body);
+    body.appendChild(title);
+    body.appendChild(desc);
+    card.appendChild(icon);
+    card.appendChild(body);
     grid.appendChild(card);
-    // stagger reveal
-    card.style.transitionDelay = `${Math.min(idx * 50, 300)}ms`;
-    obs.observe(card);
+    setupReveal(card, { delay: Math.min(idx * 60, 360) });
   });
 }
 // Tentang Kami
@@ -181,11 +244,10 @@ function renderDataRiset(list) {
   const grid = document.getElementById('riset-grid');
   if (!grid) return;
   grid.innerHTML = '';
-  const obs = ensureRevealObserver();
   const countObs = ensureCountUpObserver();
-  (list || []).forEach(r => {
+  (list || []).forEach((r, idx) => {
     const card = document.createElement('div');
-    card.className = 'border border-gray-200 bg-white rounded p-6 hover:shadow-lg transition-shadow reveal-on-scroll';
+    card.className = 'border border-gray-200 bg-white rounded p-6 soft-lift reveal-on-scroll';
     const title = document.createElement('div');
     title.className = 'text-sm text-gray-500';
     title.textContent = r.judul || '';
@@ -196,11 +258,12 @@ function renderDataRiset(list) {
     const time = document.createElement('div');
     time.className = 'text-xs text-gray-400';
     if (r.tanggal_update) time.textContent = formatDateTime(r.tanggal_update);
-    card.appendChild(title); card.appendChild(value); card.appendChild(time);
+    card.appendChild(title);
+    card.appendChild(value);
+    card.appendChild(time);
     grid.appendChild(card);
-    // observe for replaying count-up each time in view
     countObs.observe(value);
-    obs.observe(card);
+    setupReveal(card, { delay: Math.min(idx * 70, 320) });
   });
 }
 
@@ -209,9 +272,9 @@ function renderGaleri(list) {
   const grid = document.getElementById('galeri-grid');
   if (!grid) return;
   grid.innerHTML = '';
-  (list || []).forEach(g => {
+  (list || []).forEach((g, idx) => {
     const card = document.createElement('div');
-    card.className = 'group bg-white rounded shadow overflow-hidden reveal-on-scroll';
+    card.className = 'group bg-white rounded shadow overflow-hidden transition-shadow hover:shadow-lg reveal-on-scroll';
     if (g.gambar) {
       const img = document.createElement('img');
       img.src = buildImageUrl(g.gambar);
@@ -227,10 +290,11 @@ function renderGaleri(list) {
     const desc = document.createElement('div');
     desc.className = 'text-sm text-gray-600';
     desc.textContent = g.deskripsi || '';
-    body.appendChild(title); body.appendChild(desc);
+    body.appendChild(title);
+    body.appendChild(desc);
     card.appendChild(body);
     grid.appendChild(card);
-    ensureRevealObserver().observe(card);
+    setupReveal(card, { delay: Math.min(idx * 60, 300) });
   });
 }
 
@@ -308,6 +372,7 @@ function init() {
   fetchLandingData();
   bindMobileMenu();
   bindHeroSwipe();
+  observeStaticReveals();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -331,4 +396,6 @@ function staggerIn(nodes, baseDelay = 50) {
     setTimeout(() => el.classList.add('in'), delay);
   });
 }
+
+
 

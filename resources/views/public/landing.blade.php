@@ -27,6 +27,7 @@
                     <a href="#services" class="hover:text-blue-300">Layanan Kami</a>
                     <a href="#data-riset" class="hover:text-blue-300">Data Riset</a>
                     <a href="#galeri" class="hover:text-blue-300">Galeri Program</a>
+                    <a href="#contact" class="hover:text-blue-300">Kontak</a>
                 </nav>
                 <!-- Mobile menu button -->
                 <button id="mobile-menu-toggle" class="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
@@ -47,6 +48,7 @@
                 <a href="#services" class="block hover:text-blue-200">Layanan Kami</a>
                 <a href="#data-riset" class="block hover:text-blue-200">Data Riset</a>
                 <a href="#galeri" class="block hover:text-blue-200">Galeri Program</a>
+                <a href="#contact" class="block hover:text-blue-200">Kontak</a>
             </div>
         </div>
     </header>
@@ -68,7 +70,7 @@
                         <p id="hero-description" class="text-white/90 mt-4 sm:mt-5 text-base sm:text-lg leading-relaxed max-w-2xl">Kami hadir untuk memberikan informasi, edukasi, dan data penting dalam upaya pencegahan stunting demi generasi yang lebih sehat dan cerdas.</p>
                         <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                             <a id="hero-btn-1" href="#" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Pelajari Lebih Lanjut</a>
-                            <a id="hero-btn-2" href="#" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Hubungi Kami</a>
+                            <a id="hero-btn-2" href="#contact" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Hubungi Kami</a>
                         </div>
                     </div>
                 </div>
@@ -115,6 +117,93 @@
                 <div id="galeri-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
             </div>
         </section>
+        <!-- Kontak -->
+        <section id="contact" class="bg-gradient-to-b from-blue-50 via-white to-white scroll-mt-16">
+            <div class="max-w-7xl mx-auto px-5 py-16">
+                <div class="max-w-3xl mx-auto text-center reveal-on-scroll" data-reveal-delay="40" data-reveal-distance="28" data-reveal-duration="450">
+                    <div class="text-blue-600 font-semibold uppercase tracking-wide mb-2">Hubungi Kami</div>
+                    <h2 class="text-3xl font-bold text-gray-900">Layanan Informasi & Konsultasi Program Keluarga Berkualitas</h2>
+                    <p class="mt-4 text-base text-gray-600">Tim BKKBN Kota Tomohon siap membantu Anda mendapatkan informasi dan dukungan terkait pencegahan stunting serta pelayanan keluarga berkualitas. Silakan hubungi kami melalui detail kontak atau formulir di bawah ini.</p>
+                </div>
+
+                <div class="mt-12 space-y-10">
+                    <div class="grid gap-5 md:grid-cols-3">
+                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-2xl shadow-md p-6 soft-lift" data-reveal-delay="0" data-reveal-distance="24">
+                            <div class="flex items-start gap-3">
+                                <span class="flex size-10 items-center justify-center rounded-full bg-blue-600 text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 5.54 11.19 6.1 11.77a1.25 1.25 0 0 0 1.8 0C13.46 20.19 19 14.25 19 9a7 7 0 0 0-7-7Zm0 9.75A2.75 2.75 0 1 1 14.75 9 2.75 2.75 0 0 1 12 11.75Z"/></svg>
+                                </span>
+                                <div>
+                                    <div class="text-sm font-semibold text-blue-600 uppercase tracking-wide">Alamat Kantor</div>
+                                    <p class="mt-1 text-base font-semibold text-gray-900">DPPKBD Kota Tomohon</p>
+                                    <p class="mt-1 text-sm leading-relaxed text-gray-600">Jl. Terminal Beriman, Tomohon Timur, Kota Tomohon, Sulawesi Utara</p>
+                                    <a href="https://maps.app.goo.gl/fgaeUK9bJzSJEVeX8" target="_blank" rel="noopener" class="mt-3 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">Lihat di Google Maps</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-2xl shadow-md p-6 soft-lift" data-reveal-delay="120" data-reveal-distance="24">
+                            <div class="flex items-start gap-3">
+                                <span class="flex size-10 items-center justify-center rounded-full bg-blue-600 text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M6.62 10.79a15.07 15.07 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24 11.36 11.36 0 0 0 3.56.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.2 2.43.57 3.56a1 1 0 0 1-.24 1.01l-2.21 2.22Z"/></svg>
+                                </span>
+                                <div>
+                                    <div class="text-sm font-semibold text-blue-600 uppercase tracking-wide">Telepon</div>
+                                    <p class="mt-1 text-base font-semibold text-gray-900">+62 812 3456 7890</p>
+                                   <a href="tel:+6281234567890" class="mt-3 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">Hubungi langsung</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-2xl shadow-md p-6 soft-lift" data-reveal-delay="220" data-reveal-distance="24">
+                            <div class="flex items-start gap-3">
+                                <span class="flex size-10 items-center justify-center rounded-full bg-blue-600 text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Zm3-1a1 1 0 0 0-1 1v.52l6 4.8 6-4.8V5a1 1 0 0 0-1-1Z"/></svg>
+                                </span>
+                                <div>
+                                    <div class="text-sm font-semibold text-blue-600 uppercase tracking-wide">Email</div>
+                                    <p class="mt-1 text-base font-semibold text-gray-900">info@bkkbntomohon.go.id</p>
+                                    <p class="mt-1 text-sm text-gray-600">Kirimkan aspirasi, kolaborasi program, atau kebutuhan data resmi melalui email.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-8 lg:grid-cols-2">
+                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-4 sm:p-6 soft-lift" data-reveal-direction="left" data-reveal-distance="32" data-reveal-delay="260" data-reveal-duration="500">
+                            <div class="overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]">
+                                <iframe title="Lokasi BKKBN Kota Tomohon" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full border-0"></iframe>
+                            </div>
+                            <p class="mt-3 text-sm text-gray-500">Gunakan peta untuk menemukan lokasi kantor kami dengan mudah.</p>
+                        </div>
+                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-6 sm:p-8 soft-lift" data-reveal-direction="right" data-reveal-distance="32" data-reveal-delay="320" data-reveal-duration="500">
+                            @php($contactAction = Route::has('contact.submit') ? route('contact.submit') : '#')
+                            <form method="POST" action="{{ $contactAction }}" class="space-y-5">
+                                @csrf
+                                <div>
+                                    <label for="contact-name" class="text-sm font-medium text-gray-700">Nama Lengkap</label>
+                                    <input id="contact-name" name="nama" type="text" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm" placeholder="Masukkan nama Anda">
+                                </div>
+                                <div>
+                                    <label for="contact-email" class="text-sm font-medium text-gray-700">Email Aktif</label>
+                                    <input id="contact-email" name="email" type="email" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm" placeholder="nama@email.com">
+                                </div>
+                                <div>
+                                    <label for="contact-subject" class="text-sm font-medium text-gray-700">Subjek Pesan</label>
+                                    <input id="contact-subject" name="subjek" type="text" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm" placeholder="Tulis judul pesan">
+                                </div>
+                                <div>
+                                    <label for="contact-message" class="text-sm font-medium text-gray-700">Pesan Anda</label>
+                                    <textarea id="contact-message" name="pesan" rows="5" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm resize-none" placeholder="Sampaikan pertanyaan atau kebutuhan Anda"></textarea>
+                                </div>
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <p class="text-xs text-gray-500">Kami akan merespon secepatnya.</p>
+                                    <button type="submit" class="inline-flex justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-transform duration-200 hover:-translate-y-0.5">Kirim Pesan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="bg-white border-t">
@@ -122,3 +211,6 @@
     </footer>
 </body>
 </html>
+
+
+
