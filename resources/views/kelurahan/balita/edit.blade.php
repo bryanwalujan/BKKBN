@@ -45,7 +45,7 @@
             </div>
             <div class="mb-4">
                 <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
-                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $balita->tanggal_lahir) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $tanggalLahir) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('tanggal_lahir')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror

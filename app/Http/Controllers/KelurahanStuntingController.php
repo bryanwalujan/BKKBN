@@ -3,7 +3,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PendingStunting;
 use App\Models\Stunting;
-use App\Models\Balita;
 use App\Models\KartuKeluarga;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
@@ -15,6 +14,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class KelurahanStuntingController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('role:admin_kelurahan');
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -91,29 +96,43 @@ class KelurahanStuntingController extends Controller
 
     public function create()
     {
-        $kartuKeluargas = KartuKeluarga::where('status', 'Aktif')->get();
-        $kecamatans = Kecamatan::all();
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.stunting.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
+        }
+
+        $kecamatan = Kecamatan::where('id', $user->kecamatan_id)->first();
+        $kelurahan = Kelurahan::where('id', $user->kelurahan_id)->first();
+        $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
+            ->where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get();
+
         if ($kartuKeluargas->isEmpty()) {
             return redirect()->route('kelurahan.kartu_keluarga.create')->with('error', 'Tambahkan Kartu Keluarga terlebih dahulu sebelum menambah data stunting.');
         }
-        if ($kecamatans->isEmpty()) {
-            return redirect()->route('kelurahan.stunting.index')->with('error', 'Tambahkan Kecamatan terlebih dahulu sebelum menambah data stunting.');
+        if (!$kecamatan || !$kelurahan) {
+            return redirect()->route('kelurahan.stunting.index')->with('error', 'Data kecamatan atau kelurahan tidak ditemukan.');
         }
-        return view('kelurahan.stunting.create', compact('kartuKeluargas', 'kecamatans'));
+
+        return view('kelurahan.stunting.create', compact('kartuKeluargas', 'kecamatan', 'kelurahan'));
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.stunting.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
+        }
+
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id,kecamatan_id,' . $user->kecamatan_id . ',kelurahan_id,' . $user->kelurahan_id],
             'nik' => ['nullable', 'string', 'max:255', 'unique:pending_stuntings,nik'],
             'nama' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
             'warna_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
             'tindak_lanjut' => ['nullable', 'string', 'max:255'],
@@ -122,7 +141,9 @@ class KelurahanStuntingController extends Controller
         ]);
 
         try {
-            $data = $request->all();
+            $data = $request->except(['kecamatan_id', 'kelurahan_id']);
+            $data['kecamatan_id'] = $user->kecamatan_id;
+            $data['kelurahan_id'] = $user->kelurahan_id;
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
             $data['created_by'] = Auth::id();
             $data['status'] = 'pending';
@@ -131,6 +152,7 @@ class KelurahanStuntingController extends Controller
                 $data['foto'] = $request->file('foto')->store('pending_stunting_fotos', 'public');
             }
 
+            Log::info('Menyimpan data stunting ke pending_stuntings', ['data' => $data]);
             PendingStunting::create($data);
 
             return redirect()->route('kelurahan.stunting.index')->with('success', 'Data stunting berhasil diajukan untuk verifikasi.');
@@ -142,35 +164,63 @@ class KelurahanStuntingController extends Controller
 
     public function edit($id, $source = 'pending')
     {
-        if ($source === 'verified') {
-            $stunting = Stunting::where('kelurahan_id', Auth::user()->kelurahan_id)->findOrFail($id);
-        } else {
-            $stunting = PendingStunting::where('created_by', Auth::id())->findOrFail($id);
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.stunting.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
-        $kartuKeluargas = KartuKeluarga::where('status', 'Aktif')->get();
-        $kecamatans = Kecamatan::all();
-        $kelurahans = $stunting->kecamatan_id ? Kelurahan::where('kecamatan_id', $stunting->kecamatan_id)->get() : collect([]);
+
+        if ($source === 'verified') {
+            $stunting = Stunting::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+        } else {
+            $stunting = PendingStunting::where('created_by', Auth::id())->where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+        }
+
+        $kecamatan = Kecamatan::where('id', $user->kecamatan_id)->first();
+        $kelurahan = Kelurahan::where('id', $user->kelurahan_id)->first();
+        $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
+            ->where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get();
+
         if ($kartuKeluargas->isEmpty()) {
             return redirect()->route('kelurahan.kartu_keluarga.create')->with('error', 'Tambahkan Kartu Keluarga terlebih dahulu sebelum mengedit data stunting.');
         }
-        if ($kecamatans->isEmpty()) {
-            return redirect()->route('kelurahan.stunting.index')->with('error', 'Tambahkan Kecamatan terlebih dahulu sebelum mengedit data stunting.');
+        if (!$kecamatan || !$kelurahan) {
+            return redirect()->route('kelurahan.stunting.index')->with('error', 'Data kecamatan atau kelurahan tidak ditemukan.');
         }
-        return view('kelurahan.stunting.edit', compact('stunting', 'kartuKeluargas', 'kecamatans', 'kelurahans', 'source'));
+
+        // Pisahkan berat_tinggi menjadi berat dan tinggi
+        $beratTinggi = explode('/', $stunting->berat_tinggi ?? '0/0');
+
+        // Pastikan tanggal_lahir dalam format Y-m-d
+        $tanggalLahir = $stunting->tanggal_lahir ? \Carbon\Carbon::parse($stunting->tanggal_lahir)->format('Y-m-d') : null;
+
+        // Log untuk debugging
+        Log::info('Edit Stunting', [
+            'id' => $id,
+            'source' => $source,
+            'tanggal_lahir_raw' => $stunting->tanggal_lahir,
+            'tanggal_lahir_formatted' => $tanggalLahir,
+        ]);
+
+        return view('kelurahan.stunting.edit', compact('stunting', 'kartuKeluargas', 'kecamatan', 'kelurahan', 'source', 'beratTinggi', 'tanggalLahir'));
     }
 
     public function update(Request $request, $id, $source = 'pending')
     {
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.stunting.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
+        }
+
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id,kecamatan_id,' . $user->kecamatan_id . ',kelurahan_id,' . $user->kelurahan_id],
             'nik' => ['nullable', 'string', 'max:255', 'unique:pending_stuntings,nik,' . ($source === 'pending' ? $id : null)],
             'nama' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
             'warna_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
             'tindak_lanjut' => ['nullable', 'string', 'max:255'],
@@ -179,7 +229,9 @@ class KelurahanStuntingController extends Controller
         ]);
 
         try {
-            $data = $request->all();
+            $data = $request->except(['kecamatan_id', 'kelurahan_id']);
+            $data['kecamatan_id'] = $user->kecamatan_id;
+            $data['kelurahan_id'] = $user->kelurahan_id;
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
             $data['created_by'] = Auth::id();
             $data['status'] = 'pending';
@@ -188,7 +240,7 @@ class KelurahanStuntingController extends Controller
                 if ($request->hasFile('foto')) {
                     $data['foto'] = $request->file('foto')->store('pending_stunting_fotos', 'public');
                 } else {
-                    $stunting = Stunting::where('kelurahan_id', Auth::user()->kelurahan_id)->findOrFail($id);
+                    $stunting = Stunting::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
                     if ($stunting->foto) {
                         $fileName = basename($stunting->foto);
                         $newPath = 'pending_stunting_fotos/' . $fileName;
@@ -196,16 +248,18 @@ class KelurahanStuntingController extends Controller
                         $data['foto'] = $newPath;
                     }
                 }
+                Log::info('Menyimpan perubahan stunting terverifikasi ke pending_stuntings', ['id' => $id, 'data' => $data]);
                 PendingStunting::create($data);
                 $message = 'Perubahan data stunting berhasil diajukan untuk verifikasi.';
             } else {
-                $stunting = PendingStunting::where('created_by', Auth::id())->findOrFail($id);
+                $stunting = PendingStunting::where('created_by', Auth::id())->where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
                 if ($request->hasFile('foto')) {
                     if ($stunting->foto) {
                         Storage::disk('public')->delete($stunting->foto);
                     }
                     $data['foto'] = $request->file('foto')->store('pending_stunting_fotos', 'public');
                 }
+                Log::info('Memperbarui data stunting di pending_stuntings', ['id' => $id, 'data' => $data]);
                 $stunting->update($data);
                 $message = 'Data stunting berhasil diperbarui dan diajukan untuk verifikasi.';
             }
@@ -220,7 +274,7 @@ class KelurahanStuntingController extends Controller
     public function destroy($id)
     {
         try {
-            $stunting = PendingStunting::where('created_by', Auth::id())->findOrFail($id);
+            $stunting = PendingStunting::where('created_by', Auth::id())->where('kelurahan_id', Auth::user()->kelurahan_id)->findOrFail($id);
             if ($stunting->foto) {
                 Storage::disk('public')->delete($stunting->foto);
             }

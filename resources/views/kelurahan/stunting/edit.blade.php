@@ -8,69 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#kecamatan_id').select2({
-                placeholder: 'Pilih Kecamatan',
-                allowClear: true
-            });
-            $('#kelurahan_id').select2({
-                placeholder: 'Pilih Kelurahan',
-                allowClear: true
-            });
             $('#kartu_keluarga_id').select2({
                 placeholder: 'Pilih Kartu Keluarga',
                 allowClear: true
             });
-
-            $('#kecamatan_id').on('change', function() {
-                var kecamatanId = $(this).val();
-                $('#kelurahan_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                $('#kartu_keluarga_id').empty().append('<option value="">Pilih Kartu Keluarga</option>').trigger('change');
-
-                if (kecamatanId) {
-                    $.ajax({
-                        url: '/kelurahans/by-kecamatan/' + kecamatanId,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, kelurahan) {
-                                $('#kelurahan_id').append('<option value="' + kelurahan.id + '"' + (kelurahan.id == '{{ old('kelurahan_id', $stunting->kelurahan_id) }}' ? ' selected' : '') + '>' + kelurahan.nama_kelurahan + '</option>');
-                            });
-                            $('#kelurahan_id').trigger('change');
-                        },
-                        error: function(xhr) {
-                            console.error('Gagal mengambil data kelurahan:', xhr);
-                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
-                        }
-                    });
-                }
-            });
-
-            $('#kelurahan_id').on('change', function() {
-                var kecamatanId = $('#kecamatan_id').val();
-                var kelurahanId = $(this).val();
-                $('#kartu_keluarga_id').empty().append('<option value="">Pilih Kartu Keluarga</option>').trigger('change');
-
-                if (kecamatanId && kelurahanId) {
-                    $.ajax({
-                        url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + kecamatanId + '&kelurahan_id=' + kelurahanId,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, kk) {
-                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '"' + (kk.id == '{{ old('kartu_keluarga_id', $stunting->kartu_keluarga_id) }}' ? ' selected' : '') + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
-                            });
-                            $('#kartu_keluarga_id').trigger('change');
-                        },
-                        error: function(xhr) {
-                            console.error('Gagal mengambil data kartu keluarga:', xhr);
-                            alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                        }
-                    });
-                }
-            });
-
-            // Trigger initial change to populate kelurahan and kartu keluarga
-            $('#kecamatan_id').val('{{ old('kecamatan_id', $stunting->kecamatan_id) }}').trigger('change');
         });
     </script>
 </head>
@@ -83,10 +24,10 @@
                 {{ session('error') }}
             </div>
         @endif
-        @if ($kartuKeluargas->isEmpty() || $kecamatans->isEmpty())
+        @if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan)
             <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
                 {{ $kartuKeluargas->isEmpty() ? 'Tidak ada data Kartu Keluarga. ' : '' }}
-                {{ $kecamatans->isEmpty() ? 'Tidak ada data Kecamatan. ' : '' }}
+                {{ !$kecamatan || !$kelurahan ? 'Data kecamatan atau kelurahan tidak ditemukan. ' : '' }}
                 Silakan tambahkan data terlebih dahulu.
             </div>
         @else
@@ -95,24 +36,16 @@
                 @method('PUT')
                 <div class="mb-4">
                     <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                    <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                        <option value="">Pilih Kecamatan</option>
-                        @foreach ($kecamatans as $kecamatan)
-                            <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $stunting->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" value="{{ $kecamatan->nama_kecamatan }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                    <input type="hidden" name="kecamatan_id" value="{{ $kecamatan->id }}">
                     @error('kecamatan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
                     <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                    <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                        <option value="">Pilih Kelurahan</option>
-                        @foreach ($kelurahans as $kelurahan)
-                            <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $stunting->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" value="{{ $kelurahan->nama_kelurahan }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                    <input type="hidden" name="kelurahan_id" value="{{ $kelurahan->id }}">
                     @error('kelurahan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -145,7 +78,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
-                    <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $stunting->tanggal_lahir ? $stunting->tanggal_lahir->format('Y-m-d') : '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $tanggalLahir) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                     @error('tanggal_lahir')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -162,14 +95,14 @@
                 </div>
                 <div class="mb-4">
                     <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                    <input type="number" name="berat" id="berat" value="{{ old('berat', explode('/', $stunting->berat_tinggi)[0] ?? '') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <input type="number" name="berat" id="berat" value="{{ old('berat', $beratTinggi[0] ?? '') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                     @error('berat')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
                     <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                    <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $stunting->berat_tinggi)[1] ?? '') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $beratTinggi[1] ?? '') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                     @error('tinggi')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -218,7 +151,9 @@
                 <div class="mb-4">
                     <label for="foto" class="block text-sm font-medium text-gray-700">Foto Kartu Identitas</label>
                     @if ($stunting->foto)
-                        <img src="{{ Storage::url($stunting->foto) }}" alt="Foto Stunting" class="w-16 h-16 object-cover rounded mb-2">
+                        <img src="{{ Storage::url($stunting->foto) }}" alt="Foto Stunting" class="w-32 h-32 object-cover rounded mb-2">
+                    @else
+                        <p class="text-gray-500">Tidak ada foto</p>
                     @endif
                     <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
                     @error('foto')

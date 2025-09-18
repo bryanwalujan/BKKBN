@@ -26,14 +26,14 @@
                    class="px-4 py-2 rounded {{ $tab == 'verified' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700' }}">Terverifikasi</a>
             </div>
             @if ($tab == 'pending')
-                <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="bg-green-500 text-white px-4 py-2 rounded">Tambah Kartu Keluarga</a>
+                <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Tambah Kartu Keluarga</a>
             @endif
         </div>
         <div class="mb-4">
             <form method="GET" action="{{ route('kelurahan.kartu_keluarga.index') }}" class="flex space-x-2">
                 <input type="hidden" name="tab" value="{{ $tab }}">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Cari nomor KK atau kepala keluarga" class="border p-2 rounded">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Cari</button>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
             </form>
         </div>
         <table class="w-full bg-white shadow-md rounded">
@@ -59,16 +59,19 @@
                         <td class="p-4">{{ $kk->alamat ?? 'Tidak ada' }}</td>
                         <td class="p-4">{{ $kk->source == 'verified' ? $kk->status : $kk->status_verifikasi }}</td>
                         <td class="p-4">{{ $kk->createdBy->name ?? 'Tidak diketahui' }}</td>
-                        <td class="p-4">
+                        <td class="p-4 flex space-x-2">
+                            @if ($kk->source == 'verified')
+                                <a href="{{ route('kelurahan.kartu_keluarga.show', $kk->id) }}" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Detail</a>
+                            @endif
                             @if ($kk->source == 'pending')
-                                <a href="{{ route('kelurahan.kartu_keluarga.edit', ['id' => $kk->id, 'source' => 'pending']) }}" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</a>
+                                <a href="{{ route('kelurahan.kartu_keluarga.edit', ['id' => $kk->id, 'source' => 'pending']) }}" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</a>
                                 <form action="{{ route('kelurahan.kartu_keluarga.destroy', $kk->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
+                                    <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
                                 </form>
                             @else
-                                <a href="{{ route('kelurahan.kartu_keluarga.edit', ['id' => $kk->id, 'source' => 'verified']) }}" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</a>
+                                <a href="{{ route('kelurahan.kartu_keluarga.edit', ['id' => $kk->id, 'source' => 'verified']) }}" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</a>
                             @endif
                         </td>
                     </tr>

@@ -17,9 +17,9 @@
                 {{ session('error') }}
             </div>
         @endif
-        @if ($kecamatans->isEmpty())
+        @if (!$kecamatan || !$kelurahan)
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                Tidak ada data Kecamatan. Silakan hubungi admin kecamatan.
+                Data Kecamatan atau Kelurahan tidak tersedia. Silakan hubungi admin kecamatan.
             </div>
         @else
             <form action="{{ route('kelurahan.kartu_keluarga.store') }}" method="POST" class="bg-white p-6 rounded shadow">
@@ -39,23 +39,17 @@
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                    <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled required>
-                        @foreach ($kecamatans as $kecamatan)
-                            <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $kecamatans->first()->id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
-                        @endforeach
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                    <p class="mt-1 text-gray-900">{{ $kecamatan->nama_kecamatan }}</p>
+                    <input type="hidden" name="kecamatan_id" value="{{ $kecamatan->id }}">
                     @error('kecamatan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                    <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                        @foreach ($kelurahans as $kelurahan)
-                            <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $kelurahans->first()->id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
-                        @endforeach
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700">Kelurahan</label>
+                    <p class="mt-1 text-gray-900">{{ $kelurahan->nama_kelurahan }}</p>
+                    <input type="hidden" name="kelurahan_id" value="{{ $kelurahan->id }}">
                     @error('kelurahan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
