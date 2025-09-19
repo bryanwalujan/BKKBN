@@ -110,43 +110,48 @@ function ensureRevealObserver() {
 function setupReveal(el, opts = {}) {
   if (!el) return;
   const alreadyBound = el.getAttribute('data-reveal-bound') === '1';
-  const directionAttr = opts.direction || el.getAttribute('data-reveal-direction') || 'up';
-  const direction = typeof directionAttr === 'string' ? directionAttr.toLowerCase() : 'up';
-  const distanceAttr = opts.distance !== undefined ? opts.distance : el.getAttribute('data-reveal-distance');
-  const distanceNum = Number(distanceAttr);
-  const dist = Number.isFinite(distanceNum) ? Math.max(distanceNum, 0) : 16;
-  let transform = `translate3d(0, ${dist}px, 0)`;
-  switch (direction) {
-    case 'down':
-      transform = `translate3d(0, ${-dist}px, 0)`;
-      break;
-    case 'left':
-      transform = `translate3d(${-dist}px, 0, 0)`;
-      break;
-    case 'right':
-      transform = `translate3d(${dist}px, 0, 0)`;
-      break;
-    case 'none':
-    case 'static':
-      transform = 'translate3d(0, 0, 0)';
-      break;
-    default:
-      transform = `translate3d(0, ${dist}px, 0)`;
+  const hasDistance = opts.distance !== undefined || el.hasAttribute('data-reveal-distance');
+  const hasDirection = Boolean(opts.direction) || el.hasAttribute('data-reveal-direction');
+  if (hasDistance || hasDirection) {
+    const directionAttr = opts.direction || el.getAttribute('data-reveal-direction') || 'up';
+    const direction = typeof directionAttr === 'string' ? directionAttr.toLowerCase() : 'up';
+    const distanceSource = opts.distance !== undefined ? opts.distance : el.getAttribute('data-reveal-distance');
+    const dist = distanceSource !== null && distanceSource !== undefined && distanceSource !== ''
+      ? Math.max(Number(distanceSource) || 0, 0)
+      : 16;
+    let transform = `translate3d(0, ${dist}px, 0)`;
+    switch (direction) {
+      case 'down':
+        transform = `translate3d(0, ${-dist}px, 0)`;
+        break;
+      case 'left':
+        transform = `translate3d(${-dist}px, 0, 0)`;
+        break;
+      case 'right':
+        transform = `translate3d(${dist}px, 0, 0)`;
+        break;
+      case 'none':
+      case 'static':
+        transform = 'translate3d(0, 0, 0)';
+        break;
+      default:
+        transform = `translate3d(0, ${dist}px, 0)`;
+    }
+    if (dist === 0) transform = 'translate3d(0, 0, 0)';
+    el.style.setProperty('--reveal-transform', transform);
   }
-  if (dist === 0) transform = 'translate3d(0, 0, 0)';
-  el.style.setProperty('--reveal-transform', transform);
 
-  const delayAttr = opts.delay !== undefined ? opts.delay : el.getAttribute('data-reveal-delay');
-  if (delayAttr !== null && delayAttr !== undefined && delayAttr !== '') {
-    const delay = Number(delayAttr);
+  const delaySource = opts.delay !== undefined ? opts.delay : el.getAttribute('data-reveal-delay');
+  if (delaySource !== null && delaySource !== undefined && delaySource !== '') {
+    const delay = Number(delaySource);
     if (Number.isFinite(delay) && delay >= 0) {
       el.style.transitionDelay = `${delay}ms`;
     }
   }
 
-  const durationAttr = opts.duration !== undefined ? opts.duration : el.getAttribute('data-reveal-duration');
-  if (durationAttr !== null && durationAttr !== undefined && durationAttr !== '') {
-    const duration = Number(durationAttr);
+  const durationSource = opts.duration !== undefined ? opts.duration : el.getAttribute('data-reveal-duration');
+  if (durationSource !== null && durationSource !== undefined && durationSource !== '') {
+    const duration = Number(durationSource);
     if (Number.isFinite(duration) && duration > 0) {
       el.style.transitionDuration = `${duration}ms`;
     }
@@ -247,7 +252,7 @@ function renderDataRiset(list) {
   const countObs = ensureCountUpObserver();
   (list || []).forEach((r, idx) => {
     const card = document.createElement('div');
-    card.className = 'border border-gray-200 bg-white rounded p-6 soft-lift reveal-on-scroll';
+    card.className = 'riset-card reveal-on-scroll soft-lift';
     const title = document.createElement('div');
     title.className = 'text-sm text-gray-500';
     title.textContent = r.judul || '';
@@ -396,6 +401,3 @@ function staggerIn(nodes, baseDelay = 50) {
     setTimeout(() => el.classList.add('in'), delay);
   });
 }
-
-
-

@@ -206,11 +206,99 @@
         </section>
     </main>
 
-    <footer class="bg-white border-t">
-        <div class="max-w-7xl mx-auto px-4 py-6 text-sm text-gray-500">&copy; {{ date('Y') }} {{ config('app.name', 'BKKBN') }}</div>
+    <footer class="bg-slate-950 text-slate-100">
+        <div class="max-w-7xl mx-auto px-5 py-16">
+            <div class="grid gap-16 lg:grid-cols-[1.3fr_minmax(0,1fr)_minmax(0,1fr)]">
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/20 ring-1 ring-blue-500/40">
+                            <img src="{{ Vite::asset('resources/views/logo-bkkbn.png') }}" alt="Logo BKKBN" class="h-9 w-9 object-contain" onerror="this.style.display='none'" />
+                        </div>
+                        <div>
+                            <p class="text-lg font-semibold text-white">Cegah Stunting Tomohon</p>
+                            <p class="text-xs uppercase tracking-[0.22em] text-blue-400">Bergerak Bersama Keluarga</p>
+                        </div>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-300">Portal edukasi dan layanan terpadu BKKBN Kota Tomohon untuk memutus rantai stunting, menguatkan keluarga, dan memastikan tumbuh kembang balita yang optimal.</p>
+                    <div class="flex items-center gap-3">
+                        <a href="https://facebook.com" class="social-pill" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 9H16l.5-3h-3V4.5c0-.9.3-1.5 1.5-1.5H16V0h-2.4C10.9 0 10 1.9 10 4.1V6H7v3h3v9h3V9Z"/></svg>
+                        </a>
+                        <a href="https://instagram.com" class="social-pill" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-3.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg>
+                        </a>
+                        <a href="https://www.youtube.com" class="social-pill" aria-label="YouTube">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 6.2a2.5 2.5 0 0 0-1.76-1.77C18 4 12 4 12 4s-6 0-7.84.43A2.5 2.5 0 0 0 2.4 6.2 26.2 26.2 0 0 0 2 12a26.2 26.2 0 0 0 .4 5.8 2.5 2.5 0 0 0 1.76 1.77C6 20 12 20 12 20s6 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26.2 26.2 0 0 0 22 12a26.2 26.2 0 0 0-.4-5.8ZM10 15.46V8.54L15.5 12Z"/></svg>
+                        </a>
+                        <a href="https://bkkbn.go.id" class="social-pill" aria-label="Portal BKKBN">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4.59l-8 4.44-8-4.44Zm8 9.82 8-4.44V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9.62Z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <h3 class="footer-heading">Navigasi</h3>
+                    <ul class="footer-list">
+                        <li><a href="#hero" class="footer-link">Beranda</a></li>
+                        <li><a href="#tentang" class="footer-link">Tentang Kami</a></li>
+                        <li><a href="#services" class="footer-link">Layanan Kami</a></li>
+                        <li><a href="#data-riset" class="footer-link">Basis Data</a></li>
+                        <li><a href="#galeri" class="footer-link">Galeri Program</a></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="footer-heading">Kontak Kami</h3>
+                    <div class="space-y-6 text-sm text-slate-300">
+                        <div class="flex gap-3">
+                            <span class="footer-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>
+                            </span>
+                            <div class="space-y-2">
+                                <div class="footer-contact-meta">Alamat Kantor</div>
+                                <p class="footer-contact-title">DPPKBD Kota Tomohon</p>
+                                <p class="leading-relaxed">Jl. Terminal Beriman, Tomohon Timur, Kota Tomohon, Sulawesi Utara</p>
+                                <a href="https://maps.app.goo.gl/fgaeUK9bJzSJEVeX8" target="_blank" rel="noopener" class="footer-contact-link">Lihat di Google Maps</a>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="footer-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.27 3.52A3 3 0 0 1 8.1 2h.46a1.5 1.5 0 0 1 1.43 1.05l1 3a1.5 1.5 0 0 1-.38 1.52l-1.2 1.17a10.94 10.94 0 0 0 4.8 4.8l1.17-1.2a1.5 1.5 0 0 1 1.52-.38l3 1a1.5 1.5 0 0 1 1.05 1.43v.46a3 3 0 0 1-1.52 2.83l-.52.26a4.5 4.5 0 0 1-4.13-.08 22.52 22.52 0 0 1-9.68-9.68 4.5 4.5 0 0 1-.08-4.13Z"/></svg>
+                            </span>
+                            <div class="space-y-2">
+                                <div class="footer-contact-meta">Telepon</div>
+                                <p class="footer-contact-title">+62 812 3456 7890</p>
+                                <p>Senin - Jumat, 08:00 - 16:00 WITA</p>
+                                <a href="tel:+6281234567890" class="footer-contact-link">Hubungi langsung</a>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="footer-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Zm3-1a1 1 0 0 0-1 1v.52l6 4.8 6-4.8V5a1 1 0 0 0-1-1Z"/></svg>
+                            </span>
+                            <div class="space-y-2">
+                                <div class="footer-contact-meta">Email</div>
+                                <p class="footer-contact-title">info@bkkbntomohon.go.id</p>
+                                <p>Kirimkan aspirasi, kolaborasi program, atau kebutuhan data resmi melalui email.</p>
+                                <a href="mailto:info@bkkbntomohon.go.id" class="footer-contact-link">Kirim surel</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-16 flex flex-col gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400 md:flex-row md:items-center md:justify-between">
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'BKKBN') }}. Seluruh hak cipta dilindungi.</p>
+                <div class="flex items-center gap-4">
+                    <a href="https://tomohon.go.id" class="hover:text-blue-300 transition-colors">Dinas PPKB Kota Tomohon</a>
+                    <span class="hidden text-slate-600 md:inline">&bull;</span>
+                    <a href="#contact" class="hover:text-blue-300 transition-colors">Hubungi Tim Pengembang</a>
+                </div>
+                <a href="#hero" class="inline-flex items-center justify-center gap-2 self-start rounded-full bg-blue-600 px-4 py-2 font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:bg-blue-500 md:self-auto">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-4 w-4"><path d="m12 5 7 7H5z"/></svg>
+                    Kembali ke atas
+                </a>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
-
-
-
