@@ -85,7 +85,7 @@
             </div>
             <div class="mb-4">
                 <label for="tahun" class="block text-sm font-medium text-gray-700">Tahun</label>
-                <input type="number" name="tahun" id="tahun" value="{{ old('tahun', $aksiKonvergensi->tahun) }}" min="2020" max="2030" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="number" name="tahun" id="tahun" value="{{ old('tahun', $aksiKonvergensi->tahun) }}" min="2000" max="2050" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('tahun')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror

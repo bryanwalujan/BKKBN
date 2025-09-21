@@ -36,6 +36,21 @@
                 {{ session('error') ?? $errorMessage }}
             </div>
         @endif
+        <form action="{{ route('kelurahan.peta_geospasial.index') }}" method="GET" class="flex flex-wrap gap-4 mb-4">
+            <div class="w-full sm:w-auto">
+                <label for="marker_color" class="block text-sm font-medium text-gray-700 mb-1">Warna Marker</label>
+                <select name="marker_color" id="marker_color" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64">
+                    <option value="">Semua Warna</option>
+                    @foreach ($markerColors as $color)
+                        <option value="{{ $color['value'] }}" {{ $marker_color == $color['value'] ? 'selected' : '' }}>{{ $color['label'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex items-end w-full sm:w-auto">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
+                <a href="{{ route('kelurahan.peta_geospasial.index') }}" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</a>
+            </div>
+        </form>
         <div class="mb-4 flex space-x-4">
             <a href="{{ route('kelurahan.kartu_keluarga.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Kartu Keluarga</a>
             <a href="{{ route('kelurahan.remaja_putri.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Remaja Putri</a>
@@ -51,57 +66,35 @@
         var kelurahan = @json(auth()->user()->kelurahan);
         var defaultLatLng = kelurahan.latitude && kelurahan.longitude ? [kelurahan.latitude, kelurahan.longitude] : [1.319558, 124.838108];
         var map = L.map('map').setView(defaultLatLng, 14);
+
+        // Tambahkan tile layer dari OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         // Data Kartu Keluarga dari PHP
         var kartuKeluargas = @json($kartuKeluargas);
+
+        // Log data untuk debugging
         console.log('Kartu Keluargas:', kartuKeluargas);
+        kartuKeluargas.forEach(kk => {
+            console.log(`KK ID: ${kk.id}, No KK: ${kk.no_kk}, Marker Color: ${kk.marker_color}`);
+        });
 
         // Base URL untuk route
         const showKkBaseUrl = '{{ route("kelurahan.kartu_keluarga.show", ["id" => ":id"]) }}';
         const editKkBaseUrl = '{{ route("kelurahan.kartu_keluarga.edit", ["id" => ":id", "source" => "verified"]) }}';
-
-        // Warna marker berdasarkan status kesehatan terburuk
-        function getMarkerColor(status) {
-            switch(status) {
-                case 'Bahaya':
-                case 'Anemia Berat': return '#dc2626';
-                case 'Waspada':
-                case 'Anemia Sedang': return '#f59e0b';
-                case 'Anemia Ringan': return '#eab308';
-                case 'Sehat':
-                case 'Tidak Anemia': return '#22c55e';
-                default: return '#3b82f6';
-            }
-        }
-
-        // Menentukan status kesehatan terburuk
-        function getWorstStatus(kk) {
-            const balitas = kk.balitas || [];
-            const remajaPutris = kk.remaja_putris || [];
-            const statuses = [
-                ...balitas.map(b => b.status_gizi),
-                ...remajaPutris.map(r => r.status_anemia)
-            ];
-            if (statuses.includes('Bahaya') || statuses.includes('Anemia Berat')) return 'Bahaya';
-            if (statuses.includes('Waspada') || statuses.includes('Anemia Sedang')) return 'Waspada';
-            if (statuses.includes('Anemia Ringan')) return 'Anemia Ringan';
-            if (statuses.includes('Sehat') || statuses.includes('Tidak Anemia')) return 'Sehat';
-            return 'Sehat';
-        }
 
         // Tambahkan legenda
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function(map) {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML = `
-                <div><span style="background: #dc2626"></span>Bahaya/Anemia Berat</div>
-                <div><span style="background: #f59e0b"></span>Waspada/Anemia Sedang</div>
-                <div><span style="background: #eab308"></span>Anemia Ringan</div>
-                <div><span style="background: #22c55e"></span>Sehat/Tidak Anemia</div>
-                <div><span style="background: #3b82f6"></span>Tidak Diketahui</div>
+                <div><span style="background: #dc2626"></span>Merah (Bahaya/Anemia Berat)</div>
+                <div><span style="background: #f59e0b"></span>Oranye (Waspada/Anemia Sedang)</div>
+                <div><span style="background: #eab308"></span>Kuning (Anemia Ringan)</div>
+                <div><span style="background: #22c55e"></span>Hijau (Sehat/Tidak Anemia)</div>
+                <div><span style="background: #3b82f6"></span>Biru (Tidak Diketahui)</div>
             `;
             return div;
         };
@@ -118,7 +111,7 @@
                 // Buat tabel balita
                 let balitaTable = '<table><tr><th>Nama</th><th>Usia (bln)</th><th>Tanggal Lahir</th><th>Status Gizi</th></tr>';
                 balitas.forEach(b => {
-                    const statusColor = getMarkerColor(b.status_gizi);
+                    const statusColor = kk.marker_color;
                     const usia = b.usia !== null ? b.usia : 'Tanggal Lahir Tidak Tersedia';
                     const tanggalLahir = b.tanggal_lahir ? new Date(b.tanggal_lahir).toLocaleDateString('id-ID') : '-';
                     balitaTable += `<tr><td>${b.nama || '-'}</td><td>${usia}</td><td>${tanggalLahir}</td><td><span style="color: ${statusColor}">${b.status_gizi || '-'}</span></td></tr>`;
@@ -128,7 +121,7 @@
                 // Buat tabel remaja putri
                 let remajaTable = '<table><tr><th>Nama</th><th>Umur</th><th>Status Anemia</th></tr>';
                 remajaPutris.forEach(r => {
-                    const statusColor = getMarkerColor(r.status_anemia);
+                    const statusColor = kk.marker_color;
                     remajaTable += `<tr><td>${r.nama || '-'}</td><td>${r.umur || '-'}</td><td><span style="color: ${statusColor}">${r.status_anemia || '-'}</span></td></tr>`;
                 });
                 remajaTable += remajaPutris.length ? '</table>' : '<p>Tidak ada remaja putri</p>';
@@ -144,7 +137,7 @@
                 });
                 ibuTable += ibus.length ? '</table>' : '<p>Tidak ada data ibu</p>';
 
-                // Buat popup content dengan tab
+                // Buat popup content tanpa warna marker
                 const popupContent = `
                     <div class="popup-content">
                         <div class="tabs">
@@ -174,10 +167,9 @@
                 `;
 
                 // Buat ikon marker kustom
-                const worstStatus = getWorstStatus(kk);
                 const markerIcon = L.divIcon({
                     className: 'custom-icon',
-                    html: `<div style="background-color: ${getMarkerColor(worstStatus)}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);"></div>`,
+                    html: `<div style="background-color: ${kk.marker_color}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);"></div>`,
                     iconSize: [28, 28],
                     iconAnchor: [14, 14],
                     popupAnchor: [0, -14]
@@ -203,6 +195,8 @@
                         });
                     });
                 });
+            } else {
+                console.warn(`Kartu Keluarga tidak memiliki koordinat valid: ID=${kk.id}, No KK=${kk.no_kk}`);
             }
         });
 

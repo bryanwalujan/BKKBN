@@ -63,6 +63,21 @@
                         <i class="fas fa-chart-line mr-2"></i> Data Stunting
                     </a>
                 </li>
+                <li class="mb-4">
+                    <a href="{{ route('kecamatan.genting.index') }}" class="flex items-center space-x-2 hover:text-gray-300">
+                        <i class="fas fa-tasks"></i>
+                        <span>Data Genting</span>
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="{{ route('kecamatan.audit_stunting.index') }}" class="flex items-center space-x-2 hover:text-gray-300">
+                        <i class="fas fa-tasks"></i>
+                        <span>Audit Stunting</span>
+                    </a>
+                </li>
+                <li>
+                <a href="{{ route('kecamatan.data_monitoring.index') }}" class="block px-4 py-2 hover:bg-gray-700 {{ Route::is('kecamatan.data_monitoring.*') ? 'bg-gray-700' : '' }}">Verifikasi Data Monitoring</a>
+            </li>
                 <li class="mb-3">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

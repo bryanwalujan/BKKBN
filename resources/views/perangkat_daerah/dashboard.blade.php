@@ -5,6 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
+    @include('perangkat_daerah.partials.sidebar')
     <div class="p-6">
         <h2 class="text-2xl font-semibold mb-4">Dashboard Perangkat Daerah</h2>
         <p>Selamat datang di dashboard Perangkat Daerah.</p>
