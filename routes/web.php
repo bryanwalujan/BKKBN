@@ -223,17 +223,17 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('kelurahan')->middleware(['auth', 'role:admin_kelurahan'])->group(function () {
     // Rute untuk Peta Geospasial
-    Route::get('/peta-geospasial', function (Request $request) {
-        $user = Auth::user();
-        if (!$user->kelurahan_id) {
-            return redirect()->route('dashboard')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
-        }
-        // Buat instance Request baru dengan kelurahan_id
-        $modifiedRequest = $request->duplicate(
-            array_merge($request->query(), ['kelurahan_id' => $user->kelurahan_id])
-        );
-        return app(PetaGeospasialController::class)->index($modifiedRequest);
-    })->name('kelurahan.peta_geospasial.index');
+Route::get('/kelurahan/peta-geospasial', function (Request $request) {
+    $user = Auth::user();
+    if (!$user->kelurahan_id) {
+        return redirect()->route('dashboard')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+    }
+    // Buat instance Request baru dengan kelurahan_id
+    $modifiedRequest = $request->duplicate(
+        array_merge($request->query(), ['kelurahan_id' => $user->kelurahan_id])
+    );
+    return app(PetaGeospasialController::class)->index($modifiedRequest, 'kelurahan.peta_geospasial.index');
+})->name('kelurahan.peta_geospasial.index');
 
     // Rute untuk Kartu Keluarga
     Route::prefix('kartu_keluarga')->group(function () {
@@ -306,6 +306,7 @@ Route::prefix('kelurahan')->middleware(['auth', 'role:admin_kelurahan'])->group(
         Route::get('/{id}/edit/{source?}', [KelurahanRemajaPutriController::class, 'edit'])->name('kelurahan.remaja_putri.edit');
         Route::put('/{id}/{source?}', [KelurahanRemajaPutriController::class, 'update'])->name('kelurahan.remaja_putri.update');
         Route::delete('/{id}', [KelurahanRemajaPutriController::class, 'destroy'])->name('kelurahan.remaja_putri.destroy');
+        Route::get('/kelurahan/remaja-putri/kartu-keluarga', [KelurahanRemajaPutriController::class, 'getKartuKeluarga'])->name('kelurahan.remaja_putri.getKartuKeluarga');
     });
 
     // Rute untuk Stunting
@@ -318,25 +319,6 @@ Route::prefix('kelurahan')->middleware(['auth', 'role:admin_kelurahan'])->group(
         Route::delete('/{id}', [KelurahanStuntingController::class, 'destroy'])->name('kelurahan.stunting.destroy');
     });
 
-    // Rute untuk Aksi Konvergensi
-    Route::prefix('aksi_konvergensi')->group(function () {
-        Route::get('/', [KelurahanAksiKonvergensiController::class, 'index'])->name('kelurahan.aksi_konvergensi.index');
-        Route::get('/create', [KelurahanAksiKonvergensiController::class, 'create'])->name('kelurahan.aksi_konvergensi.create');
-        Route::post('/', [KelurahanAksiKonvergensiController::class, 'store'])->name('kelurahan.aksi_konvergensi.store');
-        Route::get('/{id}/edit/{source?}', [KelurahanAksiKonvergensiController::class, 'edit'])->name('kelurahan.aksi_konvergensi.edit');
-        Route::put('/{id}/{source?}', [KelurahanAksiKonvergensiController::class, 'update'])->name('kelurahan.aksi_konvergensi.update');
-        Route::delete('/{id}', [KelurahanAksiKonvergensiController::class, 'destroy'])->name('kelurahan.aksi_konvergensi.destroy');
-    });
-
-    // Rute untuk Kegiatan Genting
-    Route::prefix('genting')->group(function () {
-        Route::get('/', [KelurahanGentingController::class, 'index'])->name('kelurahan.genting.index');
-        Route::get('/create', [KelurahanGentingController::class, 'create'])->name('kelurahan.genting.create');
-        Route::post('/', [KelurahanGentingController::class, 'store'])->name('kelurahan.genting.store');
-        Route::get('/{id}/edit/{source?}', [KelurahanGentingController::class, 'edit'])->name('kelurahan.genting.edit');
-        Route::put('/{id}/{source?}', [KelurahanGentingController::class, 'update'])->name('kelurahan.genting.update');
-        Route::delete('/{id}', [KelurahanGentingController::class, 'destroy'])->name('kelurahan.genting.destroy');
-    });
 });
 
     // Routes untuk Admin Kecamatan

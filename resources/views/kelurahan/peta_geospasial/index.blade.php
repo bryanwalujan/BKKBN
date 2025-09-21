@@ -25,34 +25,39 @@
 <body class="bg-gray-100">
     @include('kelurahan.partials.sidebar')
     <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Peta Geospasial</h2>
+        <h2 class="text-2xl font-semibold mb-4">Peta Geospasial - {{ auth()->user()->kelurahan->nama_kelurahan }}</h2>
         @if (session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 {{ session('success') }}
             </div>
         @endif
-        @if (session('error') || $errorMessage)
+        @if (session('error') || isset($errorMessage))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 {{ session('error') ?? $errorMessage }}
             </div>
         @endif
-        <div class="mb-4">
+        <div class="mb-4 flex space-x-4">
             <a href="{{ route('kelurahan.kartu_keluarga.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Kartu Keluarga</a>
+            <a href="{{ route('kelurahan.remaja_putri.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Remaja Putri</a>
+            <a href="{{ route('kelurahan.balita.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Balita</a>
+            <a href="{{ route('kelurahan.ibu.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Data Ibu</a>
         </div>
         <div id="map" class="w-full bg-white"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Inisialisasi peta
-        var map = L.map('map').setView([1.319558, 124.838108], 13);
+        // Inisialisasi peta dengan koordinat kelurahan admin
+        var kelurahan = @json(auth()->user()->kelurahan);
+        var defaultLatLng = kelurahan.latitude && kelurahan.longitude ? [kelurahan.latitude, kelurahan.longitude] : [1.319558, 124.838108];
+        var map = L.map('map').setView(defaultLatLng, 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         // Data Kartu Keluarga dari PHP
         var kartuKeluargas = @json($kartuKeluargas);
-        console.log('Kartu Keluargas:', kartuKeluargas); // Debugging data yang diterima
+        console.log('Kartu Keluargas:', kartuKeluargas);
 
         // Base URL untuk route
         const showKkBaseUrl = '{{ route("kelurahan.kartu_keluarga.show", ["id" => ":id"]) }}';
@@ -62,13 +67,13 @@
         function getMarkerColor(status) {
             switch(status) {
                 case 'Bahaya':
-                case 'Anemia Berat': return '#dc2626'; // Merah
+                case 'Anemia Berat': return '#dc2626';
                 case 'Waspada':
-                case 'Anemia Sedang': return '#f59e0b'; // Oranye
-                case 'Anemia Ringan': return '#eab308'; // Kuning
+                case 'Anemia Sedang': return '#f59e0b';
+                case 'Anemia Ringan': return '#eab308';
                 case 'Sehat':
-                case 'Tidak Anemia': return '#22c55e'; // Hijau
-                default: return '#3b82f6'; // Biru
+                case 'Tidak Anemia': return '#22c55e';
+                default: return '#3b82f6';
             }
         }
 
@@ -80,7 +85,6 @@
                 ...balitas.map(b => b.status_gizi),
                 ...remajaPutris.map(r => r.status_anemia)
             ];
-            console.log('Statuses for KK', kk.no_kk, statuses); // Debugging status kesehatan
             if (statuses.includes('Bahaya') || statuses.includes('Anemia Berat')) return 'Bahaya';
             if (statuses.includes('Waspada') || statuses.includes('Anemia Sedang')) return 'Waspada';
             if (statuses.includes('Anemia Ringan')) return 'Anemia Ringan';
@@ -110,9 +114,6 @@
                 const balitas = kk.balitas || [];
                 const remajaPutris = kk.remaja_putris || [];
                 const ibus = kk.ibu || [];
-
-                // Debugging data remaja putri
-                console.log('Remaja Putris for KK', kk.no_kk, remajaPutris);
 
                 // Buat tabel balita
                 let balitaTable = '<table><tr><th>Nama</th><th>Usia (bln)</th><th>Tanggal Lahir</th><th>Status Gizi</th></tr>';
@@ -156,7 +157,6 @@
                             <p><b>No KK:</b> ${kk.no_kk || '-'}</p>
                             <p><b>Kepala Keluarga:</b> ${kk.kepala_keluarga || '-'}</p>
                             <p><b>Alamat:</b> ${kk.alamat || '-'}</p>
-                            <p><b>Kecamatan:</b> ${kk.kecamatan?.nama_kecamatan || '-'}</p>
                             <p><b>Kelurahan:</b> ${kk.kelurahan?.nama_kelurahan || '-'}</p>
                             <p><b>Jumlah Balita:</b> ${balitas.length}</p>
                             <p><b>Jumlah Remaja Putri:</b> ${remajaPutris.length}</p>
@@ -211,7 +211,7 @@
             const group = new L.featureGroup(markers);
             map.fitBounds(group.getBounds(), { padding: [50, 50] });
         } else {
-            map.setView([1.319558, 124.838108], 13);
+            map.setView(defaultLatLng, 14);
         }
     </script>
 </body>

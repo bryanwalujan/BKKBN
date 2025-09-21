@@ -1,11 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\PendingRemajaPutri;
 use App\Models\RemajaPutri;
 use App\Models\KartuKeluarga;
-use App\Models\Kecamatan;
-use App\Models\Kelurahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -14,13 +13,17 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class KelurahanRemajaPutriController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('role:admin_kelurahan');
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
-        $kelurahan_id = $user->kelurahan_id;
-
-        if (!$kelurahan_id) {
-            return redirect()->route('dashboard')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('dashboard')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
         $search = $request->query('search');
@@ -28,7 +31,7 @@ class KelurahanRemajaPutriController extends Controller
 
         // Query untuk PendingRemajaPutri
         $pendingQuery = PendingRemajaPutri::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
-            ->where('kelurahan_id', $kelurahan_id)
+            ->where('kelurahan_id', $user->kelurahan_id)
             ->where('status', 'pending');
 
         if ($search) {
@@ -42,7 +45,7 @@ class KelurahanRemajaPutriController extends Controller
 
         // Query untuk RemajaPutri (terverifikasi)
         $verifiedQuery = RemajaPutri::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])
-            ->where('kelurahan_id', $kelurahan_id);
+            ->where('kelurahan_id', $user->kelurahan_id);
 
         if ($search) {
             $verifiedQuery->where('nama', 'like', '%' . $search . '%');
@@ -73,19 +76,37 @@ class KelurahanRemajaPutriController extends Controller
 
     public function create()
     {
-        $kecamatans = Kecamatan::all();
-        $kelurahans = Kelurahan::all();
-        $kartuKeluargas = KartuKeluarga::where('status', 'Aktif')->get();
-        return view('kelurahan.remaja_putri.create', compact('kecamatans', 'kelurahans', 'kartuKeluargas'));
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.remaja_putri.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
+        }
+
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga']);
+
+        $kecamatan = $user->kecamatan;
+        $kelurahan = $user->kelurahan;
+
+        if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan) {
+            Log::warning('Tidak ada data Kartu Keluarga atau data kecamatan/kelurahan tidak ditemukan untuk kelurahan_id: ' . $user->kelurahan_id);
+            return view('kelurahan.remaja_putri.create', compact('kartuKeluargas', 'kecamatan', 'kelurahan'))
+                ->with('error', 'Tidak ada data Kartu Keluarga yang terverifikasi atau data kecamatan/kelurahan tidak ditemukan. Silakan tambahkan data terlebih dahulu.');
+        }
+
+        return view('kelurahan.remaja_putri.create', compact('kartuKeluargas', 'kecamatan', 'kelurahan'));
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.remaja_putri.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
+        }
+
         $request->validate([
             'nama' => ['required', 'string', 'max:255'],
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'sekolah' => ['required', 'string', 'max:255'],
             'kelas' => ['required', 'string', 'max:50'],
             'umur' => ['required', 'integer', 'min:10', 'max:19'],
@@ -96,13 +117,18 @@ class KelurahanRemajaPutriController extends Controller
 
         try {
             $data = $request->all();
-            $data['created_by'] = Auth::id();
+            $data['kecamatan_id'] = $user->kecamatan_id;
+            $data['kelurahan_id'] = $user->kelurahan_id;
+            $data['created_by'] = $user->id;
             $data['status'] = 'pending';
+
             if ($request->hasFile('foto')) {
                 $data['foto'] = $request->file('foto')->store('pending_remaja_putri_fotos', 'public');
             }
+
             PendingRemajaPutri::create($data);
-            return redirect()->route('kelurahan.remaja_putri.index')->with('success', 'Data remaja putri berhasil diajukan untuk verifikasi.');
+            Log::info('Menyimpan data remaja putri ke pending_remaja_putris', ['data' => $data]);
+            return redirect()->route('kelurahan.remaja_putri.index', ['tab' => 'pending'])->with('success', 'Data remaja putri berhasil diajukan untuk verifikasi.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data remaja putri: ' . $e->getMessage(), ['data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal mengajukan data remaja putri: ' . $e->getMessage());
@@ -111,24 +137,43 @@ class KelurahanRemajaPutriController extends Controller
 
     public function edit($id, $source = 'pending')
     {
-        if ($source === 'verified') {
-            $remajaPutri = RemajaPutri::where('kelurahan_id', Auth::user()->kelurahan_id)->findOrFail($id);
-        } else {
-            $remajaPutri = PendingRemajaPutri::where('created_by', Auth::id())->findOrFail($id);
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.remaja_putri.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
-        $kecamatans = Kecamatan::all();
-        $kelurahans = $remajaPutri->kecamatan_id ? Kelurahan::where('kecamatan_id', $remajaPutri->kecamatan_id)->get() : collect([]);
-        $kartuKeluargas = KartuKeluarga::where('status', 'Aktif')->get();
-        return view('kelurahan.remaja_putri.edit', compact('remajaPutri', 'kecamatans', 'kelurahans', 'kartuKeluargas', 'source'));
+
+        if ($source === 'verified') {
+            $remajaPutri = RemajaPutri::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+        } else {
+            $remajaPutri = PendingRemajaPutri::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+        }
+
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga']);
+
+        $kecamatan = $user->kecamatan;
+        $kelurahan = $user->kelurahan;
+
+        if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan) {
+            Log::warning('Tidak ada data Kartu Keluarga atau data kecamatan/kelurahan tidak ditemukan untuk kelurahan_id: ' . $user->kelurahan_id);
+            return view('kelurahan.remaja_putri.edit', compact('remajaPutri', 'kartuKeluargas', 'kecamatan', 'kelurahan', 'source'))
+                ->with('error', 'Tidak ada data Kartu Keluarga yang terverifikasi atau data kecamatan/kelurahan tidak ditemukan. Silakan tambahkan data terlebih dahulu.');
+        }
+
+        return view('kelurahan.remaja_putri.edit', compact('remajaPutri', 'kartuKeluargas', 'kecamatan', 'kelurahan', 'source'));
     }
 
     public function update(Request $request, $id, $source = 'pending')
     {
+        $user = Auth::user();
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.remaja_putri.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
+        }
+
         $request->validate([
             'nama' => ['required', 'string', 'max:255'],
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'sekolah' => ['required', 'string', 'max:255'],
             'kelas' => ['required', 'string', 'max:50'],
             'umur' => ['required', 'integer', 'min:10', 'max:19'],
@@ -139,27 +184,25 @@ class KelurahanRemajaPutriController extends Controller
 
         try {
             $data = $request->all();
-            $data['created_by'] = Auth::id();
+            $data['kecamatan_id'] = $user->kecamatan_id;
+            $data['kelurahan_id'] = $user->kelurahan_id;
+            $data['created_by'] = $user->id;
             $data['status'] = 'pending';
 
             if ($source === 'verified') {
+                $remajaPutri = RemajaPutri::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
                 if ($request->hasFile('foto')) {
                     $data['foto'] = $request->file('foto')->store('pending_remaja_putri_fotos', 'public');
                 } else {
-                    $remajaPutri = RemajaPutri::where('kelurahan_id', Auth::user()->kelurahan_id)->findOrFail($id);
-                    if ($remajaPutri->foto) {
-                        $fileName = basename($remajaPutri->foto);
-                        $newPath = 'pending_remaja_putri_fotos/' . $fileName;
-                        Storage::disk('public')->copy($remajaPutri->foto, $newPath);
-                        $data['foto'] = $newPath;
-                    }
+                    $data['foto'] = $remajaPutri->foto;
                 }
+                $data['original_remaja_putri_id'] = $remajaPutri->id;
                 PendingRemajaPutri::create($data);
                 $message = 'Perubahan data remaja putri berhasil diajukan untuk verifikasi.';
             } else {
-                $remajaPutri = PendingRemajaPutri::where('created_by', Auth::id())->findOrFail($id);
+                $remajaPutri = PendingRemajaPutri::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
                 if ($request->hasFile('foto')) {
-                    if ($remajaPutri->foto) {
+                    if ($remajaPutri->foto && Storage::disk('public')->exists($remajaPutri->foto)) {
                         Storage::disk('public')->delete($remajaPutri->foto);
                     }
                     $data['foto'] = $request->file('foto')->store('pending_remaja_putri_fotos', 'public');
@@ -168,7 +211,8 @@ class KelurahanRemajaPutriController extends Controller
                 $message = 'Data remaja putri berhasil diperbarui dan diajukan untuk verifikasi.';
             }
 
-            return redirect()->route('kelurahan.remaja_putri.index')->with('success', $message);
+            Log::info('Memperbarui data remaja putri', ['id' => $id, 'source' => $source, 'data' => $data]);
+            return redirect()->route('kelurahan.remaja_putri.index', ['tab' => 'pending'])->with('success', $message);
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data remaja putri: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data remaja putri: ' . $e->getMessage());
@@ -177,16 +221,42 @@ class KelurahanRemajaPutriController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
+        if (!$user->kelurahan_id) {
+            return redirect()->route('kelurahan.remaja_putri.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+        }
+
         try {
-            $remajaPutri = PendingRemajaPutri::where('created_by', Auth::id())->findOrFail($id);
-            if ($remajaPutri->foto) {
+            $remajaPutri = PendingRemajaPutri::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+            if ($remajaPutri->foto && Storage::disk('public')->exists($remajaPutri->foto)) {
                 Storage::disk('public')->delete($remajaPutri->foto);
             }
             $remajaPutri->delete();
-            return redirect()->route('kelurahan.remaja_putri.index')->with('success', 'Data remaja putri berhasil dihapus.');
+            return redirect()->route('kelurahan.remaja_putri.index', ['tab' => 'pending'])->with('success', 'Data remaja putri berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data remaja putri: ' . $e->getMessage(), ['id' => $id]);
-            return redirect()->route('kelurahan.remaja_putri.index')->with('error', 'Gagal menghapus data remaja putri: ' . $e->getMessage());
+            return redirect()->route('kelurahan.remaja_putri.index', ['tab' => 'pending'])->with('error', 'Gagal menghapus data remaja putri: ' . $e->getMessage());
         }
     }
-}
+
+    public function getKartuKeluarga(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->kelurahan_id) {
+            return response()->json(['error' => 'Admin kelurahan tidak terkait dengan kelurahan.'], 403);
+        }
+
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                return [
+                    'id' => $kk->id,
+                    'no_kk' => $kk->no_kk,
+                    'kepala_keluarga' => $kk->kepala_keluarga,
+                ];
+            });
+
+        return response()->json($kartuKeluargas);
+    }
+}   

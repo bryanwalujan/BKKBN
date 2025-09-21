@@ -20,6 +20,7 @@ class PendingRemajaPutri extends Model
         'foto',
         'status',
         'created_by',
+        'original_remaja_putri_id',
     ];
 
     public function kartuKeluarga()

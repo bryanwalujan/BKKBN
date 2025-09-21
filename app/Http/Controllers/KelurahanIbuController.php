@@ -1,17 +1,18 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\PendingIbu;
+use App\Models\PendingIbuHamil;
+use App\Models\PendingIbuNifas;
+use App\Models\PendingIbuMenyusui;
 use App\Models\Ibu;
-use App\Models\IbuHamil;
-use App\Models\IbuNifas;
-use App\Models\IbuMenyusui;
 use App\Models\KartuKeluarga;
-use App\Models\Kecamatan;
-use App\Models\Kelurahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class KelurahanIbuController extends Controller
 {
@@ -30,23 +31,60 @@ class KelurahanIbuController extends Controller
 
         $search = $request->query('search');
         $status = $request->query('status');
+        $tab = $request->query('tab', 'pending');
 
-        $query = Ibu::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])
+        $pendingQuery = PendingIbu::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
             ->where('kelurahan_id', $user->kelurahan_id);
 
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            $pendingQuery->where(function ($q) use ($search) {
                 $q->where('nama', 'like', '%' . $search . '%')
                   ->orWhere('nik', 'like', '%' . $search . '%');
             });
         }
 
         if ($status) {
-            $query->where('status', $status);
+            $pendingQuery->where('status', $status);
         }
 
-        $ibus = $query->paginate(10)->appends(['search' => $search, 'status' => $status]);
-        return view('kelurahan.ibu.index', compact('ibus', 'search', 'status'));
+        $pendingIbus = $pendingQuery->get()->map(function ($ibu) {
+            $ibu->source = 'pending';
+            return $ibu;
+        });
+
+        $verifiedQuery = Ibu::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])
+            ->where('kelurahan_id', $user->kelurahan_id);
+
+        if ($search) {
+            $verifiedQuery->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhere('nik', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($status) {
+            $verifiedQuery->where('status', $status);
+        }
+
+        $verifiedIbus = $verifiedQuery->get()->map(function ($ibu) {
+            $ibu->source = 'verified';
+            $ibu->createdBy = $ibu->createdBy ?? (object) ['name' => 'Tidak diketahui'];
+            return $ibu;
+        });
+
+        $ibus = $tab === 'verified' ? $verifiedIbus : $pendingIbus;
+
+        $perPage = 10;
+        $currentPage = $request->query('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $total = $ibus->count();
+        $paginatedIbus = $ibus->slice($offset, $perPage);
+        $ibus = new LengthAwarePaginator($paginatedIbus, $total, $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return view('kelurahan.ibu.index', compact('ibus', 'search', 'status', 'tab'));
     }
 
     public function create()
@@ -56,21 +94,20 @@ class KelurahanIbuController extends Controller
             return redirect()->route('kelurahan.ibu.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
-        $kecamatan = Kecamatan::where('id', $user->kecamatan_id)->first();
-        $kelurahan = Kelurahan::where('id', $user->kelurahan_id)->first();
-        $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
-            ->where('kelurahan_id', $user->kelurahan_id)
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
             ->where('status', 'Aktif')
-            ->get();
+            ->get(['id', 'no_kk', 'kepala_keluarga']);
 
-        if ($kartuKeluargas->isEmpty()) {
-            return redirect()->route('kelurahan.kartu_keluarga.create')->with('error', 'Tambahkan Kartu Keluarga terlebih dahulu sebelum menambah data ibu.');
-        }
-        if (!$kecamatan || !$kelurahan) {
-            return redirect()->route('kelurahan.ibu.index')->with('error', 'Data kecamatan atau kelurahan tidak ditemukan.');
+        $kecamatan = $user->kecamatan;
+        $kelurahan = $user->kelurahan;
+
+        if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan) {
+            Log::warning('Tidak ada data Kartu Keluarga atau data kecamatan/kelurahan tidak ditemukan untuk kelurahan_id: ' . $user->kelurahan_id);
+            return view('kelurahan.ibu.create', compact('kartuKeluargas', 'kecamatan', 'kelurahan'))
+                ->with('error', 'Tidak ada data Kartu Keluarga yang terverifikasi atau data kecamatan/kelurahan tidak ditemukan. Silakan tambahkan data terlebih dahulu.');
         }
 
-        return view('kelurahan.ibu.create', compact('kecamatan', 'kelurahan', 'kartuKeluargas'));
+        return view('kelurahan.ibu.create', compact('kartuKeluargas', 'kecamatan', 'kelurahan'));
     }
 
     public function store(Request $request)
@@ -81,114 +118,99 @@ class KelurahanIbuController extends Controller
         }
 
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id,kecamatan_id,' . $user->kecamatan_id . ',kelurahan_id,' . $user->kelurahan_id],
-            'nik' => ['nullable', 'string', 'max:16', 'unique:ibus,nik'],
+            'nik' => ['nullable', 'string', 'max:16', 'unique:ibus,nik', 'unique:pending_ibus,nik'],
             'nama' => ['required', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
             'alamat' => ['nullable', 'string'],
             'status' => ['required', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
-            'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'trimester' => ['required_if:status,Hamil', 'in:Trimester 1,Trimester 2,Trimester 3'],
-            'intervensi' => ['required_if:status,Hamil', 'in:Tidak Ada,Gizi,Konsultasi Medis,Lainnya'],
-            'status_gizi' => ['required_if:status,Hamil', 'in:Normal,Kurang Gizi,Berisiko'],
-            'warna_status_gizi' => ['required_if:status,Hamil', 'in:Sehat,Waspada,Bahaya'],
-            'usia_kehamilan' => ['required_if:status,Hamil', 'integer', 'min:0', 'max:40'],
-            'berat_hamil' => ['required_if:status,Hamil', 'numeric', 'min:0'],
-            'tinggi_hamil' => ['required_if:status,Hamil', 'numeric', 'min:0'],
-            'hari_nifas' => ['required_if:status,Nifas', 'integer', 'min:0', 'max:42'],
-            'kondisi_kesehatan' => ['required_if:status,Nifas', 'in:Normal,Butuh Perhatian,Kritis'],
-            'warna_kondisi_nifas' => ['required_if:status,Nifas', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat_nifas' => ['required_if:status,Nifas', 'numeric', 'min:0'],
-            'tinggi_nifas' => ['required_if:status,Nifas', 'numeric', 'min:0'],
-            'status_menyusui' => ['required_if:status,Menyusui', 'in:Eksklusif,Non-Eksklusif'],
-            'frekuensi_menyusui' => ['required_if:status,Menyusui', 'integer', 'min:0', 'max:24'],
-            'kondisi_ibu' => ['required_if:status,Menyusui', 'string', 'max:255'],
-            'warna_kondisi_menyusui' => ['required_if:status,Menyusui', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat_menyusui' => ['required_if:status,Menyusui', 'numeric', 'min:0'],
-            'tinggi_menyusui' => ['required_if:status,Menyusui', 'numeric', 'min:0'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
         try {
-            $data = $request->only(['nik', 'nama', 'alamat', 'status']);
+            $data = $request->all();
             $data['kecamatan_id'] = $user->kecamatan_id;
             $data['kelurahan_id'] = $user->kelurahan_id;
             $data['created_by'] = $user->id;
-            $data['kartu_keluarga_id'] = $request->kartu_keluarga_id;
+            $data['status_verifikasi'] = 'pending';
 
             if ($request->hasFile('foto')) {
-                $data['foto'] = $request->file('foto')->store('ibu_photos', 'public');
+                $data['foto'] = $request->file('foto')->store('ibu_fotos', 'public');
             }
 
-            $ibu = Ibu::create($data);
+            $pendingIbu = PendingIbu::create($data);
 
-            if ($request->status == 'Hamil') {
-                IbuHamil::create([
-                    'ibu_id' => $ibu->id,
-                    'trimester' => $request->trimester,
-                    'intervensi' => $request->intervensi,
-                    'status_gizi' => $request->status_gizi,
-                    'warna_status_gizi' => $request->warna_status_gizi,
-                    'usia_kehamilan' => $request->usia_kehamilan,
-                    'berat' => $request->berat_hamil,
-                    'tinggi' => $request->tinggi_hamil,
+            if ($data['status'] === 'Hamil') {
+                PendingIbuHamil::create([
+                    'pending_ibu_id' => $pendingIbu->id,
+                    'trimester' => 'Trimester 1',
+                    'intervensi' => 'Tidak Ada',
+                    'status_gizi' => 'Normal',
+                    'warna_status_gizi' => 'Sehat',
+                    'usia_kehamilan' => 0,
+                    'berat' => 0,
+                    'tinggi' => 0,
+                    'created_by' => $user->id,
                 ]);
-            } elseif ($request->status == 'Nifas') {
-                IbuNifas::create([
-                    'ibu_id' => $ibu->id,
-                    'hari_nifas' => $request->hari_nifas,
-                    'kondisi_kesehatan' => $request->kondisi_kesehatan,
-                    'warna_kondisi' => $request->warna_kondisi_nifas,
-                    'berat' => $request->berat_nifas,
-                    'tinggi' => $request->tinggi_nifas,
+            } elseif ($data['status'] === 'Nifas') {
+                PendingIbuNifas::create([
+                    'pending_ibu_id' => $pendingIbu->id,
+                    'hari_nifas' => 0,
+                    'kondisi_kesehatan' => 'Normal',
+                    'berat' => 0,
+                    'tinggi' => 0,
+                    'created_by' => $user->id,
                 ]);
-            } elseif ($request->status == 'Menyusui') {
-                IbuMenyusui::create([
-                    'ibu_id' => $ibu->id,
-                    'status_menyusui' => $request->status_menyusui,
-                    'frekuensi_menyusui' => $request->frekuensi_menyusui,
-                    'kondisi_ibu' => $request->kondisi_ibu,
-                    'warna_kondisi' => $request->warna_kondisi_menyusui,
-                    'berat' => $request->berat_menyusui,
-                    'tinggi' => $request->tinggi_menyusui,
+            } elseif ($data['status'] === 'Menyusui') {
+                PendingIbuMenyusui::create([
+                    'pending_ibu_id' => $pendingIbu->id,
+                    'status_menyusui' => 'Eksklusif',
+                    'frekuensi_menyusui' => 0,
+                    'kondisi_ibu' => 'Normal',
+                    'warna_kondisi' => 'Hijau (success)',
+                    'berat' => 0,
+                    'tinggi' => 0,
+                    'created_by' => $user->id,
                 ]);
             }
 
-            Log::info('Data ibu disimpan ke ibus', ['id' => $ibu->id, 'data' => $data]);
-            return redirect()->route('kelurahan.ibu.index')->with('success', 'Data ibu berhasil ditambahkan.');
+            Log::info('Menyimpan data ibu ke pending_ibus', ['data' => $data]);
+            return redirect()->route('kelurahan.ibu.index', ['tab' => 'pending'])->with('success', 'Data ibu berhasil ditambahkan, menunggu verifikasi admin kecamatan.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data ibu: ' . $e->getMessage(), ['data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data ibu: ' . $e->getMessage());
         }
     }
 
-    public function edit($id)
+    public function edit($id, $source = 'pending')
     {
         $user = Auth::user();
         if (!$user->kelurahan_id || !$user->kecamatan_id) {
             return redirect()->route('kelurahan.ibu.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
-        $ibu = Ibu::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'ibuHamil', 'ibuNifas', 'ibuMenyusui'])
-            ->where('kelurahan_id', $user->kelurahan_id)
-            ->findOrFail($id);
+        if ($source === 'verified') {
+            $ibu = Ibu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+        } else {
+            $ibu = PendingIbu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+        }
 
-        $kecamatan = Kecamatan::where('id', $user->kecamatan_id)->first();
-        $kelurahan = Kelurahan::where('id', $user->kelurahan_id)->first();
-        $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
-            ->where('kelurahan_id', $user->kelurahan_id)
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
             ->where('status', 'Aktif')
-            ->get();
+            ->get(['id', 'no_kk', 'kepala_keluarga']);
 
-        if ($kartuKeluargas->isEmpty()) {
-            return redirect()->route('kelurahan.kartu_keluarga.create')->with('error', 'Tambahkan Kartu Keluarga terlebih dahulu sebelum mengedit data ibu.');
-        }
-        if (!$kecamatan || !$kelurahan) {
-            return redirect()->route('kelurahan.ibu.index')->with('error', 'Data kecamatan atau kelurahan tidak ditemukan.');
+        $kecamatan = $user->kecamatan;
+        $kelurahan = $user->kelurahan;
+
+        if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan) {
+            Log::warning('Tidak ada data Kartu Keluarga atau data kecamatan/kelurahan tidak ditemukan untuk kelurahan_id: ' . $user->kelurahan_id);
+            return view('kelurahan.ibu.edit', compact('ibu', 'kartuKeluargas', 'kecamatan', 'kelurahan', 'source'))
+                ->with('error', 'Tidak ada data Kartu Keluarga yang terverifikasi atau data kecamatan/kelurahan tidak ditemukan. Silakan tambahkan data terlebih dahulu.');
         }
 
-        return view('kelurahan.ibu.edit', compact('ibu', 'kecamatan', 'kelurahan', 'kartuKeluargas'));
+        return view('kelurahan.ibu.edit', compact('ibu', 'kartuKeluargas', 'kecamatan', 'kelurahan', 'source'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, $source = 'pending')
     {
         $user = Auth::user();
         if (!$user->kelurahan_id || !$user->kecamatan_id) {
@@ -196,145 +218,154 @@ class KelurahanIbuController extends Controller
         }
 
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id,kecamatan_id,' . $user->kecamatan_id . ',kelurahan_id,' . $user->kelurahan_id],
-            'nik' => ['nullable', 'string', 'max:16', 'unique:ibus,nik,' . $id],
+            'nik' => ['nullable', 'string', 'max:16', 'unique:ibus,nik,' . ($source === 'verified' ? $id : null), 'unique:pending_ibus,nik,' . ($source === 'pending' ? $id : null)],
             'nama' => ['required', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
             'alamat' => ['nullable', 'string'],
             'status' => ['required', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
-            'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'trimester' => ['required_if:status,Hamil', 'in:Trimester 1,Trimester 2,Trimester 3'],
-            'intervensi' => ['required_if:status,Hamil', 'in:Tidak Ada,Gizi,Konsultasi Medis,Lainnya'],
-            'status_gizi' => ['required_if:status,Hamil', 'in:Normal,Kurang Gizi,Berisiko'],
-            'warna_status_gizi' => ['required_if:status,Hamil', 'in:Sehat,Waspada,Bahaya'],
-            'usia_kehamilan' => ['required_if:status,Hamil', 'integer', 'min:0', 'max:40'],
-            'berat_hamil' => ['required_if:status,Hamil', 'numeric', 'min:0'],
-            'tinggi_hamil' => ['required_if:status,Hamil', 'numeric', 'min:0'],
-            'hari_nifas' => ['required_if:status,Nifas', 'integer', 'min:0', 'max:42'],
-            'kondisi_kesehatan' => ['required_if:status,Nifas', 'in:Normal,Butuh Perhatian,Kritis'],
-            'warna_kondisi_nifas' => ['required_if:status,Nifas', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat_nifas' => ['required_if:status,Nifas', 'numeric', 'min:0'],
-            'tinggi_nifas' => ['required_if:status,Nifas', 'numeric', 'min:0'],
-            'status_menyusui' => ['required_if:status,Menyusui', 'in:Eksklusif,Non-Eksklusif'],
-            'frekuensi_menyusui' => ['required_if:status,Menyusui', 'integer', 'min:0', 'max:24'],
-            'kondisi_ibu' => ['required_if:status,Menyusui', 'string', 'max:255'],
-            'warna_kondisi_menyusui' => ['required_if:status,Menyusui', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat_menyusui' => ['required_if:status,Menyusui', 'numeric', 'min:0'],
-            'tinggi_menyusui' => ['required_if:status,Menyusui', 'numeric', 'min:0'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
         try {
-            $data = $request->only(['nik', 'nama', 'alamat', 'status']);
-            $data['kecamatan_id'] = $user->kecamatan_id;
-            $data['kelurahan_id'] = $user->kelurahan_id;
-            $data['created_by'] = $user->id;
-            $data['kartu_keluarga_id'] = $request->kartu_keluarga_id;
+            if ($source === 'verified') {
+                $verifiedIbu = Ibu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+                $data = [
+                    'nik' => $request->nik,
+                    'nama' => $request->nama,
+                    'kecamatan_id' => $user->kecamatan_id,
+                    'kelurahan_id' => $user->kelurahan_id,
+                    'kartu_keluarga_id' => $request->kartu_keluarga_id,
+                    'alamat' => $request->alamat,
+                    'status' => $request->status,
+                    'created_by' => $user->id,
+                    'status_verifikasi' => 'pending',
+                    'original_ibu_id' => $verifiedIbu->id,
+                ];
 
-            $ibu = Ibu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
-
-            if ($request->hasFile('foto')) {
-                if ($ibu->foto) {
-                    Storage::disk('public')->delete($ibu->foto);
-                }
-                $data['foto'] = $request->file('foto')->store('ibu_photos', 'public');
-            }
-
-            $ibu->update($data);
-
-            if ($request->status == 'Hamil') {
-                if ($ibu->ibuHamil) {
-                    $ibu->ibuHamil->update([
-                        'trimester' => $request->trimester,
-                        'intervensi' => $request->intervensi,
-                        'status_gizi' => $request->status_gizi,
-                        'warna_status_gizi' => $request->warna_status_gizi,
-                        'usia_kehamilan' => $request->usia_kehamilan,
-                        'berat' => $request->berat_hamil,
-                        'tinggi' => $request->tinggi_hamil,
-                    ]);
+                if ($request->hasFile('foto')) {
+                    if ($verifiedIbu->foto && Storage::disk('public')->exists($verifiedIbu->foto)) {
+                        Storage::disk('public')->delete($verifiedIbu->foto);
+                    }
+                    $data['foto'] = $request->file('foto')->store('ibu_fotos', 'public');
                 } else {
-                    IbuHamil::create([
-                        'ibu_id' => $ibu->id,
-                        'trimester' => $request->trimester,
-                        'intervensi' => $request->intervensi,
-                        'status_gizi' => $request->status_gizi,
-                        'warna_status_gizi' => $request->warna_status_gizi,
-                        'usia_kehamilan' => $request->usia_kehamilan,
-                        'berat' => $request->berat_hamil,
-                        'tinggi' => $request->tinggi_hamil,
-                    ]);
+                    $data['foto'] = $verifiedIbu->foto;
                 }
-                if ($ibu->ibuNifas) {
-                    $ibu->ibuNifas->delete();
+
+                $pendingIbu = PendingIbu::create($data);
+
+                if ($verifiedIbu->status !== $data['status']) {
+                    if ($pendingIbu->pendingIbuHamil) {
+                        $pendingIbu->pendingIbuHamil->delete();
+                    }
+                    if ($pendingIbu->pendingIbuNifas) {
+                        $pendingIbu->pendingIbuNifas->delete();
+                    }
+                    if ($pendingIbu->pendingIbuMenyusui) {
+                        $pendingIbu->pendingIbuMenyusui->delete();
+                    }
+
+                    if ($data['status'] === 'Hamil') {
+                        PendingIbuHamil::create([
+                            'pending_ibu_id' => $pendingIbu->id,
+                            'trimester' => 'Trimester 1',
+                            'intervensi' => 'Tidak Ada',
+                            'status_gizi' => 'Normal',
+                            'warna_status_gizi' => 'Sehat',
+                            'usia_kehamilan' => 0,
+                            'berat' => 0,
+                            'tinggi' => 0,
+                            'created_by' => $user->id,
+                        ]);
+                    } elseif ($data['status'] === 'Nifas') {
+                        PendingIbuNifas::create([
+                            'pending_ibu_id' => $pendingIbu->id,
+                            'hari_nifas' => 0,
+                            'kondisi_kesehatan' => 'Normal',
+                            'berat' => 0,
+                            'tinggi' => 0,
+                            'created_by' => $user->id,
+                        ]);
+                    } elseif ($data['status'] === 'Menyusui') {
+                        PendingIbuMenyusui::create([
+                            'pending_ibu_id' => $pendingIbu->id,
+                            'status_menyusui' => 'Eksklusif',
+                            'frekuensi_menyusui' => 0,
+                            'kondisi_ibu' => 'Normal',
+                            'warna_kondisi' => 'Hijau (success)',
+                            'berat' => 0,
+                            'tinggi' => 0,
+                            'created_by' => $user->id,
+                        ]);
+                    }
                 }
-                if ($ibu->ibuMenyusui) {
-                    $ibu->ibuMenyusui->delete();
-                }
-            } elseif ($request->status == 'Nifas') {
-                if ($ibu->ibuNifas) {
-                    $ibu->ibuNifas->update([
-                        'hari_nifas' => $request->hari_nifas,
-                        'kondisi_kesehatan' => $request->kondisi_kesehatan,
-                        'warna_kondisi' => $request->warna_kondisi_nifas,
-                        'berat' => $request->berat_nifas,
-                        'tinggi' => $request->tinggi_nifas,
-                    ]);
-                } else {
-                    IbuNifas::create([
-                        'ibu_id' => $ibu->id,
-                        'hari_nifas' => $request->hari_nifas,
-                        'kondisi_kesehatan' => $request->kondisi_kesehatan,
-                        'warna_kondisi' => $request->warna_kondisi_nifas,
-                        'berat' => $request->berat_nifas,
-                        'tinggi' => $request->tinggi_nifas,
-                    ]);
-                }
-                if ($ibu->ibuHamil) {
-                    $ibu->ibuHamil->delete();
-                }
-                if ($ibu->ibuMenyusui) {
-                    $ibu->ibuMenyusui->delete();
-                }
-            } elseif ($request->status == 'Menyusui') {
-                if ($ibu->ibuMenyusui) {
-                    $ibu->ibuMenyusui->update([
-                        'status_menyusui' => $request->status_menyusui,
-                        'frekuensi_menyusui' => $request->frekuensi_menyusui,
-                        'kondisi_ibu' => $request->kondisi_ibu,
-                        'warna_kondisi' => $request->warna_kondisi_menyusui,
-                        'berat' => $request->berat_menyusui,
-                        'tinggi' => $request->tinggi_menyusui,
-                    ]);
-                } else {
-                    IbuMenyusui::create([
-                        'ibu_id' => $ibu->id,
-                        'status_menyusui' => $request->status_menyusui,
-                        'frekuensi_menyusui' => $request->frekuensi_menyusui,
-                        'kondisi_ibu' => $request->kondisi_ibu,
-                        'warna_kondisi' => $request->warna_kondisi_menyusui,
-                        'berat' => $request->berat_menyusui,
-                        'tinggi' => $request->tinggi_menyusui,
-                    ]);
-                }
-                if ($ibu->ibuHamil) {
-                    $ibu->ibuHamil->delete();
-                }
-                if ($ibu->ibuNifas) {
-                    $ibu->ibuNifas->delete();
-                }
+
+                Log::info('Menyimpan data ibu terverifikasi ke pending_ibus untuk edit', ['data' => $data]);
+                return redirect()->route('kelurahan.ibu.index', ['tab' => 'pending'])->with('success', 'Data ibu terverifikasi berhasil diedit, menunggu verifikasi admin kecamatan.');
             } else {
-                if ($ibu->ibuHamil) {
-                    $ibu->ibuHamil->delete();
-                }
-                if ($ibu->ibuNifas) {
-                    $ibu->ibuNifas->delete();
-                }
-                if ($ibu->ibuMenyusui) {
-                    $ibu->ibuMenyusui->delete();
-                }
-            }
+                $pendingIbu = PendingIbu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+                $data = $request->all();
+                $data['kecamatan_id'] = $user->kecamatan_id;
+                $data['kelurahan_id'] = $user->kelurahan_id;
+                $data['created_by'] = $user->id;
+                $data['status_verifikasi'] = 'pending';
 
-            Log::info('Data ibu diperbarui di ibus', ['id' => $ibu->id, 'data' => $data]);
-            return redirect()->route('kelurahan.ibu.index')->with('success', 'Data ibu berhasil diperbarui.');
+                if ($request->hasFile('foto')) {
+                    if ($pendingIbu->foto && Storage::disk('public')->exists($pendingIbu->foto)) {
+                        Storage::disk('public')->delete($pendingIbu->foto);
+                    }
+                    $data['foto'] = $request->file('foto')->store('ibu_fotos', 'public');
+                }
+
+                if ($pendingIbu->status !== $data['status']) {
+                    if ($pendingIbu->pendingIbuHamil) {
+                        $pendingIbu->pendingIbuHamil->delete();
+                    }
+                    if ($pendingIbu->pendingIbuNifas) {
+                        $pendingIbu->pendingIbuNifas->delete();
+                    }
+                    if ($pendingIbu->pendingIbuMenyusui) {
+                        $pendingIbu->pendingIbuMenyusui->delete();
+                    }
+
+                    if ($data['status'] === 'Hamil') {
+                        PendingIbuHamil::create([
+                            'pending_ibu_id' => $pendingIbu->id,
+                            'trimester' => 'Trimester 1',
+                            'intervensi' => 'Tidak Ada',
+                            'status_gizi' => 'Normal',
+                            'warna_status_gizi' => 'Sehat',
+                            'usia_kehamilan' => 0,
+                            'berat' => 0,
+                            'tinggi' => 0,
+                            'created_by' => $user->id,
+                        ]);
+                    } elseif ($data['status'] === 'Nifas') {
+                        PendingIbuNifas::create([
+                            'pending_ibu_id' => $pendingIbu->id,
+                            'hari_nifas' => 0,
+                            'kondisi_kesehatan' => 'Normal',
+                            'berat' => 0,
+                            'tinggi' => 0,
+                            'created_by' => $user->id,
+                        ]);
+                    } elseif ($data['status'] === 'Menyusui') {
+                        PendingIbuMenyusui::create([
+                            'pending_ibu_id' => $pendingIbu->id,
+                            'status_menyusui' => 'Eksklusif',
+                            'frekuensi_menyusui' => 0,
+                            'kondisi_ibu' => 'Normal',
+                            'warna_kondisi' => 'Hijau (success)',
+                            'berat' => 0,
+                            'tinggi' => 0,
+                            'created_by' => $user->id,
+                        ]);
+                    }
+                }
+
+                $pendingIbu->update($data);
+                Log::info('Memperbarui data ibu di pending_ibus', ['id' => $id, 'data' => $data]);
+                return redirect()->route('kelurahan.ibu.index', ['tab' => 'pending'])->with('success', 'Data ibu berhasil diperbarui, menunggu verifikasi admin kecamatan.');
+            }
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data ibu: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data ibu: ' . $e->getMessage());
@@ -344,16 +375,51 @@ class KelurahanIbuController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
+        if (!$user->kelurahan_id) {
+            return redirect()->route('kelurahan.ibu.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+        }
+
         try {
-            $ibu = Ibu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
-            if ($ibu->foto) {
+            $ibu = PendingIbu::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+            if ($ibu->foto && Storage::disk('public')->exists($ibu->foto)) {
                 Storage::disk('public')->delete($ibu->foto);
             }
+            if ($ibu->pendingIbuHamil) {
+                $ibu->pendingIbuHamil->delete();
+            }
+            if ($ibu->pendingIbuNifas) {
+                $ibu->pendingIbuNifas->delete();
+            }
+            if ($ibu->pendingIbuMenyusui) {
+                $ibu->pendingIbuMenyusui->delete();
+            }
             $ibu->delete();
-            return redirect()->route('kelurahan.ibu.index')->with('success', 'Data ibu berhasil dihapus.');
+
+            return redirect()->route('kelurahan.ibu.index', ['tab' => 'pending'])->with('success', 'Data ibu berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data ibu: ' . $e->getMessage(), ['id' => $id]);
-            return redirect()->route('kelurahan.ibu.index')->with('error', 'Gagal menghapus data ibu: ' . $e->getMessage());
+            return redirect()->route('kelurahan.ibu.index', ['tab' => 'pending'])->with('error', 'Gagal menghapus data ibu: ' . $e->getMessage());
         }
+    }
+
+    public function getKartuKeluarga(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user->kelurahan_id) {
+            return response()->json(['error' => 'Admin kelurahan tidak terkait dengan kelurahan.'], 403);
+        }
+
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)
+            ->where('status', 'Aktif')
+            ->get(['id', 'no_kk', 'kepala_keluarga'])
+            ->map(function ($kk) {
+                return [
+                    'id' => $kk->id,
+                    'no_kk' => $kk->no_kk,
+                    'kepala_keluarga' => $kk->kepala_keluarga,
+                ];
+            });
+
+        return response()->json($kartuKeluargas);
     }
 }

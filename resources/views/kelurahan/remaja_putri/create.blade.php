@@ -4,71 +4,35 @@
     <title>Tambah Data Remaja Putri - Admin Kelurahan</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#kecamatan_id').select2({
-                placeholder: '-- Pilih Kecamatan --',
-                allowClear: true
-            });
-            $('#kelurahan_id').select2({
-                placeholder: '-- Pilih Kelurahan --',
-                allowClear: true
-            });
             $('#kartu_keluarga_id').select2({
                 placeholder: '-- Pilih Kartu Keluarga --',
                 allowClear: true
             });
 
-            $('#kecamatan_id').on('change', function() {
-                var kecamatanId = $(this).val();
-                $('#kelurahan_id').empty().append('<option value="">-- Pilih Kelurahan --</option>');
-                $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>').trigger('change');
-
-                if (kecamatanId) {
-                    $.ajax({
-                        url: '/kelurahans/by-kecamatan/' + kecamatanId,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, kelurahan) {
-                                $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
-                            });
-                            $('#kelurahan_id').trigger('change');
-                        },
-                        error: function(xhr) {
-                            console.error('Gagal mengambil data kelurahan:', xhr);
-                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
-                        }
+            // Load kartu keluarga
+            $.ajax({
+                url: '{{ route('kelurahan.remaja_putri.getKartuKeluarga') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>');
+                    if (data.length === 0) {
+                        $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga yang terverifikasi. <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
+                    }
+                    $.each(data, function(index, kk) {
+                        var selected = kk.id == '{{ old('kartu_keluarga_id') }}' ? 'selected' : '';
+                        $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
                     });
-                }
-            });
-
-            $('#kelurahan_id').on('change', function() {
-                var kecamatanId = $('#kecamatan_id').val();
-                var kelurahanId = $(this).val();
-                $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>').trigger('change');
-
-                if (kecamatanId && kelurahanId) {
-                    $.ajax({
-                        url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + kecamatanId + '&kelurahan_id=' + kelurahanId,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            if (data.length === 0) {
-                                $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga. <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
-                            }
-                            $.each(data, function(index, kk) {
-                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
-                            });
-                            $('#kartu_keluarga_id').trigger('change');
-                        },
-                        error: function(xhr) {
-                            console.error('Gagal mengambil data kartu keluarga:', xhr);
-                            alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                        }
-                    });
+                    $('#kartu_keluarga_id').trigger('change');
+                },
+                error: function(xhr) {
+                    console.error('Gagal mengambil data kartu keluarga:', xhr);
+                    alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
                 }
             });
         });
@@ -83,10 +47,10 @@
                 {{ session('error') }}
             </div>
         @endif
-        @if ($kartuKeluargas->isEmpty() || $kecamatans->isEmpty())
+        @if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan)
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {{ $kartuKeluargas->isEmpty() ? 'Tidak ada data Kartu Keluarga. ' : '' }}
-                {{ $kecamatans->isEmpty() ? 'Tidak ada data Kecamatan. ' : '' }}
+                {{ $kartuKeluargas->isEmpty() ? 'Tidak ada data Kartu Keluarga yang terverifikasi. ' : '' }}
+                {{ !$kecamatan || !$kelurahan ? 'Data kecamatan atau kelurahan tidak ditemukan. ' : '' }}
                 Silakan tambahkan data terlebih dahulu.
             </div>
         @else
@@ -94,21 +58,16 @@
                 @csrf
                 <div class="mb-4">
                     <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                    <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                        <option value="">-- Pilih Kecamatan --</option>
-                        @foreach ($kecamatans as $kecamatan)
-                            <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" value="{{ $kecamatan->nama_kecamatan }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                    <input type="hidden" name="kecamatan_id" value="{{ $kecamatan->id }}">
                     @error('kecamatan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
                     <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                    <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                        <option value="">-- Pilih Kelurahan --</option>
-                    </select>
+                    <input type="text" value="{{ $kelurahan->nama_kelurahan }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
+                    <input type="hidden" name="kelurahan_id" value="{{ $kelurahan->id }}">
                     @error('kelurahan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -177,14 +136,14 @@
                 </div>
                 <div class="mb-4">
                     <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
-                    <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
+                    <input type="file" name="foto" id="foto" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" accept="image/*">
                     @error('foto')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="flex space-x-4">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
-                    <a href="{{ route('kelurahan.remaja_putri.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
+                    <a href="{{ route('kelurahan.remaja_putri.index', ['tab' => 'pending']) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
                 </div>
             </form>
         @endif
