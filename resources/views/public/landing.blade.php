@@ -7,15 +7,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Saira:wght@500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css','resources/css/figma.css','resources/js/landing.js'])
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/landing.js'])
 </head>
 <body class="antialiased bg-gray-50 text-gray-900">
     <header class="bg-blue-700 text-white sticky top-0 z-40 shadow">
         <div class="max-w-7xl mx-auto px-5">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-3">
-                    <img src="{{ Vite::asset('resources/views/logo-bkkbn.png') }}" alt="BKKBN" class="h-8 w-auto hidden sm:block" onerror="this.style.display='none'" />
+                    <img src="{{ Vite::asset('resources/views/logo-bkkbn.png') }}" alt="BKKBN" decoding="async" class="h-8 w-auto hidden sm:block" onerror="this.style.display='none'" />
                     <div class="text-sm leading-4">
                         <div class="font-semibold">CEGAH STUNTING</div>
                         <div class="font-semibold">SEHAT RAGA</div>
@@ -88,8 +88,8 @@
                     <a id="about-cta" href="#" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium hidden"></a>
                 </div>
                 <div class="relative">
-                    <img id="about-main" src="" alt="Tentang Kami" class="w-full h-56 sm:h-72 object-cover rounded-lg shadow" onerror="this.style.display='none'">
-                    <img id="about-overlay" src="" alt="Overlay" class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg shadow absolute -bottom-6 -right-6 hidden md:block" onerror="this.style.display='none'">
+                    <img id="about-main" src="" alt="Tentang Kami" loading="lazy" decoding="async" class="w-full h-56 sm:h-72 object-cover rounded-lg shadow" onerror="this.style.display='none'">
+                    <img id="about-overlay" src="" alt="Overlay" loading="lazy" decoding="async" class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg shadow absolute -bottom-6 -right-6 hidden md:block" onerror="this.style.display='none'">
                 </div>
             </div>
         </section>
@@ -163,9 +163,27 @@
 
                     <div class="grid gap-8 lg:grid-cols-2">
                         <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-4 sm:p-6 soft-lift" data-reveal-direction="left" data-reveal-distance="32" data-reveal-delay="0" data-reveal-duration="500">
-                            <div class="overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]">
-                                <iframe title="Lokasi BKKBN Kota Tomohon" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full border-0"></iframe>
+                            <div id="contact-map" class="relative overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]" data-map-src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" data-map-title="Lokasi BKKBN Kota Tomohon" data-map-referrerpolicy="no-referrer-when-downgrade">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-blue-900/70" data-map-placeholder>
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-9 w-9 text-blue-700/60" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 3 3 6v15l6-3 6 3 6-3V6l-6-3-6 3v15" />
+                                        <path d="M15 7.75a2.25 2.25 0 1 1-2.25 2.25A2.25 2.25 0 0 1 15 7.75Z" />
+                                    </svg>
+                                    <p class="text-sm font-semibold" data-map-message>Aktifkan peta interaktif untuk petunjuk arah.</p>
+                                    <button type="button" class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-100" data-map-trigger>
+                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-4 w-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 5v14" />
+                                            <path d="m5 12 7-7 7 7" />
+                                        </svg>
+                                        <span>Muat Peta</span>
+                                    </button>
+                                </div>
                             </div>
+                            <noscript>
+                                <div class="overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]">
+                                    <iframe title="Lokasi BKKBN Kota Tomohon" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full border-0"></iframe>
+                                </div>
+                            </noscript>
                             <p class="mt-3 text-sm text-gray-500">Gunakan peta untuk menemukan lokasi kantor kami dengan mudah.</p>
                         </div>
                         <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-6 sm:p-8 soft-lift" data-reveal-direction="right" data-reveal-distance="32" data-reveal-delay="0" data-reveal-duration="500">
@@ -206,7 +224,7 @@
                 <div class="space-y-6">
                     <div class="flex items-center gap-4">
                         <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/20 ring-1 ring-blue-500/40">
-                            <img src="{{ Vite::asset('resources/views/logo-bkkbn.png') }}" alt="Logo BKKBN" class="h-9 w-9 object-contain" onerror="this.style.display='none'" />
+                            <img src="{{ Vite::asset('resources/views/logo-bkkbn.png') }}" alt="Logo BKKBN" loading="lazy" decoding="async" class="h-9 w-9 object-contain" onerror="this.style.display='none'" />
                         </div>
                         <div>
                             <p class="text-lg font-semibold text-white">Cegah Stunting Tomohon</p>
@@ -296,3 +314,4 @@
     </footer>
 </body>
 </html>
+

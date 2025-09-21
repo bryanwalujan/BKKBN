@@ -4,25 +4,57 @@ let heroIndex = 0;
 let heroTimer = null;
 let heroLayer = 'a';
 
+const LANDING_DATA_CACHE_KEY = 'landing-data:v1';
+
+function applyLandingData(data) {
+  if (!data || typeof data !== 'object') return false;
+  heroItems = Array.isArray(data.carousels) ? data.carousels : [];
+  heroIndex = 0;
+  renderHeroItem(heroIndex);
+  startHeroRotation();
+  renderTentangKami(data.tentang_kami || null);
+  renderServices(data.services || data.layanan_kami || []);
+  renderDataRiset(data.data_riset || data.stats || []);
+  renderGaleri(data.galeri_program || []);
+  return true;
+}
+
+function hydrateLandingFromCache() {
+  if (typeof sessionStorage === 'undefined') return false;
+  try {
+    const raw = sessionStorage.getItem(LANDING_DATA_CACHE_KEY);
+    if (!raw) return false;
+    const cached = JSON.parse(raw);
+    if (!applyLandingData(cached)) return false;
+    observeStaticReveals();
+    return true;
+  } catch (err) {
+    console.warn('Failed to restore landing data cache', err);
+    return false;
+  }
+}
+
 // Data
 async function fetchLandingData() {
   try {
     const res = await fetch('/landing/data', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     if (!res.ok) throw new Error('Network response was not ok');
     const data = await res.json();
-    heroItems = Array.isArray(data.carousels) ? data.carousels : [];
-    heroIndex = 0;
-    renderHeroItem(heroIndex);
-    startHeroRotation();
-    renderTentangKami(data.tentang_kami || null);
-    renderServices(data.services || data.layanan_kami || []);
-    renderDataRiset(data.data_riset || data.stats || []);
-    renderGaleri(data.galeri_program || []);
+    if (!applyLandingData(data)) return;
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(LANDING_DATA_CACHE_KEY, JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn('Failed to cache landing data', err);
+    }
     observeStaticReveals();
   } catch (e) {
     console.error('Failed fetching landing data', e);
   }
 }
+
+
 
 // Renderers
 function renderHeroItem(i) {
@@ -87,6 +119,10 @@ function prevHero() {
 
 function startHeroRotation() {
   if (heroTimer) clearInterval(heroTimer);
+  if (!heroItems || heroItems.length <= 1) {
+    heroTimer = null;
+    return;
+  }
   heroTimer = setInterval(nextHero, 6000);
 }
 
@@ -208,20 +244,30 @@ function renderServices(list) {
   list.forEach((s, idx) => {
     const card = document.createElement('div');
     card.className = 'border border-gray-200 bg-white rounded p-4 flex gap-3 hover:shadow-lg transition-shadow reveal-on-scroll';
-    const icon = document.createElement('img');
-    icon.src = s.ikon ? buildImageUrl(s.ikon) : '';
-    icon.alt = s.judul_layanan || 'ikon';
-    icon.className = 'w-12 h-12 object-contain';
+    const safeTitle = s.judul_layanan || '';
+    if (s.ikon) {
+      const icon = document.createElement('img');
+      icon.src = buildImageUrl(s.ikon);
+      icon.alt = safeTitle || 'ikon layanan';
+      icon.className = 'w-12 h-12 object-contain';
+      icon.loading = 'lazy';
+      icon.decoding = 'async';
+      card.appendChild(icon);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 font-semibold';
+      placeholder.textContent = (safeTitle.slice(0, 1).toUpperCase()) || 'L';
+      card.appendChild(placeholder);
+    }
     const body = document.createElement('div');
     const title = document.createElement('h3');
     title.className = 'font-semibold';
-    title.textContent = s.judul_layanan;
+    title.textContent = safeTitle || 'Layanan';
     const desc = document.createElement('p');
     desc.className = 'text-sm text-gray-600';
     desc.textContent = s.deskripsi_singkat || '';
     body.appendChild(title);
     body.appendChild(desc);
-    card.appendChild(icon);
     card.appendChild(body);
     grid.appendChild(card);
     setupReveal(card, { delay: Math.min(idx * 60, 360) });
@@ -285,6 +331,8 @@ function renderGaleri(list) {
       img.src = buildImageUrl(g.gambar);
       img.alt = g.judul || 'program';
       img.className = 'w-full h-44 object-cover transition-transform duration-300 ease-out group-hover:scale-105';
+      img.loading = 'lazy';
+      img.decoding = 'async';
       card.appendChild(img);
     }
     const body = document.createElement('div');
@@ -372,12 +420,77 @@ function bindHeroSwipe() {
   }, { passive: true });
 }
 
+
+// Deferred map loader that waits for intent or viewport visibility
+function bindLazyMap() {
+  const container = document.getElementById('contact-map');
+  if (!container) return;
+  const src = container.getAttribute('data-map-src');
+  if (!src) return;
+
+  const title = container.getAttribute('data-map-title') || 'Lokasi kantor';
+  const referrer = container.getAttribute('data-map-referrerpolicy') || '';
+  const placeholder = container.querySelector('[data-map-placeholder]');
+  const message = placeholder ? placeholder.querySelector('[data-map-message]') : null;
+  const trigger = container.querySelector('[data-map-trigger]');
+  const rawConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const prefersReducedData = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-data: reduce)').matches : false;
+  const saveData = Boolean(rawConnection && rawConnection.saveData);
+  const allowAutoLoad = !(saveData || prefersReducedData);
+
+  if (message && !allowAutoLoad) {
+    message.textContent = 'Mode hemat data aktif. Tekan tombol untuk memuat peta.';
+  }
+
+  let loaded = container.getAttribute('data-map-loaded') === 'true' || Boolean(container.querySelector('iframe'));
+  let observer;
+
+  const mount = () => {
+    if (loaded) return;
+    loaded = true;
+    const iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.title = title;
+    iframe.loading = 'lazy';
+    iframe.className = 'w-full h-full border-0';
+    if (referrer) iframe.referrerPolicy = referrer;
+    iframe.allowFullscreen = true;
+    container.appendChild(iframe);
+    if (placeholder && placeholder.parentNode) placeholder.remove();
+    container.setAttribute('data-map-loaded', 'true');
+    if (observer) observer.disconnect();
+  };
+
+  if (trigger) {
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      mount();
+    });
+  }
+
+  if (allowAutoLoad && 'IntersectionObserver' in window) {
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          mount();
+        }
+      });
+    }, { rootMargin: '200px' });
+    observer.observe(container);
+  } else if (!allowAutoLoad) {
+    container.setAttribute('data-map-autoload', 'disabled');
+  } else {
+    window.addEventListener('load', () => { setTimeout(mount, 800); });
+  }
+}
 // Init
 function init() {
+  const hadCache = hydrateLandingFromCache();
   fetchLandingData();
   bindMobileMenu();
   bindHeroSwipe();
-  observeStaticReveals();
+  bindLazyMap();
+  if (!hadCache) observeStaticReveals();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -401,3 +514,4 @@ function staggerIn(nodes, baseDelay = 50) {
     setTimeout(() => el.classList.add('in'), delay);
   });
 }
+
