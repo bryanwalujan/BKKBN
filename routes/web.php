@@ -31,6 +31,13 @@ use App\Http\Controllers\AuditStuntingController;
 use App\Http\Controllers\EdukasiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KecamatanBalitaController;
+use App\Http\Controllers\KecamatanKartuKeluargaController;
+use App\Http\Controllers\KecamatanIbuController;
+use App\Http\Controllers\KecamatanIbuHamilController;
+use App\Http\Controllers\KecamatanIbuNifasController;
+use App\Http\Controllers\KecamatanIbuMenyusuiController;
+use App\Http\Controllers\KecamatanRemajaPutriController;
+use App\Http\Controllers\KecamatanStuntingController;
 use App\Http\Controllers\KelurahanBalitaController;
 use App\Http\Controllers\KelurahanKartuKeluargaController;
 use App\Http\Controllers\KelurahanIbuController;
@@ -322,9 +329,44 @@ Route::get('/kelurahan/peta-geospasial', function (Request $request) {
 });
 
     // Routes untuk Admin Kecamatan
-    Route::middleware('role:admin_kecamatan')->group(function () {
-       Route::get('/kecamatan/balita', [KecamatanBalitaController::class, 'index'])->name('kecamatan.balita.index');
-        Route::post('/kecamatan/balita/{id}/approve', [KecamatanBalitaController::class, 'approve'])->name('kecamatan.balita.approve');
-        Route::post('/kecamatan/balita/{id}/reject', [KecamatanBalitaController::class, 'reject'])->name('kecamatan.balita.reject');
-    });
+    //balita
+Route::prefix('kecamatan')->middleware(['auth', 'role:admin_kecamatan'])->group(function () {
+    Route::get('/balita', [KecamatanBalitaController::class, 'index'])->name('kecamatan.balita.index');
+    Route::post('/balita/{id}/approve', [KecamatanBalitaController::class, 'approve'])->name('kecamatan.balita.approve');
+    Route::post('/balita/{id}/reject', [KecamatanBalitaController::class, 'reject'])->name('kecamatan.balita.reject');
+
+     // Rute untuk Kartu Keluarga
+    Route::get('/kartu-keluarga', [KecamatanKartuKeluargaController::class, 'index'])->name('kecamatan.kartu_keluarga.index');
+    Route::post('/kartu-keluarga/{id}/approve', [KecamatanKartuKeluargaController::class, 'approve'])->name('kecamatan.kartu_keluarga.approve');
+    Route::post('/kartu-keluarga/{id}/reject', [KecamatanKartuKeluargaController::class, 'reject'])->name('kecamatan.kartu_keluarga.reject');
+
+     // Rute untuk Ibu
+    Route::get('/ibu', [KecamatanIbuController::class, 'index'])->name('kecamatan.ibu.index');
+    Route::post('/ibu/{id}/approve', [KecamatanIbuController::class, 'approve'])->name('kecamatan.ibu.approve');
+    Route::post('/ibu/{id}/reject', [KecamatanIbuController::class, 'reject'])->name('kecamatan.ibu.reject');
+    // Rute untuk Ibu Hamil
+    Route::get('/ibu-hamil', [KecamatanIbuHamilController::class, 'index'])->name('kecamatan.ibu_hamil.index');
+    Route::post('/ibu-hamil/{id}/approve', [KecamatanIbuHamilController::class, 'approve'])->name('kecamatan.ibu_hamil.approve');
+    Route::post('/ibu-hamil/{id}/reject', [KecamatanIbuHamilController::class, 'reject'])->name('kecamatan.ibu_hamil.reject');
+
+    // Rute untuk Ibu Nifas
+    Route::get('/ibu-nifas', [KecamatanIbuNifasController::class, 'index'])->name('kecamatan.ibu_nifas.index');
+    Route::post('/ibu-nifas/{id}/approve', [KecamatanIbuNifasController::class, 'approve'])->name('kecamatan.ibu_nifas.approve');
+    Route::post('/ibu-nifas/{id}/reject', [KecamatanIbuNifasController::class, 'reject'])->name('kecamatan.ibu_nifas.reject');
+
+    // Rute untuk Ibu Menyusui
+    Route::get('/ibu-menyusui', [KecamatanIbuMenyusuiController::class, 'index'])->name('kecamatan.ibu_menyusui.index');
+    Route::post('/ibu-menyusui/{id}/approve', [KecamatanIbuMenyusuiController::class, 'approve'])->name('kecamatan.ibu_menyusui.approve');
+    Route::post('/ibu-menyusui/{id}/reject', [KecamatanIbuMenyusuiController::class, 'reject'])->name('kecamatan.ibu_menyusui.reject');
+
+    // Rute untuk Remaja Putri
+    Route::get('/remaja-putri', [KecamatanRemajaPutriController::class, 'index'])->name('kecamatan.remaja_putri.index');
+    Route::post('/remaja-putri/{id}/approve', [KecamatanRemajaPutriController::class, 'approve'])->name('kecamatan.remaja_putri.approve');
+    Route::post('/remaja-putri/{id}/reject', [KecamatanRemajaPutriController::class, 'reject'])->name('kecamatan.remaja_putri.reject');
+
+    // Rute untuk Stunting
+    Route::get('/stunting', [KecamatanStuntingController::class, 'index'])->name('kecamatan.stunting.index');
+    Route::post('/stunting/{id}/approve', [KecamatanStuntingController::class, 'approve'])->name('kecamatan.stunting.approve');
+    Route::post('/stunting/{id}/reject', [KecamatanStuntingController::class, 'reject'])->name('kecamatan.stunting.reject');
+});
 });

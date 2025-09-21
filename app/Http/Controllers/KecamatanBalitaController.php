@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\PendingBalita;
 use App\Models\Balita;
+use App\Models\KartuKeluarga;
+use App\Models\PendingKartuKeluarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class KecamatanBalitaController extends Controller
 {
@@ -26,13 +29,69 @@ class KecamatanBalitaController extends Controller
             return redirect()->route('dashboard')->with('error', 'Admin kecamatan tidak terkait dengan kecamatan.');
         }
 
-        $query = PendingBalita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
+        $search = $request->query('search');
+        $kategoriUmur = $request->query('kategori_umur');
+        $tab = $request->query('tab', 'pending');
+
+        // Query untuk PendingBalita
+        $pendingQuery = PendingBalita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
             ->where('kecamatan_id', $kecamatan_id)
             ->where('status', 'pending');
 
-        $balitas = $query->paginate(10);
+        if ($search) {
+            $pendingQuery->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhere('nik', 'like', '%' . $search . '%');
+            });
+        }
 
-        return view('kecamatan.balita.verifikasi', compact('balitas'));
+        $pendingBalitas = $pendingQuery->get()->map(function ($balita) {
+            $balita->source = 'pending';
+            return $balita;
+        });
+
+        // Query untuk Balita (terverifikasi)
+        $verifiedQuery = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])
+            ->where('kecamatan_id', $kecamatan_id);
+
+        if ($search) {
+            $verifiedQuery->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhere('nik', 'like', '%' . $search . '%');
+            });
+        }
+
+        $verifiedBalitas = $verifiedQuery->get()->map(function ($balita) {
+            $balita->source = 'verified';
+            $balita->createdBy = $balita->createdBy ?? (object) ['name' => 'Tidak diketahui'];
+            return $balita;
+        });
+
+        // Filter berdasarkan kategori umur
+        if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
+            $pendingBalitas = $pendingBalitas->filter(function ($balita) use ($kategoriUmur) {
+                return $balita->kategoriUmur === $kategoriUmur;
+            });
+            $verifiedBalitas = $verifiedBalitas->filter(function ($balita) use ($kategoriUmur) {
+                return $balita->kategoriUmur === $kategoriUmur;
+            });
+        }
+
+        // Gabungkan data untuk tab yang dipilih
+        $balitas = $tab === 'verified' ? $verifiedBalitas : $pendingBalitas;
+
+        // Paginate
+        $perPage = 10;
+        $currentPage = $request->query('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $total = $balitas->count();
+        $paginatedBalitas = $balitas->slice($offset, $perPage);
+        $balitas = new LengthAwarePaginator($paginatedBalitas, $total, $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return view('kecamatan.balita.index', compact('balitas', 'kategoriUmur', 'search', 'tab'));
     }
 
     public function approve(Request $request, $id)
@@ -43,7 +102,9 @@ class KecamatanBalitaController extends Controller
         }
 
         try {
-            $pendingBalita = PendingBalita::where('kecamatan_id', $user->kecamatan_id)->findOrFail($id);
+            $pendingBalita = PendingBalita::where('kecamatan_id', $user->kecamatan_id)
+                ->where('status', 'pending')
+                ->findOrFail($id);
 
             $data = [
                 'kartu_keluarga_id' => $pendingBalita->kartu_keluarga_id,
@@ -61,6 +122,7 @@ class KecamatanBalitaController extends Controller
                 'warna_label' => $pendingBalita->warna_label,
                 'status_pemantauan' => $pendingBalita->status_pemantauan,
                 'foto' => $pendingBalita->foto,
+                'created_by' => $pendingBalita->created_by,
             ];
 
             if ($pendingBalita->original_balita_id) {
@@ -76,14 +138,15 @@ class KecamatanBalitaController extends Controller
                     Log::info('Memperbarui data balita di balitas', ['id' => $existingBalita->id, 'data' => $data]);
                 } else {
                     Balita::create($data);
-                    Log::info('Menyimpan data balita ke balitas', ['data' => $data]);
+                    Log::info('Menyimpan data balita baru ke balitas', ['data' => $data]);
                 }
             }
 
+            // Tandai sebagai approved dan hapus dari pending
             $pendingBalita->update(['status' => 'approved']);
             $pendingBalita->delete();
 
-            return redirect()->route('kecamatan.balita.index')->with('success', 'Data balita berhasil disetujui.');
+            return redirect()->route('kecamatan.balita.index')->with('success', 'Data balita berhasil disetujui dan dipindahkan ke data master.');
         } catch (\Exception $e) {
             Log::error('Gagal menyetujui data balita: ' . $e->getMessage(), ['id' => $id]);
             return redirect()->route('kecamatan.balita.index')->with('error', 'Gagal menyetujui data balita: ' . $e->getMessage());
@@ -102,7 +165,9 @@ class KecamatanBalitaController extends Controller
         ]);
 
         try {
-            $pendingBalita = PendingBalita::where('kecamatan_id', $user->kecamatan_id)->findOrFail($id);
+            $pendingBalita = PendingBalita::where('kecamatan_id', $user->kecamatan_id)
+                ->where('status', 'pending')
+                ->findOrFail($id);
 
             if ($pendingBalita->foto && Storage::disk('public')->exists($pendingBalita->foto)) {
                 Storage::disk('public')->delete($pendingBalita->foto);

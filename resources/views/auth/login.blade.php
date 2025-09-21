@@ -29,7 +29,7 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            {{-- <div class="mb-4">
                 <label for="captcha" class="block text-sm font-medium text-gray-700">CAPTCHA</label>
                 <div class="flex items-center space-x-2">
                     <img src="{{ captcha_src() }}" alt="CAPTCHA" class="h-10">
@@ -39,7 +39,7 @@
                 @error('captcha')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
-            </div>
+            </div> --}}
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
         </form>
         <p class="mt-4 text-center">
