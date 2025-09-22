@@ -75,6 +75,12 @@
                         <span>Audit Stunting</span>
                     </a>
                 </li>
+                <li class="mb-4">
+                    <a href="{{ route('kecamatan.pendamping_keluarga.index') }}" class="flex items-center space-x-2 hover:text-gray-300">
+                        <i class="fas fa-tasks"></i>
+                        <span>Pendamping Keluarga</span>
+                    </a>
+                </li>
                 <li>
                 <a href="{{ route('kecamatan.data_monitoring.index') }}" class="block px-4 py-2 hover:bg-gray-700 {{ Route::is('kecamatan.data_monitoring.*') ? 'bg-gray-700' : '' }}">Verifikasi Data Monitoring</a>
             </li>
