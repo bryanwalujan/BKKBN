@@ -49,13 +49,13 @@
                 <ul id="perdataan-dropdown" class="ml-8 mt-2 space-y-1 
                     {{ Route::is('ibu.*', 'balita.*', 'stunting.*', 'ibu_hamil.*', 'ibu_nifas.*', 'ibu_menyusui.*', 'remaja_putri.*', 'kartu_keluarga.*') ? '' : 'hidden' }}">
                     <li>
-                        <a href="{{ route('ibu.index') }}" 
+                        <a href="{{ route('kartu_keluarga.index') }}" 
                            class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
-                                  {{ Route::is('ibu.*') ? 'bg-green-500 text-white shadow-md' : 'hover:bg-white/5 text-white/80 hover:text-white' }}">
+                                  {{ Route::is('kartu_keluarga.*') ? 'bg-green-500 text-white shadow-md' : 'hover:bg-white/5 text-white/80 hover:text-white' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
-                            <span class="text-sm">Data Ibu</span>
+                            <span class="text-sm">Kelola Kartu Keluarga</span>
                         </a>
                     </li>
                     <li>
@@ -76,6 +76,16 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
                             <span class="text-sm">Data Stunting</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('ibu.index') }}" 
+                           class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
+                                  {{ Route::is('ibu.*') ? 'bg-green-500 text-white shadow-md' : 'hover:bg-white/5 text-white/80 hover:text-white' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span class="text-sm">Data Ibu</span>
                         </a>
                     </li>
                     <li>
@@ -116,16 +126,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
                             <span class="text-sm">Data Remaja Putri</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('kartu_keluarga.index') }}" 
-                           class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
-                                  {{ Route::is('kartu_keluarga.*') ? 'bg-green-500 text-white shadow-md' : 'hover:bg-white/5 text-white/80 hover:text-white' }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                            <span class="text-sm">Kelola Kartu Keluarga</span>
                         </a>
                     </li>
                 </ul>
