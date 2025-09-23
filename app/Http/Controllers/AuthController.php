@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kelurahan;
 use App\Models\PendingUser;
+use App\Models\DataRiset;
 use App\Models\User;
 use App\Models\Template;
 use Illuminate\Http\Request;
@@ -160,11 +161,13 @@ class AuthController extends Controller
         return redirect()->back()->with('error', 'Template tidak ditemukan.');
     }
 
-    public function dashboard()
+     public function dashboard()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if ($user->isMaster()) {
-            return view('master.dashboard');
+            // Ambil data riset untuk master
+            $dataRisets = DataRiset::where('is_realtime', true)->get();
+            return view('master.dashboard', compact('dataRisets'));
         } elseif ($user->isAdminKecamatan()) {
             return view('kecamatan.dashboard');
         } elseif ($user->isAdminKelurahan()) {

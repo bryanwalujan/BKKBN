@@ -3,6 +3,14 @@
 <head>
     <title>Dashboard Master</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+        .chart-container {
+            max-height: 300px;
+            overflow-x: auto;
+            position: relative;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -38,6 +46,43 @@
             </div>
         @endif
         
+        <!-- Data Riset Statistik -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium">Statistik Data Riset Realtime</h3>
+                <a href="{{ route('data_riset.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition text-sm">Lihat Semua Data Riset</a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                @forelse ($dataRisets as $data)
+                    <div class="bg-gray-50 p-4 rounded border">
+                        <h4 class="text-sm font-medium text-gray-800">{{ $data->judul }}</h4>
+                        <p class="text-2xl font-bold text-blue-600">{{ $data->angka }}</p>
+                        <p class="text-xs text-gray-500">Terakhir diperbarui: {{ \Carbon\Carbon::parse($data->tanggal_update)->format('d-m-Y H:i') }}</p>
+                    </div>
+                @empty
+                    <p class="text-gray-500">Tidak ada data riset realtime untuk ditampilkan.</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Grafik -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-lg font-medium mb-4">Visualisasi Data Riset Realtime</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Horizontal Bar Chart -->
+                <div class="chart-container">
+                    <h4 class="text-md font-medium mb-2">Jumlah Data per Kategori</h4>
+                    <canvas id="barChart"></canvas>
+                </div>
+                <!-- Pie Chart -->
+                <div class="chart-container">
+                    <h4 class="text-md font-medium mb-2">Distribusi Data Riset</h4>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup Database -->
         <div class="bg-white p-6 rounded shadow mb-6">
             <h3 class="text-lg font-medium mb-4">Backup Database</h3>
             <p class="text-gray-600 mb-4">
@@ -62,23 +107,18 @@
             <details class="mb-4">
                 <summary class="cursor-pointer text-gray-600 hover:text-gray-800 font-medium">Opsi Backup Alternatif</summary>
                 <div class="mt-3 p-4 bg-gray-50 rounded border flex flex-wrap gap-2">
-                    <!-- Backup menggunakan Spatie -->
                     <form action="{{ route('backup.manual') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 transition text-sm">
                             Backup (Spatie)
                         </button>
                     </form>
-                    
-                    <!-- Backup langsung dari database -->
                     <form action="{{ route('backup.direct') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="bg-indigo-500 text-white px-3 py-2 rounded hover:bg-indigo-600 transition text-sm">
                             Backup (mysqldump)
                         </button>
                     </form>
-                    
-                    <!-- Debug info -->
                     <a href="{{ route('backup.debug.html') }}" target="_blank" class="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600 transition inline-block text-sm">
                         Debug Info
                     </a>
@@ -97,6 +137,7 @@
             </div>
         </div>
         
+        <!-- Kartu Navigasi -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-white p-6 rounded shadow hover:shadow-lg transition">
                 <h3 class="text-lg font-medium mb-2">👥 Kelola Akun</h3>
@@ -120,6 +161,7 @@
         // Load backup list saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             loadBackupList();
+            renderCharts();
         });
 
         function loadBackupList() {
@@ -136,9 +178,7 @@
                     
                     let html = '<div class="space-y-2">';
                     data.forEach(backup => {
-                        // Tentukan warna berdasarkan ukuran file
-                        const sizeColor = backup.size_bytes > 1024 * 1024 ? 'text-green-600' : 'text-blue-600'; // > 1MB = hijau
-                        
+                        const sizeColor = backup.size_bytes > 1024 * 1024 ? 'text-green-600' : 'text-blue-600';
                         html += `
                             <div class="flex justify-between items-center bg-white p-3 rounded border hover:bg-gray-50 transition">
                                 <div class="flex-1">
@@ -157,7 +197,6 @@
                         `;
                     });
                     html += '</div>';
-                    
                     backupListElement.innerHTML = html;
                 })
                 .catch(error => {
@@ -169,6 +208,93 @@
 
         // Auto refresh backup list setiap 30 detik
         setInterval(loadBackupList, 30000);
+
+        // Render grafik
+        function renderCharts() {
+            const dataRisets = @json($dataRisets);
+            const labels = dataRisets.map(item => item.judul);
+            const values = dataRisets.map(item => item.angka);
+            const colors = ['#3b82f6', '#22c55e', '#eab308', '#dc2626'];
+
+            // Horizontal Bar Chart
+            new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah',
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Membuat bar chart horizontal
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Jumlah'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Kategori'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Pie Chart
+            new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.raw / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.raw} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
