@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/landing.js'])
 </head>
-<body class="antialiased bg-gray-50 text-gray-900">
+<body class="antialiased bg-gray-50 text-gray-900 overflow-x-hidden">
     <header class="bg-blue-700 text-white sticky top-0 z-40 shadow">
         <div class="max-w-7xl mx-auto px-5">
             <div class="flex justify-between items-center h-16">
@@ -22,15 +22,27 @@
                     </div>
                 </div>
                 <nav class="hidden md:flex items-center gap-6 text-sm">
+                    <div class="flex items-center gap-3 pr-6 border-r border-white/20">
+                        <a href="https://facebook.com" class="social-pill text-white/90 hover:bg-white/20 hover:text-white focus-visible:ring-offset-blue-700" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 9H16l.5-3h-3V4.5c0-.9.3-1.5 1.5-1.5H16V0h-2.4C10.9 0 10 1.9 10 4.1V6H7v3h3v9h3V9Z"/></svg>
+                        </a>
+                        <a href="https://instagram.com" class="social-pill text-white/90 hover:bg-white/20 hover:text-white focus-visible:ring-offset-blue-700" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-3.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg>
+                        </a>
+                        <a href="https://bkkbn.go.id" class="social-pill text-white/90 hover:bg-white/20 hover:text-white focus-visible:ring-offset-blue-700" aria-label="Portal BKKBN">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4.59l-8 4.44-8-4.44Zm8 9.82 8-4.44V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9.62Z"/></svg>
+                        </a>
+                    </div>
                     <a href="#hero" class="hover:text-blue-300">Beranda</a>
                     <a href="#tentang" class="hover:text-blue-300">Tentang Kami</a>
                     <a href="#services" class="hover:text-blue-300">Layanan Kami</a>
                     <a href="#data-riset" class="hover:text-blue-300">Data Riset</a>
                     <a href="#galeri" class="hover:text-blue-300">Galeri Program</a>
+                    <a href="#edukasi" class="hover:text-blue-300">Edukasi</a>
                     <a href="#contact" class="hover:text-blue-300">Kontak</a>
                 </nav>
                 <!-- Mobile menu button -->
-                <button id="mobile-menu-toggle" class="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                <button id="mobile-menu-toggle" class="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-[#26d48c] focus:outline-none focus:ring-2 focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     <span class="sr-only">Open menu</span>
                 </button>
@@ -38,13 +50,27 @@
         </div>
         <!-- Mobile menu (animated slide) -->
         <div id="mobile-menu" class="md:hidden bg-blue-700/95 border-t border-blue-600 overflow-hidden max-h-0 opacity-0 -translate-y-1 pointer-events-none transition-all duration-200 ease-out" data-open="false">
-            <div class="px-5 py-3 space-y-2 text-sm">
-                <a href="#hero" class="block hover:text-blue-200">Beranda</a>
-                <a href="#tentang" class="block hover:text-blue-200">Tentang Kami</a>
-                <a href="#services" class="block hover:text-blue-200">Layanan Kami</a>
-                <a href="#data-riset" class="block hover:text-blue-200">Data Riset</a>
-                <a href="#galeri" class="block hover:text-blue-200">Galeri Program</a>
-                <a href="#contact" class="block hover:text-blue-200">Kontak</a>
+            <div class="px-5 py-3 space-y-4 text-sm">
+                <div class="flex items-center gap-3 pb-3 border-b border-blue-500/40">
+                    <a href="https://facebook.com" class="social-pill text-white/90 hover:bg-white/20 hover:text-white focus-visible:ring-offset-blue-700" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 9H16l.5-3h-3V4.5c0-.9.3-1.5 1.5-1.5H16V0h-2.4C10.9 0 10 1.9 10 4.1V6H7v3h3v9h3V9Z"/></svg>
+                    </a>
+                    <a href="https://instagram.com" class="social-pill text-white/90 hover:bg-white/20 hover:text-white focus-visible:ring-offset-blue-700" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-3.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg>
+                    </a>
+                    <a href="https://bkkbn.go.id" class="social-pill text-white/90 hover:bg-white/20 hover:text-white focus-visible:ring-offset-blue-700" aria-label="Portal BKKBN">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4.59l-8 4.44-8-4.44Zm8 9.82 8-4.44V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9.62Z"/></svg>
+                    </a>
+                </div>
+                <div class="space-y-2">
+                    <a href="#hero" class="block hover:text-blue-200">Beranda</a>
+                    <a href="#tentang" class="block hover:text-blue-200">Tentang Kami</a>
+                    <a href="#services" class="block hover:text-blue-200">Layanan Kami</a>
+                    <a href="#data-riset" class="block hover:text-blue-200">Data Riset</a>
+                    <a href="#galeri" class="block hover:text-blue-200">Galeri Program</a>
+                    <a href="#edukasi" class="block hover:text-blue-200">Edukasi</a>
+                    <a href="#contact" class="block hover:text-blue-200">Kontak</a>
+                </div>
             </div>
         </div>
     </header>
@@ -59,37 +85,47 @@
             <div class="absolute inset-0 bg-black/55"></div>
 
             <div class="relative z-10 h-full">
-                <div class="max-w-7xl mx-auto h-full px-5 flex items-center justify-center">
-                    <div class="max-w-3xl mx-auto text-center">
-                        <div class="text-blue-400 font-semibold mb-2" id="hero-subheading">Program Prioritas Nasional</div>
-                        <h1 id="hero-heading" class="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow">Cegah Stunting, Investasi Masa Depan Bangsa</h1>
-                        <p id="hero-description" class="text-white/90 mt-4 sm:mt-5 text-base sm:text-lg leading-relaxed max-w-2xl">Kami hadir untuk memberikan informasi, edukasi, dan data penting dalam upaya pencegahan stunting demi generasi yang lebih sehat dan cerdas.</p>
-                        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                            <a id="hero-btn-1" href="#" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Pelajari Lebih Lanjut</a>
-                            <a id="hero-btn-2" href="#contact" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Hubungi Kami</a>
+                <div class="max-w-7xl w-full mx-auto h-full px-4 sm:px-5 md:px-8 flex items-center justify-center">
+                    <div class="max-w-3xl w-full mx-auto text-center px-1 sm:px-0">
+                        <div class="text-blue-400 font-semibold mb-2 break-words" id="hero-subheading">Program Prioritas Nasional</div>
+                        <h1 id="hero-heading" class="text-white text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight drop-shadow break-words">Cegah Stunting, Investasi Masa Depan Bangsa</h1>
+                        <p id="hero-description" class="text-white/90 mt-4 sm:mt-5 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto break-words">Kami hadir untuk memberikan informasi, edukasi, dan data penting dalam upaya pencegahan stunting demi generasi yang lebih sehat dan cerdas.</p>
+                        <div class="mt-8 flex flex-col items-center sm:flex-row gap-4 justify-center">
+                            <a id="hero-btn-1" href="#" class="inline-flex flex-wrap items-center justify-center text-center break-words rounded-full px-6 py-3 bg-blue-600 hover:bg-[#26d48c] text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Pelajari Lebih Lanjut</a>
+                            <a id="hero-btn-2" href="#contact" class="inline-flex flex-wrap items-center justify-center text-center break-words rounded-full px-6 py-3 bg-blue-600 hover:bg-[#26d48c] text-white font-medium transition-transform duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/70 shadow-sm">Hubungi Kami</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Carousel Controls -->
-                <button id="hero-prev" aria-label="Previous" class="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-blue-600/90 hover:bg-blue-700 text-white w-8 h-8 md:size-10 rounded-full grid place-items-center">&#x276E;</button>
-                <button id="hero-next" aria-label="Next" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-blue-600/90 hover:bg-blue-700 text-white w-8 h-8 md:size-10 rounded-full grid place-items-center">&#x276F;</button>
+                <button id="hero-prev" aria-label="Previous" class="absolute left-4 bottom-5 top-auto translate-y-0 bg-blue-600/90 hover:bg-[#26d48c] text-white w-9 h-9 md:w-10 md:h-10 rounded-full grid place-items-center md:left-3 md:top-1/2 md:bottom-auto md:-translate-y-1/2">&#x276E;</button>
+                <button id="hero-next" aria-label="Next" class="absolute right-4 bottom-5 top-auto translate-y-0 bg-blue-600/90 hover:bg-[#26d48c] text-white w-9 h-9 md:w-10 md:h-10 rounded-full grid place-items-center md:right-3 md:top-1/2 md:bottom-auto md:-translate-y-1/2">&#x276F;</button>
             </div>
         </section>
 
         <!-- Tentang Kami -->
         <section id="tentang" class="max-w-7xl mx-auto px-5 py-16 scroll-mt-16">
-            <div class="grid md:grid-cols-2 gap-10 items-center">
-                <div>
-                    <div class="text-blue-600 font-semibold mb-2">Tentang Kami</div>
-                    <h2 id="about-title" class="text-3xl font-bold mb-4">BKKBN</h2>
-                    <p id="about-p1" class="text-gray-700 leading-relaxed mb-4"></p>
-                    <p id="about-p2" class="text-gray-700 leading-relaxed mb-6 hidden"></p>
-                    <a id="about-cta" href="#" class="inline-flex items-center justify-center rounded-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium hidden"></a>
+            <div class="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-center">
+                <div class="order-1 lg:order-2 space-y-6">
+                    <p class="text-blue-600 font-semibold uppercase tracking-[0.32em]">Tentang Kami</p>
+                    <h2 id="about-title" class="text-3xl md:text-4xl font-bold leading-tight break-words">BKKBN</h2>
+                    <div class="space-y-4 text-gray-700">
+                        <p id="about-p1" class="leading-relaxed break-words"></p>
+                        <p id="about-p2" class="leading-relaxed break-words hidden"></p>
+                    </div>
+                    <div>
+                        <a id="about-cta" href="#" class="inline-flex flex-wrap items-center justify-center text-center break-words rounded-full px-8 py-3 text-sm font-semibold text-white bg-blue-600 shadow-sm hover:bg-[#26d48c] focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 hidden"></a>
+                    </div>
                 </div>
-                <div class="relative">
-                    <img id="about-main" src="" alt="Tentang Kami" loading="lazy" decoding="async" class="w-full h-56 sm:h-72 object-cover rounded-lg shadow" onerror="this.style.display='none'">
-                    <img id="about-overlay" src="" alt="Overlay" loading="lazy" decoding="async" class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg shadow absolute -bottom-6 -right-6 hidden md:block" onerror="this.style.display='none'">
+                <div class="order-2 lg:order-1 flex justify-center lg:justify-start">
+                    <div class="relative w-full max-w-xl xl:max-w-2xl pb-12 lg:pb-20">
+                        <div class="relative aspect-[4/3] w-full rounded-[32px] bg-gradient-to-br from-blue-100 via-white to-blue-50 shadow-xl overflow-hidden">
+                            <img id="about-main" data-src="" alt="Tentang Kami" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" hidden>
+                        </div>
+                        <div id="about-overlay-frame" class="absolute left-1/2 bottom-[-12%] w-[72%] max-w-lg -translate-x-1/2 rounded-[28px] shadow-2xl overflow-hidden border-8 border-white bg-white hidden md:block">
+                            <img id="about-overlay" data-src="" alt="Overlay" loading="lazy" decoding="async" class="h-full w-full object-cover" hidden>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -113,13 +149,28 @@
                 <div id="galeri-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
             </div>
         </section>
+        <!-- Edukasi -->
+        <section id="edukasi" class="scroll-mt-16">
+            <div class="max-w-7xl mx-auto px-5 py-16">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+                    <div class="space-y-3">
+                        <p class="text-sm font-semibold uppercase tracking-[0.32em] text-blue-400">Edukasi</p>
+                        <h2 class="text-3xl font-bold text-gray-900">Materi Edukasi Pilihan</h2>
+                        <p class="text-gray-600 max-w-2xl">Kumpulan materi konseling, modul, dan sumber belajar untuk mendukung pencegahan stunting di Kota Tomohon.</p>
+                    </div>
+                    <p id="edukasi-empty" class="text-sm text-gray-500 md:text-right" hidden>Materi edukasi sedang disiapkan.</p>
+                </div>
+                <div id="edukasi-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+            </div>
+        </section>
+
         <!-- Kontak -->
         <section id="contact" class="bg-gradient-to-b from-blue-50 via-white to-white scroll-mt-16">
             <div class="max-w-7xl mx-auto px-5 py-16">
-                <div class="max-w-3xl mx-auto text-center reveal-on-scroll" data-reveal-delay="0" data-reveal-distance="28" data-reveal-duration="450">
+                <div class="max-w-3xl w-full mx-auto text-center px-1 sm:px-0 reveal-on-scroll" data-reveal-delay="0" data-reveal-distance="28" data-reveal-duration="450">
                     <div class="text-blue-600 font-semibold uppercase tracking-wide mb-2">Hubungi Kami</div>
                     <h2 class="text-3xl font-bold text-gray-900">Layanan Informasi & Konsultasi Program Keluarga Berkualitas</h2>
-                    <p class="mt-4 text-base text-gray-600">Tim BKKBN Kota Tomohon siap membantu Anda mendapatkan informasi dan dukungan terkait pencegahan stunting serta pelayanan keluarga berkualitas. Silakan hubungi kami melalui detail kontak atau formulir di bawah ini.</p>
+                    <p class="mt-4 text-base text-gray-600">Tim DPPKBD Kota Tomohon siap membantu Anda mendapatkan informasi dan dukungan terkait pencegahan stunting serta pelayanan keluarga berkualitas. Silakan hubungi kami melalui detail kontak atau formulir di bawah ini.</p>
                 </div>
 
                 <div class="mt-12 space-y-10">
@@ -163,14 +214,14 @@
 
                     <div class="grid gap-8 lg:grid-cols-2">
                         <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-4 sm:p-6 soft-lift" data-reveal-direction="left" data-reveal-distance="32" data-reveal-delay="0" data-reveal-duration="500">
-                            <div id="contact-map" class="relative overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]" data-map-src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" data-map-title="Lokasi BKKBN Kota Tomohon" data-map-referrerpolicy="no-referrer-when-downgrade">
+                            <div id="contact-map" class="relative overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]" data-map-src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" data-map-title="Lokasi DPPKBD Tomohon" data-map-referrerpolicy="no-referrer-when-downgrade">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-blue-900/70" data-map-placeholder>
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-9 w-9 text-blue-700/60" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M9 3 3 6v15l6-3 6 3 6-3V6l-6-3-6 3v15" />
                                         <path d="M15 7.75a2.25 2.25 0 1 1-2.25 2.25A2.25 2.25 0 0 1 15 7.75Z" />
                                     </svg>
-                                    <p class="text-sm font-semibold" data-map-message>Aktifkan peta interaktif untuk petunjuk arah.</p>
-                                    <button type="button" class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-100" data-map-trigger>
+                                    <p class="text-sm font-semibold break-words" data-map-message>Aktifkan peta interaktif untuk petunjuk arah.</p>
+                                    <button type="button" class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#26d48c] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-100" data-map-trigger>
                                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-4 w-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M12 5v14" />
                                             <path d="m5 12 7-7 7 7" />
@@ -181,7 +232,7 @@
                             </div>
                             <noscript>
                                 <div class="overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]">
-                                    <iframe title="Lokasi BKKBN Kota Tomohon" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full border-0"></iframe>
+                                    <iframe title="Lokasi DPPKBD Tomohon" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full border-0"></iframe>
                                 </div>
                             </noscript>
                             <p class="mt-3 text-sm text-gray-500">Gunakan peta untuk menemukan lokasi kantor kami dengan mudah.</p>
@@ -208,7 +259,7 @@
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                     <p class="text-xs text-gray-500">Kami akan merespon secepatnya.</p>
-                                    <button type="submit" class="inline-flex justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-transform duration-200 hover:-translate-y-0.5">Kirim Pesan</button>
+                                    <button type="submit" class="inline-flex justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-[#26d48c] focus:outline-none focus:ring-2 focus:ring-blue-300 transition-transform duration-200 hover:-translate-y-0.5">Kirim Pesan</button>
                                 </div>
                             </form>
                         </div>
@@ -231,16 +282,13 @@
                             <p class="text-xs uppercase tracking-[0.22em] text-blue-400">Bergerak Bersama Keluarga</p>
                         </div>
                     </div>
-                    <p class="text-sm leading-relaxed text-slate-300">Portal edukasi dan layanan terpadu BKKBN Kota Tomohon untuk memutus rantai stunting, menguatkan keluarga, dan memastikan tumbuh kembang balita yang optimal.</p>
+                    <p class="text-sm leading-relaxed text-slate-300">Portal edukasi dan layanan terpadu DPPKBD Tomohon untuk memutus rantai stunting, menguatkan keluarga, dan memastikan tumbuh kembang balita yang optimal.</p>
                     <div class="flex items-center gap-3">
                         <a href="https://facebook.com" class="social-pill" aria-label="Facebook">
                             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 9H16l.5-3h-3V4.5c0-.9.3-1.5 1.5-1.5H16V0h-2.4C10.9 0 10 1.9 10 4.1V6H7v3h3v9h3V9Z"/></svg>
                         </a>
                         <a href="https://instagram.com" class="social-pill" aria-label="Instagram">
                             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm5.75-3.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg>
-                        </a>
-                        <a href="https://www.youtube.com" class="social-pill" aria-label="YouTube">
-                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 6.2a2.5 2.5 0 0 0-1.76-1.77C18 4 12 4 12 4s-6 0-7.84.43A2.5 2.5 0 0 0 2.4 6.2 26.2 26.2 0 0 0 2 12a26.2 26.2 0 0 0 .4 5.8 2.5 2.5 0 0 0 1.76 1.77C6 20 12 20 12 20s6 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26.2 26.2 0 0 0 22 12a26.2 26.2 0 0 0-.4-5.8ZM10 15.46V8.54L15.5 12Z"/></svg>
                         </a>
                         <a href="https://bkkbn.go.id" class="social-pill" aria-label="Portal BKKBN">
                             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4.59l-8 4.44-8-4.44Zm8 9.82 8-4.44V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9.62Z"/></svg>
@@ -256,6 +304,7 @@
                         <li><a href="#services" class="footer-link">Layanan Kami</a></li>
                         <li><a href="#data-riset" class="footer-link">Basis Data</a></li>
                         <li><a href="#galeri" class="footer-link">Galeri Program</a></li>
+                        <li><a href="#edukasi" class="footer-link">Edukasi</a></li>
                     </ul>
                 </div>
 
@@ -268,7 +317,7 @@
                             </span>
                             <div class="space-y-2">
                                 <div class="footer-contact-meta">Alamat Kantor</div>
-                                <p class="footer-contact-title">DPPKBD Kota Tomohon</p>
+                                <p class="footer-contact-title">DPPKBD Tomohon</p>
                                 <p class="leading-relaxed">Jl. Terminal Beriman, Tomohon Timur, Kota Tomohon, Sulawesi Utara</p>
                                 <a href="https://maps.app.goo.gl/fgaeUK9bJzSJEVeX8" target="_blank" rel="noopener" class="footer-contact-link">Lihat di Google Maps</a>
                             </div>
@@ -280,7 +329,6 @@
                             <div class="space-y-2">
                                 <div class="footer-contact-meta">Telepon</div>
                                 <p class="footer-contact-title">+62 812 3456 7890</p>
-                                <p>Senin - Jumat, 08:00 - 16:00 WITA</p>
                                 <a href="tel:+6281234567890" class="footer-contact-link">Hubungi langsung</a>
                             </div>
                         </div>
@@ -291,8 +339,7 @@
                             <div class="space-y-2">
                                 <div class="footer-contact-meta">Email</div>
                                 <p class="footer-contact-title">info@bkkbntomohon.go.id</p>
-                                <p>Kirimkan aspirasi, kolaborasi program, atau kebutuhan data resmi melalui email.</p>
-                                <a href="mailto:info@bkkbntomohon.go.id" class="footer-contact-link">Kirim surel</a>
+                                <a href="mailto:info@bkkbntomohon.go.id" class="footer-contact-link">Kirim Email</a>
                             </div>
                         </div>
                     </div>
@@ -301,9 +348,7 @@
             <div class="mt-16 flex flex-col gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400 md:flex-row md:items-center md:justify-between">
                 <p>&copy; {{ date('Y') }} {{ config('app.name', 'BKKBN') }}. Seluruh hak cipta dilindungi.</p>
                 <div class="flex items-center gap-4">
-                    <a href="https://tomohon.go.id" class="hover:text-blue-300 transition-colors">Dinas PPKB Kota Tomohon</a>
-                    <span class="hidden text-slate-600 md:inline">&bull;</span>
-                    <a href="#contact" class="hover:text-blue-300 transition-colors">Hubungi Tim Pengembang</a>
+                    <a href="https://tomohon.go.id" class="hover:text-blue-300 transition-colors">DPPKBD Tomohon</a>
                 </div>
                 <a href="#hero" class="inline-flex items-center justify-center gap-2 self-start rounded-full bg-blue-600 px-4 py-2 font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:bg-blue-500 md:self-auto">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-4 w-4"><path d="m12 5 7 7H5z"/></svg>
@@ -314,4 +359,10 @@
     </footer>
 </body>
 </html>
+
+
+
+
+
+
 

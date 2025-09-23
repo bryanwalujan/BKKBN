@@ -5,6 +5,15 @@ let heroTimer = null;
 let heroLayer = 'a';
 
 const LANDING_DATA_CACHE_KEY = 'landing-data:v1';
+const EDUKASI_CATEGORY_LABELS = {
+  penyebaran_informasi_media: 'Penyebaran Informasi melalui Media',
+  konseling_perubahan_perilaku: 'Konseling Perubahan Perilaku Antar Pribadi',
+  konseling_pengasuhan: 'Konseling Pengasuhan untuk Orang Tua',
+  paud: 'PAUD (Pendidikan Anak Usia Dini)',
+  konseling_kesehatan_reproduksi: 'Konseling Kesehatan Reproduksi untuk Remaja',
+  ppa: 'PPA (Pemberdayaan Perempuan dan Perlindungan Anak)',
+  modul_buku_saku: 'Modul dan Buku Saku Pencegahan dan Penanganan Stunting',
+};
 
 function applyLandingData(data) {
   if (!data || typeof data !== 'object') return false;
@@ -16,6 +25,7 @@ function applyLandingData(data) {
   renderServices(data.services || data.layanan_kami || []);
   renderDataRiset(data.data_riset || data.stats || []);
   renderGaleri(data.galeri_program || []);
+  renderEdukasi(data.edukasi || []);
   return true;
 }
 
@@ -261,10 +271,10 @@ function renderServices(list) {
     }
     const body = document.createElement('div');
     const title = document.createElement('h3');
-    title.className = 'font-semibold';
+    title.className = 'font-semibold break-words';
     title.textContent = safeTitle || 'Layanan';
     const desc = document.createElement('p');
-    desc.className = 'text-sm text-gray-600';
+    desc.className = 'text-sm text-gray-600 break-words';
     desc.textContent = s.deskripsi_singkat || '';
     body.appendChild(title);
     body.appendChild(desc);
@@ -280,14 +290,64 @@ function renderTentangKami(about) {
   const p2 = document.getElementById('about-p2');
   const btn = document.getElementById('about-cta');
   const main = document.getElementById('about-main');
+  const overlayFrame = document.getElementById('about-overlay-frame');
   const overlay = document.getElementById('about-overlay');
-  if (!about) return;
-  if (about.judul_utama && title) title.textContent = about.judul_utama;
-  if (about.paragraf_1 && p1) p1.textContent = about.paragraf_1;
-  if (about.paragraf_2 && p2) { p2.textContent = about.paragraf_2; p2.classList.remove('hidden'); }
-  if (about.teks_tombol && about.link_tombol && btn) { btn.textContent = about.teks_tombol; btn.href = about.link_tombol; btn.classList.remove('hidden'); }
-  if (about.gambar_utama && main) { main.src = buildImageUrl(about.gambar_utama); }
-  if (about.gambar_overlay && overlay) { overlay.src = buildImageUrl(about.gambar_overlay); /* keep hidden on mobile; md:block shows on larger */ }
+  if (!about) {
+    if (p1) p1.textContent = '';
+    if (p2) { p2.textContent = ''; p2.classList.add('hidden'); }
+    if (btn) btn.classList.add('hidden');
+    if (main) main.setAttribute('hidden', '');
+    if (overlay) overlay.setAttribute('hidden', '');
+    if (overlayFrame) overlayFrame.classList.add('hidden');
+    return;
+  }
+  if (title) title.textContent = about.judul_utama || 'BKKBN';
+  if (p1) p1.textContent = about.paragraf_1 || '';
+  if (p2) {
+    if (about.paragraf_2) {
+      p2.textContent = about.paragraf_2;
+      p2.classList.remove('hidden');
+    } else {
+      p2.textContent = '';
+      p2.classList.add('hidden');
+    }
+  }
+  if (btn) {
+    if (about.teks_tombol && about.link_tombol) {
+      btn.textContent = about.teks_tombol;
+      btn.href = about.link_tombol;
+      btn.classList.remove('hidden');
+    } else {
+      btn.textContent = '';
+      btn.classList.add('hidden');
+    }
+  }
+  if (main) {
+    if (about.gambar_utama) {
+      main.src = buildImageUrl(about.gambar_utama);
+      main.removeAttribute('data-src');
+      main.style.removeProperty('display');
+      main.removeAttribute('hidden');
+    } else {
+      main.removeAttribute('src');
+      main.setAttribute('hidden', '');
+    }
+  }
+  if (overlay) {
+    if (about.gambar_overlay) {
+      overlay.src = buildImageUrl(about.gambar_overlay);
+      overlay.removeAttribute('data-src');
+      overlay.style.removeProperty('display');
+      overlay.removeAttribute('hidden');
+      if (overlayFrame) overlayFrame.classList.remove('hidden');
+    } else {
+      overlay.removeAttribute('src');
+      overlay.setAttribute('hidden', '');
+      if (overlayFrame) overlayFrame.classList.add('hidden');
+    }
+  } else if (overlayFrame) {
+    overlayFrame.classList.add('hidden');
+  }
 }
 
 // Data Riset
@@ -300,14 +360,14 @@ function renderDataRiset(list) {
     const card = document.createElement('div');
     card.className = 'riset-card reveal-on-scroll soft-lift';
     const title = document.createElement('div');
-    title.className = 'text-sm text-gray-500';
+    title.className = 'text-sm text-gray-500 break-words';
     title.textContent = r.judul || '';
     const value = document.createElement('div');
     value.className = 'text-2xl font-bold text-blue-600';
     value.textContent = '0';
     value.setAttribute('data-count-target', String(Number(r.angka || 0)));
     const time = document.createElement('div');
-    time.className = 'text-xs text-gray-400';
+    time.className = 'text-xs text-gray-400 break-words';
     if (r.tanggal_update) time.textContent = formatDateTime(r.tanggal_update);
     card.appendChild(title);
     card.appendChild(value);
@@ -338,10 +398,10 @@ function renderGaleri(list) {
     const body = document.createElement('div');
     body.className = 'p-4';
     const title = document.createElement('div');
-    title.className = 'font-semibold';
+    title.className = 'font-semibold break-words';
     title.textContent = g.judul || '';
     const desc = document.createElement('div');
-    desc.className = 'text-sm text-gray-600';
+    desc.className = 'text-sm text-gray-600 break-words';
     desc.textContent = g.deskripsi || '';
     body.appendChild(title);
     body.appendChild(desc);
@@ -351,11 +411,114 @@ function renderGaleri(list) {
   });
 }
 
+function renderEdukasi(list) {
+  const section = document.getElementById('edukasi');
+  const grid = document.getElementById('edukasi-grid');
+  const empty = document.getElementById('edukasi-empty');
+  if (!grid || !section) return;
+  grid.innerHTML = '';
+  const items = Array.isArray(list) ? list : [];
+  if (!items.length) {
+    grid.classList.add('hidden');
+    if (empty) empty.hidden = false;
+    return;
+  }
+  grid.classList.remove('hidden');
+  if (empty) empty.hidden = true;
+  items.forEach((item, idx) => {
+    const card = document.createElement('article');
+    card.className = 'group bg-white border border-blue-100 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-lg reveal-on-scroll';
+    const figure = document.createElement('div');
+    figure.className = 'relative aspect-[4/3] w-full overflow-hidden bg-blue-50';
+    if (item.gambar) {
+      const img = document.createElement('img');
+      img.src = buildImageUrl(item.gambar);
+      img.alt = item.judul || 'Materi edukasi';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.className = 'h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105';
+      figure.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'absolute inset-0 flex items-center justify-center text-3xl font-semibold text-blue-500/70';
+      const fallback = (item.judul || '').trim().charAt(0) || 'E';
+      placeholder.textContent = fallback.toUpperCase();
+      figure.appendChild(placeholder);
+    }
+    card.appendChild(figure);
+
+    const body = document.createElement('div');
+    body.className = 'p-6 space-y-4';
+    const badge = document.createElement('span');
+    badge.className = 'inline-flex flex-wrap items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-center text-xs font-semibold uppercase tracking-wide text-blue-600 break-words';
+    badge.textContent = item.kategori_label || EDUKASI_CATEGORY_LABELS[item.kategori] || 'Materi Edukasi';
+    body.appendChild(badge);
+
+    const title = document.createElement('h3');
+    title.className = 'text-lg font-semibold text-gray-900 break-words';
+    title.textContent = item.judul || 'Materi Edukasi';
+    body.appendChild(title);
+
+    if (item.deskripsi) {
+      const desc = document.createElement('p');
+      desc.className = 'text-sm leading-relaxed text-gray-600 break-words';
+      desc.textContent = item.deskripsi;
+      body.appendChild(desc);
+    }
+
+    if (item.created_at) {
+      const formatted = formatDateTime(item.created_at);
+      if (formatted) {
+        const meta = document.createElement('p');
+        meta.className = 'text-xs text-gray-400 break-words';
+        meta.textContent = `Diterbitkan ${formatted}`;
+        body.appendChild(meta);
+      }
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'flex flex-wrap gap-3';
+    let hasAction = false;
+    if (item.tautan) {
+      const link = document.createElement('a');
+      link.href = item.tautan;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.className = 'inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700';
+      link.textContent = 'Lihat rincian';
+      actions.appendChild(link);
+      hasAction = true;
+    }
+    if (item.file) {
+      const download = document.createElement('a');
+      download.href = buildStorageUrl(item.file);
+      download.target = '_blank';
+      download.rel = 'noopener';
+      download.className = 'inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700';
+      download.textContent = 'Unduh materi';
+      actions.appendChild(download);
+      hasAction = true;
+    }
+    if (hasAction) {
+      body.appendChild(actions);
+    }
+
+    card.appendChild(body);
+    grid.appendChild(card);
+    setupReveal(card, { delay: Math.min(idx * 70, 280) });
+  });
+}
+
 // Utils
 function buildImageUrl(p) {
+  return buildStorageUrl(p);
+}
+
+function buildStorageUrl(p) {
   if (!p) return '';
   if (p.startsWith('http://') || p.startsWith('https://')) return p;
   if (p.startsWith('/')) return p;
+  if (p.startsWith('storage/')) return `/${p}`;
   return `/storage/${p}`;
 }
 
@@ -514,4 +677,8 @@ function staggerIn(nodes, baseDelay = 50) {
     setTimeout(() => el.classList.add('in'), delay);
   });
 }
+
+
+
+
 

@@ -20,6 +20,7 @@ use App\Models\DataPenduduk;
 use App\Models\DataMonitoring;
 use App\Models\Referensi;
 use App\Models\GaleriProgram;
+use App\Models\Edukasi;
 use App\Models\PetaGeospasial;
 use App\Models\Template;
 use App\Models\TentangKami;
@@ -41,6 +42,20 @@ class LandingController extends Controller
         $stats = DataRiset::orderBy('updated_at', 'desc')->get();
         $about = TentangKami::first();
         $gallery = GaleriProgram::where('status_aktif', true)->orderBy('urutan')->get();
+        $education = Edukasi::where('status_aktif', true)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn ($item) => [
+                'id' => $item->id,
+                'judul' => $item->judul,
+                'kategori' => $item->kategori,
+                'kategori_label' => Edukasi::KATEGORI[$item->kategori] ?? null,
+                'deskripsi' => $item->deskripsi,
+                'tautan' => $item->tautan,
+                'file' => $item->file,
+                'gambar' => $item->gambar,
+                'created_at' => optional($item->created_at)->toIso8601String(),
+            ])->values();
 
         // Aggregate only the requested public metrics
         $entityCounts = [
@@ -64,6 +79,7 @@ class LandingController extends Controller
             'data_riset' => $stats,
             'tentang_kami' => $about,
             'galeri_program' => $gallery,
+            'edukasi' => $education,
             'entity_counts' => $entityCounts,
         ]);
     }
