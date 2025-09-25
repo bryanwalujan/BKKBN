@@ -137,6 +137,18 @@
                 </a>
             </li>
 
+            <!-- Aksi Konvergensi -->
+            <li>
+                <a href="{{ route('kecamatan.aksi_konvergensi.index') }}" 
+                   class="flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 group 
+                          {{ Route::currentRouteName() === 'kecamatan.aksi_konvergensi.index' ? 'bg-green-500 text-white shadow-lg' : 'hover:bg-white/10 text-white/90 hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h-3m3 0h3"/>
+                    </svg>
+                    <span class="font-medium">Data Aksi Konvergensi</span>
+                </a>
+            </li>
+
             <!-- Data Monitoring -->
             <li>
                 <a href="{{ route('kecamatan.data_monitoring.index') }}" 
