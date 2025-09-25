@@ -1,94 +1,572 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Tambah Publikasi</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Publikasi - CSSR</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script>
-        function previewImage(input, previewId) {
-            const file = input.files[0];
-            const preview = document.getElementById(previewId);
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.classList.remove('hidden');
-            } else {
-                preview.src = '';
-                preview.classList.add('hidden');
-            }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
         }
-    </script>
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-left-color: #8b5cf6;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .error-message {
+            color: #dc2626;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        
+        .info-box {
+            background-color: #f8f7ff;
+            border-left: 4px solid #8b5cf6;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+            color: #6d28d9;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+            border-radius: 3px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            border-radius: 0.25rem;
+            border: 2px solid #d1d5db;
+            margin-right: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked {
+            background-color: #8b5cf6;
+            border-color: #8b5cf6;
+        }
+        
+        .checkbox-label {
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .photo-preview {
+            width: 200px;
+            height: 150px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+            border: 2px solid #e5e7eb;
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .photo-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .photo-upload-area:hover {
+            border-color: #8b5cf6;
+            background-color: #f8f7ff;
+        }
+        
+        .photo-upload-area i {
+            font-size: 2rem;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .photo-upload-area.dragover {
+            border-color: #8b5cf6;
+            background-color: #f8f7ff;
+        }
+        
+        .kategori-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .kategori-badge.berita {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .kategori-badge.artikel {
+            background-color: #f0f9ff;
+            color: #0369a1;
+        }
+        
+        .kategori-badge.pengumuman {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .kategori-badge.lainnya {
+            background-color: #f3e8ff;
+            color: #7c3aed;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.aktif {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.nonaktif {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     @include('master.partials.sidebar')
-    <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Tambah Publikasi</h2>
-        <form action="{{ route('publikasi.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+    
+    <div class="ml-64 p-6 fade-in">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Tambah <span class="gradient-text">Publikasi</span></h1>
+                    <p class="text-gray-600">Tambah publikasi baru untuk ditampilkan di sistem CSSR</p>
+                    <div class="flex items-center mt-2 text-sm text-gray-500">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="{{ route('publikasi.index') }}" class="text-purple-500 hover:text-purple-700 mr-4 flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Publikasi
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        @if (session('error'))
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            </div>
+        @endif
+        
+        <form action="{{ route('publikasi.store') }}" method="POST" enctype="multipart/form-data" id="publikasiForm">
             @csrf
-            <div class="mb-4">
-                <label for="judul" class="block text-sm font-medium text-gray-700">Judul</label>
-                <input type="text" name="judul" id="judul" value="{{ old('judul') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                @error('judul')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 card-hover">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">Data Publikasi</h3>
+                        <p class="text-gray-600 text-sm mt-1">Isi informasi lengkap publikasi</p>
+                    </div>
+                    <div class="flex items-center text-sm text-purple-500">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        <span>Form Tambah Publikasi</span>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i> 
+                        Publikasi akan ditampilkan di halaman utama sistem. Pastikan informasi yang dimasukkan akurat dan menarik.
+                    </p>
+                </div>
+                
+                <!-- Data Utama -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-semibold text-gray-800 section-title">Data Utama</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="judul" class="form-label">
+                                <i class="fas fa-heading mr-1 text-purple-500"></i> Judul Publikasi
+                            </label>
+                            <input type="text" name="judul" id="judul" value="{{ old('judul') }}" class="form-input" placeholder="Masukkan judul publikasi" required>
+                            @error('judul')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="kategori" class="form-label">
+                                <i class="fas fa-tag mr-1 text-purple-500"></i> Kategori
+                            </label>
+                            <select name="kategori" id="kategori" class="form-input" required>
+                                <option value="Berita" {{ old('kategori') == 'Berita' ? 'selected' : '' }}>Berita</option>
+                                <option value="Artikel" {{ old('kategori') == 'Artikel' ? 'selected' : '' }}>Artikel</option>
+                                <option value="Pengumuman" {{ old('kategori') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
+                                <option value="Lainnya" {{ old('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            </select>
+                            @error('kategori')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="urutan" class="form-label">
+                                <i class="fas fa-sort-numeric-down mr-1 text-purple-500"></i> Urutan Tampil
+                            </label>
+                            <input type="number" name="urutan" id="urutan" value="{{ old('urutan', 1) }}" class="form-input" min="1" required>
+                            @error('urutan')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Konten Publikasi -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-semibold text-gray-800 section-title">Konten Publikasi</h4>
+                    <div class="form-grid">
+                        <div class="form-group md:col-span-2">
+                            <label for="deskripsi" class="form-label">
+                                <i class="fas fa-align-left mr-1 text-purple-500"></i> Deskripsi/Isi Publikasi
+                            </label>
+                            <textarea name="deskripsi" id="deskripsi" class="form-input" rows="5" placeholder="Masukkan deskripsi atau isi publikasi" required>{{ old('deskripsi') }}</textarea>
+                            @error('deskripsi')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gambar dan Tautan -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-semibold text-gray-800 section-title">Media & Tautan</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="gambar" class="form-label">
+                                <i class="fas fa-image mr-1 text-purple-500"></i> Gambar Publikasi
+                            </label>
+                            
+                            <div class="photo-upload-area" id="photoUploadArea">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p class="text-gray-600">Klik untuk memilih gambar atau seret dan lepas di sini</p>
+                                <p class="text-sm text-gray-500 mt-1">Format: JPG, PNG (Maks. 2MB)</p>
+                            </div>
+                            
+                            <input type="file" name="gambar" id="gambar" class="hidden" accept="image/jpeg,image/jpg,image/png" required>
+                            <img id="photoPreview" class="photo-preview" src="#" alt="Preview Gambar">
+                            
+                            @error('gambar')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="link_aksi" class="form-label">
+                                <i class="fas fa-link mr-1 text-purple-500"></i> Link Aksi (opsional)
+                            </label>
+                            <input type="url" name="link_aksi" id="link_aksi" value="{{ old('link_aksi') }}" class="form-input" placeholder="https://example.com">
+                            @error('link_aksi')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="teks_tombol" class="form-label">
+                                <i class="fas fa-mouse-pointer mr-1 text-purple-500"></i> Teks Tombol
+                            </label>
+                            <input type="text" name="teks_tombol" id="teks_tombol" value="{{ old('teks_tombol') }}" class="form-input" placeholder="Baca Selengkapnya" maxlength="50" required>
+                            @error('teks_tombol')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Status Publikasi -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-semibold text-gray-800 section-title">Status Publikasi</h4>
+                    <div class="form-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" name="status_aktif" id="status_aktif" class="form-checkbox" {{ old('status_aktif', 1) ? 'checked' : '' }}>
+                            <label for="status_aktif" class="checkbox-label">
+                                <i class="fas fa-eye mr-1 text-purple-500"></i> Publikasi Aktif
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Publikasi akan ditampilkan di halaman utama jika status aktif</p>
+                        @error('status_aktif')
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex justify-between pt-6 border-t border-gray-200">
+                    <a href="{{ route('publikasi.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan Publikasi
+                    </button>
+                </div>
             </div>
-            <div class="mb-4">
-                <label for="kategori" class="block text-sm font-medium text-gray-700">Kategori</label>
-                <select name="kategori" id="kategori" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                    <option value="Berita" {{ old('kategori') == 'Berita' ? 'selected' : '' }}>Berita</option>
-                    <option value="Artikel" {{ old('kategori') == 'Artikel' ? 'selected' : '' }}>Artikel</option>
-                    <option value="Pengumuman" {{ old('kategori') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
-                    <option value="Lainnya" {{ old('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
-                </select>
-                @error('kategori')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                <textarea name="deskripsi" id="deskripsi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>{{ old('deskripsi') }}</textarea>
-                @error('deskripsi')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="gambar" class="block text-sm font-medium text-gray-700">Gambar</label>
-                <input type="file" name="gambar" id="gambar" accept="image/jpeg,image/jpg,image/png" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" onchange="previewImage(this, 'preview_gambar')" required>
-                <img id="preview_gambar" class="w-8 h-8 object-cover rounded mt-2 hidden">
-                @error('gambar')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="link_aksi" class="block text-sm font-medium text-gray-700">Link Aksi (opsional)</label>
-                <input type="url" name="link_aksi" id="link_aksi" value="{{ old('link_aksi') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                @error('link_aksi')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="teks_tombol" class="block text-sm font-medium text-gray-700">Teks Tombol</label>
-                <input type="text" name="teks_tombol" id="teks_tombol" value="{{ old('teks_tombol') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" maxlength="50" required>
-                @error('teks_tombol')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="urutan" class="block text-sm font-medium text-gray-700">Urutan</label>
-                <input type="number" name="urutan" id="urutan" value="{{ old('urutan', 1) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" min="1" required>
-                @error('urutan')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" name="status_aktif" id="status_aktif" class="form-checkbox" {{ old('status_aktif', 1) ? 'checked' : '' }}>
-                    <span class="ml-2 text-sm text-gray-700">Status Aktif</span>
-                </label>
-                @error('status_aktif')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
         </form>
+        
+        <!-- Footer -->
+        <div class="mt-10 pt-6 border-t border-gray-200 text-center text-gray-500 text-sm">
+            <p>© {{ date('Y') }} CSSR - Sistem Informasi Stunting. All rights reserved.</p>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Photo upload functionality
+            $('#photoUploadArea').on('click', function() {
+                $('#gambar').click();
+            });
+
+            $('#gambar').on('change', function(e) {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        $('#photoPreview').attr('src', e.target.result);
+                        $('#photoPreview').show();
+                        $('#photoUploadArea').hide();
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Drag and drop functionality for photo upload
+            $('#photoUploadArea').on('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass('dragover');
+            });
+
+            $('#photoUploadArea').on('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('dragover');
+            });
+
+            $('#photoUploadArea').on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('dragover');
+                
+                var files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $('#gambar')[0].files = files;
+                    $('#gambar').trigger('change');
+                }
+            });
+
+            // Form validation before submission
+            $('#publikasiForm').on('submit', function(e) {
+                var isValid = true;
+                var firstErrorField = null;
+                
+                // Check required fields
+                $('input[required], select[required], textarea[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('border-red-500');
+                        
+                        if (!firstErrorField) {
+                            firstErrorField = this;
+                        }
+                    } else {
+                        $(this).removeClass('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Belum Lengkap',
+                        text: 'Harap lengkapi semua field yang wajib diisi.',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                    
+                    if (firstErrorField) {
+                        $('html, body').animate({
+                            scrollTop: $(firstErrorField).offset().top - 100
+                        }, 500);
+                    }
+                }
+            });
+
+            // Handle session error with SweetAlert2
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#8b5cf6'
+                });
+            @endif
+        });
+    </script>
 </body>
 </html>

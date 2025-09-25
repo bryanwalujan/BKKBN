@@ -8,12 +8,20 @@ use Illuminate\Support\Facades\Storage;
 
 class EdukasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $edukasis = Edukasi::orderBy('created_at', 'desc')->get();
+        $edukasis = Edukasi::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where('judul', 'like', '%' . $search . '%')
+                      ->orWhere('deskripsi', 'like', '%' . $search . '%');
+            })
+            ->when($request->status, function ($query, $status) {
+                $query->where('status_aktif', $status === 'active' ? 1 : 0);
+            })
+            ->get(); // Use get() to return a Collection, matching original code
+
         return view('master.edukasi.index', compact('edukasis'));
     }
-
     public function create()
     {
         return view('master.edukasi.create');
