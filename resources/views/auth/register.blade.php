@@ -394,7 +394,7 @@
         
         <!-- Footer -->
         <div class="text-center mt-6 text-gray-500 text-sm">
-            &copy; {{ date('Y') }} Nama Perusahaan. Semua hak dilindungi.
+            &copy; {{ date('Y') }} CSSR. Semua hak dilindungi.
         </div>
     </div>
 
