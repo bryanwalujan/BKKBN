@@ -24,6 +24,7 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
+            Log::warning('Perangkat daerah tidak terkait dengan kecamatan.', ['user_id' => $user->id]);
             return redirect()->route('dashboard')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
@@ -32,7 +33,7 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
 
         // Query untuk PendingAksiKonvergensi
         $pendingQuery = PendingAksiKonvergensi::with(['kartuKeluarga', 'kelurahan', 'createdBy'])
-            ->whereHas('kartuKeluarga', function ($query) use ($user) {
+            ->whereHas('kelurahan', function ($query) use ($user) {
                 $query->where('kecamatan_id', $user->kecamatan_id);
             })
             ->where('status', 'pending');
@@ -48,7 +49,7 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
 
         // Query untuk AksiKonvergensi (terverifikasi)
         $verifiedQuery = AksiKonvergensi::with(['kartuKeluarga', 'kelurahan'])
-            ->whereHas('kartuKeluarga', function ($query) use ($user) {
+            ->whereHas('kelurahan', function ($query) use ($user) {
                 $query->where('kecamatan_id', $user->kecamatan_id);
             });
 
@@ -82,7 +83,8 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
+            Log::warning('Perangkat daerah tidak terkait dengan kecamatan.', ['user_id' => $user->id]);
+            return redirect()->route('aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
         $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
@@ -93,7 +95,7 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
         $kecamatan = $user->kecamatan;
 
         if ($kartuKeluargas->isEmpty() || $kelurahans->isEmpty() || !$kecamatan) {
-            Log::warning('Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan tidak ditemukan untuk kecamatan_id: ' . $user->kecamatan_id);
+            Log::warning('Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan untuk kecamatan_id: ' . $user->kecamatan_id);
             return view('perangkat_daerah.aksi_konvergensi.create', compact('kartuKeluargas', 'kelurahans', 'kecamatan'))
                 ->with('error', 'Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan yang terverifikasi.');
         }
@@ -105,7 +107,8 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
+            Log::warning('Perangkat daerah tidak terkait dengan kecamatan.', ['user_id' => $user->id]);
+            return redirect()->route('aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
         $request->validate([
@@ -149,7 +152,7 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
 
             PendingAksiKonvergensi::create($data);
             Log::info('Menyimpan data aksi konvergensi ke pending_aksi_konvergensis', ['data' => $data]);
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index', ['tab' => 'pending'])->with('success', 'Data Aksi Konvergensi berhasil diajukan untuk verifikasi.');
+            return redirect()->route('aksi_konvergensi.index', ['tab' => 'pending'])->with('success', 'Data Aksi Konvergensi berhasil diajukan untuk verifikasi.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data aksi konvergensi: ' . $e->getMessage(), ['data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal mengajukan data aksi konvergensi: ' . $e->getMessage());
@@ -160,40 +163,61 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
+            Log::warning('Perangkat daerah tidak terkait dengan kecamatan.', ['user_id' => $user->id]);
+            return redirect()->route('aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
-        if ($source === 'verified') {
-            $aksiKonvergensi = AksiKonvergensi::whereHas('kartuKeluarga', function ($query) use ($user) {
-                $query->where('kecamatan_id', $user->kecamatan_id);
-            })->findOrFail($id);
-        } else {
-            $aksiKonvergensi = PendingAksiKonvergensi::whereHas('kartuKeluarga', function ($query) use ($user) {
-                $query->where('kecamatan_id', $user->kecamatan_id);
-            })->where('created_by', $user->id)->findOrFail($id);
+        Log::info('Mengakses halaman edit aksi konvergensi', ['id' => $id, 'source' => $source, 'user_id' => $user->id]);
+
+        try {
+            if ($source === 'verified') {
+                $aksiKonvergensi = AksiKonvergensi::with(['kartuKeluarga', 'kelurahan'])
+                    ->whereHas('kelurahan', function ($query) use ($user) {
+                        $query->where('kecamatan_id', $user->kecamatan_id);
+                    })->find($id);
+
+                if (!$aksiKonvergensi) {
+                    Log::error('Data aksi konvergensi terverifikasi tidak ditemukan atau tidak terkait dengan kecamatan Anda', ['id' => $id, 'kecamatan_id' => $user->kecamatan_id]);
+                    return redirect()->route('aksi_konvergensi.index', ['tab' => 'verified'])->with('error', 'Data aksi konvergensi dengan ID ' . $id . ' tidak ditemukan atau tidak terkait dengan kecamatan Anda.');
+                }
+            } else {
+                $aksiKonvergensi = PendingAksiKonvergensi::with(['kartuKeluarga', 'kelurahan'])
+                    ->whereHas('kelurahan', function ($query) use ($user) {
+                        $query->where('kecamatan_id', $user->kecamatan_id);
+                    })->where('created_by', $user->id)->find($id);
+
+                if (!$aksiKonvergensi) {
+                    Log::error('Data aksi konvergensi pending tidak ditemukan atau bukan milik Anda', ['id' => $id, 'kecamatan_id' => $user->kecamatan_id, 'created_by' => $user->id]);
+                    return redirect()->route('aksi_konvergensi.index', ['tab' => 'pending'])->with('error', 'Data aksi konvergensi dengan ID ' . $id . ' tidak ditemukan atau bukan milik Anda.');
+                }
+            }
+
+            $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
+                ->where('status', 'Aktif')
+                ->get(['id', 'no_kk', 'kepala_keluarga']);
+
+            $kelurahans = Kelurahan::where('kecamatan_id', $user->kecamatan_id)->get();
+            $kecamatan = $user->kecamatan;
+
+            if ($kartuKeluargas->isEmpty() || $kelurahans->isEmpty() || !$kecamatan) {
+                Log::warning('Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan untuk kecamatan_id: ' . $user->kecamatan_id);
+                return view('perangkat_daerah.aksi_konvergensi.edit', compact('aksiKonvergensi', 'kartuKeluargas', 'kelurahans', 'kecamatan', 'source'))
+                    ->with('error', 'Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan yang terverifikasi.');
+            }
+
+            return view('perangkat_daerah.aksi_konvergensi.edit', compact('aksiKonvergensi', 'kartuKeluargas', 'kelurahans', 'kecamatan', 'source'));
+        } catch (\Exception $e) {
+            Log::error('Gagal mengakses halaman edit aksi konvergensi: ' . $e->getMessage(), ['id' => $id, 'source' => $source, 'user_id' => $user->id]);
+            return redirect()->route('aksi_konvergensi.index', ['tab' => $source])->with('error', 'Gagal mengakses data aksi konvergensi: ' . $e->getMessage());
         }
-
-        $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
-            ->where('status', 'Aktif')
-            ->get(['id', 'no_kk', 'kepala_keluarga']);
-
-        $kelurahans = Kelurahan::where('kecamatan_id', $user->kecamatan_id)->get();
-        $kecamatan = $user->kecamatan;
-
-        if ($kartuKeluargas->isEmpty() || $kelurahans->isEmpty() || !$kecamatan) {
-            Log::warning('Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan tidak ditemukan untuk kecamatan_id: ' . $user->kecamatan_id);
-            return view('perangkat_daerah.aksi_konvergensi.edit', compact('aksiKonvergensi', 'kartuKeluargas', 'kelurahans', 'kecamatan', 'source'))
-                ->with('error', 'Tidak ada data Kartu Keluarga, kelurahan, atau kecamatan yang terverifikasi.');
-        }
-
-        return view('perangkat_daerah.aksi_konvergensi.edit', compact('aksiKonvergensi', 'kartuKeluargas', 'kelurahans', 'kecamatan', 'source'));
     }
 
     public function update(Request $request, $id, $source = 'pending')
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
+            Log::warning('Perangkat daerah tidak terkait dengan kecamatan.', ['user_id' => $user->id]);
+            return redirect()->route('aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
         $request->validate([
@@ -232,35 +256,41 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
             $data['selesai'] = $request->has('selesai');
 
             if ($source === 'verified') {
-                $aksiKonvergensi = AksiKonvergensi::whereHas('kartuKeluarga', function ($query) use ($user) {
+                $aksiKonvergensi = AksiKonvergensi::whereHas('kelurahan', function ($query) use ($user) {
                     $query->where('kecamatan_id', $user->kecamatan_id);
                 })->findOrFail($id);
+
                 if ($request->hasFile('foto')) {
+                    if ($aksiKonvergensi->foto && Storage::disk('public')->exists($aksiKonvergensi->foto)) {
+                        Storage::disk('public')->delete($aksiKonvergensi->foto);
+                    }
                     $data['foto'] = $request->file('foto')->store('pending_aksi_konvergensi_fotos', 'public');
                 } else {
                     $data['foto'] = $aksiKonvergensi->foto;
                 }
+
                 $data['original_aksi_konvergensi_id'] = $aksiKonvergensi->id;
                 PendingAksiKonvergensi::create($data);
-                $message = 'Perubahan data Aksi Konvergensi berhasil diajukan untuk verifikasi.';
+                Log::info('Menyimpan perubahan aksi konvergensi terverifikasi ke pending_aksi_konvergensis', ['id' => $id, 'data' => $data]);
+                return redirect()->route('aksi_konvergensi.index', ['tab' => 'pending'])->with('success', 'Perubahan data Aksi Konvergensi berhasil diajukan untuk verifikasi.');
             } else {
-                $aksiKonvergensi = PendingAksiKonvergensi::whereHas('kartuKeluarga', function ($query) use ($user) {
+                $aksiKonvergensi = PendingAksiKonvergensi::whereHas('kelurahan', function ($query) use ($user) {
                     $query->where('kecamatan_id', $user->kecamatan_id);
                 })->where('created_by', $user->id)->findOrFail($id);
+
                 if ($request->hasFile('foto')) {
                     if ($aksiKonvergensi->foto && Storage::disk('public')->exists($aksiKonvergensi->foto)) {
                         Storage::disk('public')->delete($aksiKonvergensi->foto);
                     }
                     $data['foto'] = $request->file('foto')->store('pending_aksi_konvergensi_fotos', 'public');
                 }
-                $aksiKonvergensi->update($data);
-                $message = 'Data Aksi Konvergensi berhasil diperbarui dan diajukan untuk verifikasi.';
-            }
 
-            Log::info('Memperbarui data aksi konvergensi', ['id' => $id, 'source' => $source, 'data' => $data]);
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index', ['tab' => 'pending'])->with('success', $message);
+                $aksiKonvergensi->update($data);
+                Log::info('Memperbarui data aksi konvergensi di pending_aksi_konvergensis', ['id' => $id, 'data' => $data]);
+                return redirect()->route('aksi_konvergensi.index', ['tab' => 'pending'])->with('success', 'Data Aksi Konvergensi berhasil diperbarui dan diajukan untuk verifikasi.');
+            }
         } catch (\Exception $e) {
-            Log::error('Gagal memperbarui data aksi konvergensi: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
+            Log::error('Gagal memperbarui data aksi konvergensi: ' . $e->getMessage(), ['id' => $id, 'source' => $source, 'data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data aksi konvergensi: ' . $e->getMessage());
         }
     }
@@ -269,21 +299,25 @@ class PerangkatDaerahAksiKonvergensiController extends Controller
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
+            Log::warning('Perangkat daerah tidak terkait dengan kecamatan.', ['user_id' => $user->id]);
+            return redirect()->route('aksi_konvergensi.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
         try {
-            $aksiKonvergensi = PendingAksiKonvergensi::whereHas('kartuKeluarga', function ($query) use ($user) {
+            $aksiKonvergensi = PendingAksiKonvergensi::whereHas('kelurahan', function ($query) use ($user) {
                 $query->where('kecamatan_id', $user->kecamatan_id);
             })->where('created_by', $user->id)->findOrFail($id);
+
             if ($aksiKonvergensi->foto && Storage::disk('public')->exists($aksiKonvergensi->foto)) {
                 Storage::disk('public')->delete($aksiKonvergensi->foto);
             }
+
             $aksiKonvergensi->delete();
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index', ['tab' => 'pending'])->with('success', 'Data Aksi Konvergensi berhasil dihapus.');
+            Log::info('Menghapus data aksi konvergensi dari pending_aksi_konvergensis', ['id' => $id]);
+            return redirect()->route('aksi_konvergensi.index', ['tab' => 'pending'])->with('success', 'Data Aksi Konvergensi berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data aksi konvergensi: ' . $e->getMessage(), ['id' => $id]);
-            return redirect()->route('perangkat_daerah.aksi_konvergensi.index', ['tab' => 'pending'])->with('error', 'Gagal menghapus data aksi konvergensi: ' . $e->getMessage());
+            return redirect()->route('aksi_konvergensi.index', ['tab' => 'pending'])->with('error', 'Gagal menghapus data aksi konvergensi: ' . $e->getMessage());
         }
     }
 

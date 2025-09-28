@@ -60,4 +60,9 @@ class PendingGenting extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function originalGenting()
+    {
+        return $this->belongsTo(Genting::class, 'original_genting_id');
+    }
 }

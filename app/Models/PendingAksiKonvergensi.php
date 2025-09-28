@@ -60,4 +60,9 @@ class PendingAksiKonvergensi extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function originalAksiKonvergensi()
+    {
+        return $this->belongsTo(AksiKonvergensi::class, 'original_aksi_konvergensi_id');
+    }
 }
