@@ -14,6 +14,7 @@ const EDUKASI_CATEGORY_LABELS = {
   ppa: 'PPA (Pemberdayaan Perempuan dan Perlindungan Anak)',
   modul_buku_saku: 'Modul dan Buku Saku Pencegahan dan Penanganan Stunting',
 };
+const RISET_CHART_COLORS = ['#1d4ed8', '#0ea5e9', '#22c55e', '#f97316', '#f43f5e', '#8b5cf6', '#f59e0b', '#14b8a6'];
 
 function applyLandingData(data) {
   if (!data || typeof data !== 'object') return false;
@@ -376,6 +377,85 @@ function renderDataRiset(list) {
     countObs.observe(value);
     setupReveal(card, { delay: Math.min(idx * 70, 320) });
   });
+  renderRisetDistribution(list);
+}
+
+function renderRisetDistribution(list) {
+  const visual = document.getElementById('riset-chart-visual');
+  const legend = document.getElementById('riset-chart-legend');
+  const totalEl = document.getElementById('riset-chart-total');
+  const emptyEl = document.getElementById('riset-chart-empty');
+  const card = document.getElementById('riset-chart-card');
+  if (!visual || !legend || !totalEl || !emptyEl) return;
+
+  const items = Array.isArray(list) ? list : [];
+  const entries = items.map((item, idx) => {
+    const rawValue = Number(
+      item && item.angka !== undefined
+        ? item.angka
+        : item && item.nilai !== undefined
+          ? item.nilai
+          : item && item.value !== undefined
+            ? item.value
+            : 0,
+    );
+    const value = Number.isFinite(rawValue) ? Math.max(rawValue, 0) : 0;
+    return {
+      label: item && item.judul ? item.judul : `Indikator ${idx + 1}`,
+      value,
+    };
+  });
+
+  legend.innerHTML = '';
+  if (card) setupReveal(card, { delay: Math.min(entries.length * 60, 260) });
+
+  const total = entries.reduce((sum, entry) => sum + entry.value, 0);
+  totalEl.textContent = formatNumber(total);
+  emptyEl.classList.toggle('hidden', Boolean(total));
+
+  visual.style.background = 'conic-gradient(#e2e8f0 0deg 360deg)';
+
+  if (!total) {
+    return;
+  }
+
+  let cursor = 0;
+  const segments = [];
+  entries.forEach((entry, idx) => {
+    const color = RISET_CHART_COLORS[idx % RISET_CHART_COLORS.length];
+    const li = document.createElement('li');
+    li.className = 'flex items-center gap-3';
+    const marker = document.createElement('span');
+    marker.className = 'inline-flex h-3.5 w-3.5 rounded-full';
+    marker.style.backgroundColor = color;
+    if (entry.value === 0) marker.style.opacity = '0.35';
+    const wrap = document.createElement('div');
+    wrap.className = 'flex-1 leading-tight';
+    const label = document.createElement('p');
+    label.className = 'font-medium text-gray-700';
+    label.textContent = entry.label;
+    const detail = document.createElement('p');
+    detail.className = 'text-xs text-gray-500';
+    const percent = total ? (entry.value / total) * 100 : 0;
+    detail.textContent = `${formatNumber(entry.value)} (${formatPercent(percent)})`;
+    wrap.appendChild(label);
+    wrap.appendChild(detail);
+    li.appendChild(marker);
+    li.appendChild(wrap);
+    legend.appendChild(li);
+
+    if (entry.value <= 0) {
+      return;
+    }
+    const start = (cursor / total) * 360;
+    cursor += entry.value;
+    const end = (cursor / total) * 360;
+    segments.push(`${color} ${start.toFixed(2)}deg ${end.toFixed(2)}deg`);
+  });
+
+  if (segments.length) {
+    visual.style.background = `conic-gradient(${segments.join(', ')})`;
+  }
 }
 
 // Galeri Program
@@ -520,6 +600,21 @@ function buildStorageUrl(p) {
   if (p.startsWith('/')) return p;
   if (p.startsWith('storage/')) return `/${p}`;
   return `/storage/${p}`;
+}
+
+function formatNumber(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '0';
+  if (Number.isInteger(num)) return num.toLocaleString('id-ID');
+  return num.toLocaleString('id-ID', { maximumFractionDigits: 2 });
+}
+
+function formatPercent(value) {
+  if (!Number.isFinite(value)) return '0%';
+  const normalized = Math.max(0, Math.min(100, value));
+  const fixed = normalized.toFixed(1);
+  const trimmed = fixed.endsWith('.0') ? fixed.slice(0, -2) : fixed;
+  return `${trimmed}%`;
 }
 
 function formatDateTime(iso) {

@@ -138,8 +138,34 @@
 
         <!-- Data Riset -->
         <section id="data-riset" class="max-w-7xl mx-auto px-5 py-16 scroll-mt-16">
-            <h2 class="text-2xl font-semibold mb-6">Data Riset</h2>
-            <div id="riset-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            <div class="flex flex-col lg:flex-row lg:items-start gap-10">
+                <div class="flex-1 w-full">
+                    <h2 class="text-2xl font-semibold mb-4 sm:mb-6">Data Riset</h2>
+                    <p class="text-sm text-gray-500 mb-6 max-w-2xl">Visualisasi indikator utama untuk mendukung pengambilan keputusan.</p>
+                    <div id="riset-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+                </div>
+                <aside class="w-full max-w-md">
+                    <div id="riset-chart-card" class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-6 soft-lift" data-reveal-delay="120" data-reveal-distance="24">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900">Distribusi Data</h3>
+                                <p class="text-sm text-gray-500">Persentase kontribusi setiap indikator.</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-center">
+                            <div class="relative w-48 h-48">
+                                <div id="riset-chart-visual" class="w-full h-full rounded-full bg-slate-200 transition-[background] duration-500 ease-out"></div>
+                                <div class="absolute inset-9 rounded-full bg-white flex flex-col items-center justify-center text-center shadow-inner">
+                                    <span id="riset-chart-total" class="text-2xl font-bold text-blue-600">0</span>
+                                    <span class="text-xs font-semibold tracking-wide text-gray-400 uppercase">Total</span>
+                                </div>
+                            </div>
+                        </div>
+                        <ul id="riset-chart-legend" class="mt-6 space-y-3 text-sm text-gray-600"></ul>
+                        <p id="riset-chart-empty" class="mt-4 text-sm text-gray-400 text-center hidden">Data riset belum tersedia.</p>
+                    </div>
+                </aside>
+            </div>
         </section>
 
         <!-- Galeri Program -->
@@ -212,9 +238,9 @@
                         </div>
                     </div>
 
-                    <div class="grid gap-8 lg:grid-cols-2">
-                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-4 sm:p-6 soft-lift" data-reveal-direction="left" data-reveal-distance="32" data-reveal-delay="0" data-reveal-duration="500">
-                            <div id="contact-map" class="relative overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]" data-map-src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" data-map-title="Lokasi DPPKBD Tomohon" data-map-referrerpolicy="no-referrer-when-downgrade">
+                    <div class="grid gap-8 justify-items-center">
+                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-4 sm:p-6 soft-lift max-w-xl w-full mx-auto" data-reveal-direction="left" data-reveal-distance="32" data-reveal-delay="0" data-reveal-duration="500">
+                            <div id="contact-map" class="relative overflow-hidden rounded-2xl bg-blue-100 aspect-[16/9] max-h-[320px]" data-map-src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" data-map-title="Lokasi DPPKBD Tomohon" data-map-referrerpolicy="no-referrer-when-downgrade">
                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-blue-900/70" data-map-placeholder>
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-9 w-9 text-blue-700/60" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M9 3 3 6v15l6-3 6 3 6-3V6l-6-3-6 3v15" />
@@ -231,37 +257,11 @@
                                 </div>
                             </div>
                             <noscript>
-                                <div class="overflow-hidden rounded-2xl bg-blue-100 aspect-[4/3]">
+                                <div class="overflow-hidden rounded-2xl bg-blue-100 aspect-[16/9] max-h-[320px]">
                                     <iframe title="Lokasi DPPKBD Tomohon" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d400.7362813471956!2d124.84545321272765!3d1.3278442313099665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32876cbf563f23cd%3A0xb6bed2f0f750445!2sDinas%20Pengendalian%20Penduduk%20%26%20KB%20Daerah%20Kota%20Tomohon!5e0!3m2!1sen!2sid!4v1758160730812!5m2!1sen!2sid" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full h-full border-0"></iframe>
                                 </div>
                             </noscript>
                             <p class="mt-3 text-sm text-gray-500">Gunakan peta untuk menemukan lokasi kantor kami dengan mudah.</p>
-                        </div>
-                        <div class="reveal-on-scroll bg-white border border-blue-100 rounded-3xl shadow-lg p-6 sm:p-8 soft-lift" data-reveal-direction="right" data-reveal-distance="32" data-reveal-delay="0" data-reveal-duration="500">
-                            @php($contactAction = Route::has('contact.submit') ? route('contact.submit') : '#')
-                            <form method="POST" action="{{ $contactAction }}" class="space-y-5">
-                                @csrf
-                                <div>
-                                    <label for="contact-name" class="text-sm font-medium text-gray-700">Nama Lengkap</label>
-                                    <input id="contact-name" name="nama" type="text" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm" placeholder="Masukkan nama Anda">
-                                </div>
-                                <div>
-                                    <label for="contact-email" class="text-sm font-medium text-gray-700">Email Aktif</label>
-                                    <input id="contact-email" name="email" type="email" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm" placeholder="nama@email.com">
-                                </div>
-                                <div>
-                                    <label for="contact-subject" class="text-sm font-medium text-gray-700">Subjek Pesan</label>
-                                    <input id="contact-subject" name="subjek" type="text" class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm" placeholder="Tulis judul pesan">
-                                </div>
-                                <div>
-                                    <label for="contact-message" class="text-sm font-medium text-gray-700">Pesan Anda</label>
-                                    <textarea id="contact-message" name="pesan" rows="5" required class="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm resize-none" placeholder="Sampaikan pertanyaan atau kebutuhan Anda"></textarea>
-                                </div>
-                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <p class="text-xs text-gray-500">Kami akan merespon secepatnya.</p>
-                                    <button type="submit" class="inline-flex justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-[#26d48c] focus:outline-none focus:ring-2 focus:ring-blue-300 transition-transform duration-200 hover:-translate-y-0.5">Kirim Pesan</button>
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>
