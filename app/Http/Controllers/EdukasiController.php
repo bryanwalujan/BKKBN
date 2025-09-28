@@ -5,23 +5,33 @@ namespace App\Http\Controllers;
 use App\Models\Edukasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class EdukasiController extends Controller
 {
     public function index(Request $request)
     {
-        $edukasis = Edukasi::query()
-            ->when($request->search, function ($query, $search) {
-                $query->where('judul', 'like', '%' . $search . '%')
-                      ->orWhere('deskripsi', 'like', '%' . $search . '%');
-            })
-            ->when($request->status, function ($query, $status) {
-                $query->where('status_aktif', $status === 'active' ? 1 : 0);
-            })
-            ->get(); // Use get() to return a Collection, matching original code
+        $query = Edukasi::query();
+
+        // Filter berdasarkan pencarian
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('judul', 'like', '%' . $request->search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter berdasarkan status
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status_aktif', $request->status === 'active' ? 1 : 0);
+        }
+
+        $edukasis = $query->orderBy('created_at', 'desc')->get();
 
         return view('master.edukasi.index', compact('edukasis'));
     }
+
     public function create()
     {
         return view('master.edukasi.create');
@@ -92,24 +102,72 @@ class EdukasiController extends Controller
         return redirect()->route('edukasi.index')->with('success', 'Data edukasi berhasil diperbarui.');
     }
 
-    public function destroy(Edukasi $edukasi)
-    {
-        if ($edukasi->gambar) {
-            Storage::disk('public')->delete($edukasi->gambar);
-        }
-        if ($edukasi->file) {
-            Storage::disk('public')->delete($edukasi->file);
-        }
-        $edukasi->delete();
+   public function destroy(Edukasi $edukasi)
+{
+    try {
 
-        return redirect()->route('edukasi.index')->with('success', 'Data edukasi berhasil dihapus.');
+        // Log untuk debugging
+        Log::info('Attempting to delete edukasi with ID: ' . $edukasi->id);
+        
+        // Simpan informasi file untuk dihapus
+        $gambarPath = $edukasi->gambar;
+        $filePath = $edukasi->file;
+        $edukasiId = $edukasi->id;
+        
+        // Hapus data dari database
+        $edukasi->delete();
+        
+        // Hapus file gambar jika ada
+        if ($gambarPath && Storage::disk('public')->exists($gambarPath)) {
+            Storage::disk('public')->delete($gambarPath);
+            Log::info('Deleted image file: ' . $gambarPath);
+        }
+        
+        // Hapus file dokumen jika ada
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+            Log::info('Deleted document file: ' . $filePath);
+        }
+        
+        Log::info('Successfully deleted edukasi with ID: ' . $edukasiId);
+        
+        return redirect()->route('edukasi.index')
+                       ->with('success', 'Data edukasi berhasil dihapus.');
+                       
+    } catch (\Illuminate\Database\QueryException $e) {
+        // Tangani error terkait database (misalnya, foreign key constraints)
+        Log::error('Database error deleting edukasi: ' . $e->getMessage(), [
+            'edukasi_id' => $edukasi->id,
+            'user_id' => auth()->id(),
+        ]);
+        return redirect()->route('edukasi.index')
+                       ->with('error', 'Gagal menghapus data edukasi karena ada ketergantungan data: ' . $e->getMessage());
+    } catch (\Exception $e) {
+        // Tangani error umum
+        Log::error('Error deleting edukasi: ' . $e->getMessage(), [
+            'edukasi_id' => $edukasi->id,
+            'user_id' => auth()->id(),
+        ]);
+        return redirect()->route('edukasi.index')
+                       ->with('error', 'Gagal menghapus data edukasi: ' . $e->getMessage());
     }
+}
 
     public function refresh(Request $request)
     {
-        Edukasi::truncate();
-        Storage::disk('public')->deleteDirectory('edukasi');
-        Storage::disk('public')->deleteDirectory('edukasi_files');
-        return redirect()->route('edukasi.index')->with('success', 'Data edukasi telah di-refresh.');
+        try {
+            Edukasi::truncate();
+            Storage::disk('public')->deleteDirectory('edukasi');
+            Storage::disk('public')->deleteDirectory('edukasi_files');
+            
+            return redirect()->route('edukasi.index')
+                           ->with('success', 'Data edukasi telah di-refresh.');
+                           
+        } catch (Exception $e) {
+            Log::error('Error refreshing edukasi data: ' . $e->getMessage());
+            
+            return redirect()->route('edukasi.index')
+                           ->with('error', 'Gagal me-refresh data edukasi: ' . $e->getMessage());
+        }
     }
 }

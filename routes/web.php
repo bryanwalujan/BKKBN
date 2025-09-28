@@ -29,6 +29,7 @@ use App\Http\Controllers\IbuController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\AuditStuntingController;
 use App\Http\Controllers\EdukasiController;
+use App\Http\Controllers\LandingController;
 
 // Kecamatan Controllers
 use App\Http\Controllers\KecamatanBalitaController;
@@ -75,9 +76,8 @@ use Illuminate\Support\Facades\Auth;
 */
 
 // Landing page
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/', [LandingController::class, 'index'])->name('welcome');
+Route::get('/landing/data', [LandingController::class, 'data'])->name('landing.data');
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -293,15 +293,14 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AuditStuntingController::class, 'destroy'])->name('destroy');
         });
 
-        // Edukasi
-        Route::prefix('edukasi')->name('edukasi.')->group(function () {
-            Route::get('/', [EdukasiController::class, 'index'])->name('index');
-            Route::get('/create', [EdukasiController::class, 'create'])->name('create');
-            Route::post('/', [EdukasiController::class, 'store'])->name('store');
-            Route::get('/{id}', [EdukasiController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [EdukasiController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [EdukasiController::class, 'update'])->name('update');
-            Route::delete('/{id}', [EdukasiController::class, 'destroy'])->name('destroy');
+       Route::prefix('edukasi')->name('edukasi.')->group(function () {
+    Route::get('/', [EdukasiController::class, 'index'])->name('index');
+    Route::get('/create', [EdukasiController::class, 'create'])->name('create');
+    Route::post('/', [EdukasiController::class, 'store'])->name('store');
+    Route::get('/{edukasi}', [EdukasiController::class, 'show'])->name('show');
+    Route::get('/{edukasi}/edit', [EdukasiController::class, 'edit'])->name('edit');
+    Route::put('/{edukasi}', [EdukasiController::class, 'update'])->name('update');
+    Route::delete('/{edukasi}', [EdukasiController::class, 'destroy'])->name('destroy');
         });
 
         /*
