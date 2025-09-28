@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <title>Tambah Pendamping Keluarga - CSSR</title>
+    <link rel="icon" sizes="50x50" type="image/png" href="{{ asset('storage/images/logo1.png') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">

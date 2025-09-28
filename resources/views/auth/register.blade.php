@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar - Sistem Anda</title>
+    <link rel="icon" sizes="50x50" type="image/png" href="{{ asset('storage/images/logo1.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
@@ -119,9 +120,7 @@
         <!-- Logo Area -->
         <div class="text-center mb-8">
             <!-- Template untuk logo - ganti dengan logo Anda -->
-            <div class="logo-placeholder">
-                Logo Anda<br>(80x80px)
-            </div>
+            <img src="{{ asset('storage/images/logo.png') }}" alt="Logo Perusahaan" class="mx-auto mb-4" style="width: 170px; height: auto;">
             <!-- <img src="/path/to/your/logo.png" alt="Logo" class="h-20 mx-auto mb-4"> -->
             <h1 class="text-3xl font-bold text-gray-800">Buat Akun Baru</h1>
             <p class="text-gray-600 mt-2">Isi formulir di bawah untuk mendaftar</p>
