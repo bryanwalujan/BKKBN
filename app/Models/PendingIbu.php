@@ -45,4 +45,9 @@ class PendingIbu extends Model
     {
         return $this->hasOne(PendingIbuHamil::class, 'pending_ibu_id');
     }
+
+    public function pendingIbuNifas()
+    {
+        return $this->hasOne(PendingIbuNifas::class, 'pending_ibu_id');
+    }
 }

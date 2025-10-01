@@ -14,6 +14,7 @@ class KartuKeluarga extends Model
         'latitude',
         'longitude',
         'status',
+        'marker_color',
     ];
 
     public function balitas()

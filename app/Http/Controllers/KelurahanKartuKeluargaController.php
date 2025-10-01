@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\PendingKartuKeluarga;
@@ -33,7 +32,8 @@ class KelurahanKartuKeluargaController extends Controller
 
         // Query untuk PendingKartuKeluarga
         $pendingQuery = PendingKartuKeluarga::with(['kecamatan', 'kelurahan', 'createdBy'])
-            ->where('kelurahan_id', $kelurahan_id);
+            ->where('kelurahan_id', $kelurahan_id)
+            ->where('status_verifikasi', 'pending');
 
         if ($search) {
             $pendingQuery->where(function ($q) use ($search) {
@@ -81,6 +81,36 @@ class KelurahanKartuKeluargaController extends Controller
         return view('kelurahan.kartu_keluarga.index', compact('kartuKeluargas', 'search', 'tab'));
     }
 
+    public function show($id, $source = 'verified')
+    {
+        $user = Auth::user();
+        if (!$user->kelurahan_id) {
+            return redirect()->route('kelurahan.kartu_keluarga.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+        }
+
+        if ($source === 'pending') {
+            $kartuKeluarga = PendingKartuKeluarga::with(['kecamatan', 'kelurahan', 'createdBy'])
+                ->where('kelurahan_id', $user->kelurahan_id)
+                ->where('created_by', $user->id)
+                ->findOrFail($id);
+            $kartuKeluarga->source = 'pending';
+        } else {
+            $kartuKeluarga = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas', 'ibu', 'remajaPutris', 'aksiKonvergensis', 'gentings'])
+                ->where('kelurahan_id', $user->kelurahan_id)
+                ->findOrFail($id);
+            $kartuKeluarga->source = 'verified';
+            $kartuKeluarga->createdBy = $kartuKeluarga->createdBy ?? (object) ['name' => 'Tidak diketahui'];
+        }
+
+        Log::info('Menampilkan detail Kartu Keluarga', [
+            'id' => $id,
+            'source' => $source,
+            'kelurahan_id' => $user->kelurahan_id,
+        ]);
+
+        return view('kelurahan.kartu_keluarga.show', compact('kartuKeluarga'));
+    }
+
     public function create()
     {
         $user = Auth::user();
@@ -88,9 +118,9 @@ class KelurahanKartuKeluargaController extends Controller
             return redirect()->route('kelurahan.kartu_keluarga.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
-        $kecamatans = Kecamatan::where('id', $user->kecamatan_id)->get();
-        $kelurahans = Kelurahan::where('kecamatan_id', $user->kecamatan_id)->get();
-        return view('kelurahan.kartu_keluarga.create', compact('kecamatans', 'kelurahans'));
+        $kecamatan = Kecamatan::where('id', $user->kecamatan_id)->first();
+        $kelurahan = Kelurahan::where('id', $user->kelurahan_id)->first();
+        return view('kelurahan.kartu_keluarga.create', compact('kecamatan', 'kelurahan'));
     }
 
     public function store(Request $request)
@@ -103,8 +133,6 @@ class KelurahanKartuKeluargaController extends Controller
         $request->validate([
             'no_kk' => ['required', 'string', 'max:16', 'unique:pending_kartu_keluargas,no_kk', 'unique:kartu_keluargas,no_kk'],
             'kepala_keluarga' => ['required', 'string', 'max:255'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'alamat' => ['nullable', 'string', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
@@ -131,33 +159,41 @@ class KelurahanKartuKeluargaController extends Controller
     public function edit($id, $source = 'pending')
     {
         $user = Auth::user();
-        if (!$user->kelurahan_id) {
-            return redirect()->route('kelurahan.kartu_keluarga.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.kartu_keluarga.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
         if ($source === 'verified') {
             $kartuKeluarga = KartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
         } else {
-            $kartuKeluarga = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+            $kartuKeluarga = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->where('created_by', $user->id)->findOrFail($id);
         }
 
-        $kecamatans = Kecamatan::where('id', $user->kecamatan_id)->get();
-        $kelurahans = Kelurahan::where('kecamatan_id', $user->kecamatan_id)->get();
-        return view('kelurahan.kartu_keluarga.edit', compact('kartuKeluarga', 'kecamatans', 'kelurahans', 'source'));
+        $kecamatan = Kecamatan::where('id', $user->kecamatan_id)->first();
+        $kelurahan = Kelurahan::where('id', $user->kelurahan_id)->first();
+
+        Log::info('Edit Kartu Keluarga', [
+            'id' => $id,
+            'source' => $source,
+            'kecamatan_id' => $user->kecamatan_id,
+            'kelurahan_id' => $user->kelurahan_id,
+            'kecamatan' => $kecamatan ? $kecamatan->toArray() : null,
+            'kelurahan' => $kelurahan ? $kelurahan->toArray() : null,
+        ]);
+
+        return view('kelurahan.kartu_keluarga.edit', compact('kartuKeluarga', 'kecamatan', 'kelurahan', 'source'));
     }
 
     public function update(Request $request, $id, $source = 'pending')
     {
         $user = Auth::user();
-        if (!$user->kelurahan_id) {
-            return redirect()->route('kelurahan.kartu_keluarga.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
+        if (!$user->kelurahan_id || !$user->kecamatan_id) {
+            return redirect()->route('kelurahan.kartu_keluarga.index')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan atau kecamatan.');
         }
 
         $request->validate([
             'no_kk' => ['required', 'string', 'max:16', 'unique:pending_kartu_keluargas,no_kk,' . ($source === 'pending' ? $id : null), 'unique:kartu_keluargas,no_kk,' . ($source === 'verified' ? $id : null)],
             'kepala_keluarga' => ['required', 'string', 'max:255'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'alamat' => ['nullable', 'string', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
@@ -179,7 +215,7 @@ class KelurahanKartuKeluargaController extends Controller
 
                 return redirect()->route('kelurahan.kartu_keluarga.index')->with('success', 'Data kartu keluarga terverifikasi berhasil diedit, menunggu verifikasi admin kecamatan.');
             } else {
-                $kartuKeluarga = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+                $kartuKeluarga = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->where('created_by', $user->id)->findOrFail($id);
                 $data = $request->all();
                 $data['kecamatan_id'] = $user->kecamatan_id;
                 $data['kelurahan_id'] = $user->kelurahan_id;
@@ -205,7 +241,7 @@ class KelurahanKartuKeluargaController extends Controller
         }
 
         try {
-            $kartuKeluarga = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->findOrFail($id);
+            $kartuKeluarga = PendingKartuKeluarga::where('kelurahan_id', $user->kelurahan_id)->where('created_by', $user->id)->findOrFail($id);
             $kartuKeluarga->delete();
 
             return redirect()->route('kelurahan.kartu_keluarga.index')->with('success', 'Data kartu keluarga berhasil dihapus.');

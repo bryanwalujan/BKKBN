@@ -202,12 +202,21 @@ class KelurahanBalitaController extends Controller
 
         $kartuKeluargas = $kartuKeluargas->merge($pendingKartuKeluargas);
 
+        // Pisahkan berat_tinggi menjadi berat dan tinggi
         $beratTinggi = explode('/', $balita->berat_tinggi ?? '0/0');
-        $balita->tanggal_lahir = $balita->tanggal_lahir instanceof \Carbon\Carbon 
-            ? $balita->tanggal_lahir->format('Y-m-d') 
-            : $balita->tanggal_lahir;
 
-        return view('kelurahan.balita.edit', compact('balita', 'kartuKeluargas', 'beratTinggi', 'source'));
+        // Pastikan tanggal_lahir dalam format Y-m-d
+        $tanggalLahir = $balita->tanggal_lahir ? \Carbon\Carbon::parse($balita->tanggal_lahir)->format('Y-m-d') : null;
+
+        // Log untuk debugging
+        \Log::info('Edit Balita', [
+            'id' => $id,
+            'source' => $source,
+            'tanggal_lahir_raw' => $balita->tanggal_lahir,
+            'tanggal_lahir_formatted' => $tanggalLahir,
+        ]);
+
+        return view('kelurahan.balita.edit', compact('balita', 'kartuKeluargas', 'beratTinggi', 'source', 'tanggalLahir'));
     }
 
     public function update(Request $request, $id, $source = 'pending')

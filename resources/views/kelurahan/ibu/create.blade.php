@@ -1,201 +1,663 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Tambah Data Ibu</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Data Ibu - CSSR Kelurahan</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-left-color: #ec4899;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+            outline: none;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .error-message {
+            color: #dc2626;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: #ec4899;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #db2777;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        
+        .info-box {
+            background-color: #fdf2f8;
+            border-left: 4px solid #ec4899;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+            color: #be185d;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            border-radius: 3px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .select2-container--default .select2-selection--single {
+            height: 46px;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+        
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+            outline: none;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 46px;
+            padding-left: 0;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 46px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .status-badge.hamil {
+            background-color: #fce7f3;
+            color: #be185d;
+        }
+        
+        .status-badge.nifas {
+            background-color: #f0f9ff;
+            color: #0369a1;
+        }
+        
+        .status-badge.menyusui {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+        
+        .status-badge.tidak-aktif {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+            border: 2px dashed #d1d5db;
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .photo-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .photo-upload-area:hover {
+            border-color: #ec4899;
+            background-color: #fdf2f8;
+        }
+        
+        .photo-upload-area i {
+            font-size: 2rem;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .photo-upload-area.dragover {
+            border-color: #ec4899;
+            background-color: #fdf2f8;
+        }
+        
+        .verification-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .verification-badge.verified {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .verification-badge.pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-error {
+            background-color: #fef2f2;
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            color: #166534;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     @include('kelurahan.partials.sidebar')
-    <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Tambah Data Ibu</h2>
+    
+    <div class="ml-64 p-6 fade-in">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Tambah <span class="gradient-text">Data Ibu</span></h1>
+                    <p class="text-gray-600">Tambah data ibu baru ke dalam sistem CSSR</p>
+                    <div class="flex items-center mt-2 text-sm text-gray-500">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="{{ route('kelurahan.ibu.index', ['tab' => 'pending']) }}" class="text-pink-500 hover:text-pink-700 mr-4 flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Data Ibu
+                    </a>
+                </div>
+            </div>
+        </div>
+        
         @if (session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {{ session('error') }}
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ session('error') }}</span>
             </div>
         @endif
-        @if (session('warning'))
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                {{ session('warning') }}
+        
+        @if (session('success'))
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('success') }}</span>
             </div>
         @endif
-        <form action="{{ route('kelurahan.ibu.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
-            @csrf
-            <div class="mb-4">
-                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
-                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="">Pilih Kartu Keluarga</option>
-                    @foreach ($kartuKeluargas as $kk)
-                        <option value="{{ $kk->id }}" data-source="{{ $kk->source }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }} ({{ $kk->source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi' }})</option>
-                    @endforeach
-                </select>
-                @error('kartu_keluarga_id')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
+        
+        @if ($kartuKeluargas->isEmpty() || !$kecamatan || !$kelurahan)
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>
+                    {{ $kartuKeluargas->isEmpty() ? 'Tidak ada data Kartu Keluarga yang terverifikasi. ' : '' }}
+                    {{ !$kecamatan || !$kelurahan ? 'Data kecamatan atau kelurahan tidak ditemukan. ' : '' }}
+                    Silakan tambahkan data terlebih dahulu.
+                </span>
             </div>
-            <div class="mb-4">
-                <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                @error('nik')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                @error('nama')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                <textarea name="alamat" id="alamat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('alamat') }}</textarea>
-                @error('alamat')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="" {{ old('status') == '' ? 'selected' : '' }}>-- Pilih Status --</option>
-                    <option value="Hamil" {{ old('status') == 'Hamil' ? 'selected' : '' }}>Hamil</option>
-                    <option value="Nifas" {{ old('status') == 'Nifas' ? 'selected' : '' }}>Nifas</option>
-                    <option value="Menyusui" {{ old('status') == 'Menyusui' ? 'selected' : '' }}>Menyusui</option>
-                    <option value="Tidak Aktif" {{ old('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-                </select>
-                @error('status')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div id="ibu_hamil_fields" class="hidden">
-                <div class="mb-4">
-                    <label for="trimester" class="block text-sm font-medium text-gray-700">Trimester</label>
-                    <select name="trimester" id="trimester" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                        <option value="" {{ old('trimester') == '' ? 'selected' : '' }}>-- Pilih Trimester --</option>
-                        <option value="Trimester 1" {{ old('trimester') == 'Trimester 1' ? 'selected' : '' }}>Trimester 1</option>
-                        <option value="Trimester 2" {{ old('trimester') == 'Trimester 2' ? 'selected' : '' }}>Trimester 2</option>
-                        <option value="Trimester 3" {{ old('trimester') == 'Trimester 3' ? 'selected' : '' }}>Trimester 3</option>
-                    </select>
-                    @error('trimester')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
+        @else
+            <form action="{{ route('kelurahan.ibu.store') }}" method="POST" enctype="multipart/form-data" id="ibuForm">
+                @csrf
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm mb-8 card-hover">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Data Ibu</h3>
+                            <p class="text-gray-600 text-sm mt-1">Isi informasi lengkap data ibu</p>
+                        </div>
+                        <div class="flex items-center text-sm text-pink-500">
+                            <i class="fas fa-female mr-2"></i>
+                            <span>Form Tambah Ibu - Kelurahan</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <p>
+                            <i class="fas fa-info-circle"></i> 
+                            Pastikan data yang dimasukkan akurat dan lengkap untuk pemantauan kesehatan ibu yang optimal.
+                        </p>
+                    </div>
+                    
+                    <!-- Data Wilayah -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 section-title">Data Wilayah</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="kecamatan_id" class="form-label">
+                                    <i class="fas fa-map-marker-alt mr-1 text-pink-500"></i> Kecamatan
+                                </label>
+                                <input type="text" value="{{ $kecamatan->nama_kecamatan }}" class="form-input bg-gray-100" readonly>
+                                <input type="hidden" name="kecamatan_id" value="{{ $kecamatan->id }}">
+                                @error('kecamatan_id')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="kelurahan_id" class="form-label">
+                                    <i class="fas fa-map-pin mr-1 text-pink-500"></i> Kelurahan
+                                </label>
+                                <input type="text" value="{{ $kelurahan->nama_kelurahan }}" class="form-input bg-gray-100" readonly>
+                                <input type="hidden" name="kelurahan_id" value="{{ $kelurahan->id }}">
+                                @error('kelurahan_id')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Keluarga -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 section-title">Data Keluarga</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="kartu_keluarga_id" class="form-label">
+                                    <i class="fas fa-id-card-alt mr-1 text-pink-500"></i> Kartu Keluarga
+                                </label>
+                                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="form-input" required>
+                                    <option value="">-- Pilih Kartu Keluarga --</option>
+                                </select>
+                                @error('kartu_keluarga_id')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Pribadi -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 section-title">Data Pribadi</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nik" class="form-label">
+                                    <i class="fas fa-id-card mr-1 text-pink-500"></i> NIK
+                                </label>
+                                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="form-input" placeholder="Masukkan NIK ibu" maxlength="16">
+                                @error('nik')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nama" class="form-label">
+                                    <i class="fas fa-user mr-1 text-pink-500"></i> Nama Lengkap
+                                </label>
+                                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" class="form-input" placeholder="Masukkan nama lengkap ibu" required>
+                                @error('nama')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                            
+                            <div class="form-group md:col-span-2">
+                                <label for="alamat" class="form-label">
+                                    <i class="fas fa-home mr-1 text-pink-500"></i> Alamat Lengkap
+                                </label>
+                                <textarea name="alamat" id="alamat" class="form-input" rows="3" placeholder="Masukkan alamat lengkap ibu">{{ old('alamat') }}</textarea>
+                                @error('alamat')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Kesehatan -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 section-title">Data Kesehatan</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-heartbeat mr-1 text-pink-500"></i> Status
+                                </label>
+                                <select name="status" id="status" class="form-input" required>
+                                    <option value="" {{ old('status') == '' ? 'selected' : '' }}>-- Pilih Status --</option>
+                                    <option value="Hamil" {{ old('status') == 'Hamil' ? 'selected' : '' }}>Hamil</option>
+                                    <option value="Nifas" {{ old('status') == 'Nifas' ? 'selected' : '' }}>Nifas</option>
+                                    <option value="Menyusui" {{ old('status') == 'Menyusui' ? 'selected' : '' }}>Menyusui</option>
+                                    <option value="Tidak Aktif" {{ old('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                                </select>
+                                @error('status')
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Foto -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 section-title">Foto Ibu</h4>
+                        <div class="form-group">
+                            <label for="foto" class="form-label">
+                                <i class="fas fa-camera mr-1 text-pink-500"></i> Foto Ibu
+                            </label>
+                            
+                            <div class="photo-upload-area" id="photoUploadArea">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p class="text-gray-600">Klik untuk memilih foto atau seret dan lepas di sini</p>
+                                <p class="text-sm text-gray-500 mt-1">Format: JPG, PNG (Maks. 2MB)</p>
+                            </div>
+                            
+                            <input type="file" name="foto" id="foto" class="hidden" accept="image/*">
+                            <img id="photoPreview" class="photo-preview" src="#" alt="Preview Foto">
+                            
+                            @error('foto')
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between pt-6 border-t border-gray-200">
+                        <a href="{{ route('kelurahan.ibu.index', ['tab' => 'pending']) }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Simpan Data Ibu
+                        </button>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="intervensi" class="block text-sm font-medium text-gray-700">Intervensi</label>
-                    <select name="intervensi" id="intervensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                        <option value="" {{ old('intervensi') == '' ? 'selected' : '' }}>-- Pilih Intervensi --</option>
-                        <option value="Tidak Ada" {{ old('intervensi') == 'Tidak Ada' ? 'selected' : '' }}>Tidak Ada</option>
-                        <option value="Gizi" {{ old('intervensi') == 'Gizi' ? 'selected' : '' }}>Gizi</option>
-                        <option value="Konsultasi Medis" {{ old('intervensi') == 'Konsultasi Medis' ? 'selected' : '' }}>Konsultasi Medis</option>
-                        <option value="Lainnya" {{ old('intervensi') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
-                    </select>
-                    @error('intervensi')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="mb-4">
-                    <label for="status_gizi" class="block text-sm font-medium text-gray-700">Status Gizi</label>
-                    <select name="status_gizi" id="status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                        <option value="" {{ old('status_gizi') == '' ? 'selected' : '' }}>-- Pilih Status Gizi --</option>
-                        <option value="Normal" {{ old('status_gizi') == 'Normal' ? 'selected' : '' }}>Normal</option>
-                        <option value="Kurang Gizi" {{ old('status_gizi') == 'Kurang Gizi' ? 'selected' : '' }}>Kurang Gizi</option>
-                        <option value="Berisiko" {{ old('status_gizi') == 'Berisiko' ? 'selected' : '' }}>Berisiko</option>
-                    </select>
-                    @error('status_gizi')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="mb-4">
-                    <label for="warna_status_gizi" class="block text-sm font-medium text-gray-700">Warna Status Gizi</label>
-                    <select name="warna_status_gizi" id="warna_status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                        <option value="" {{ old('warna_status_gizi') == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
-                        <option value="Sehat" {{ old('warna_status_gizi') == 'Sehat' ? 'selected' : '' }}>Sehat</option>
-                        <option value="Waspada" {{ old('warna_status_gizi') == 'Waspada' ? 'selected' : '' }}>Waspada</option>
-                        <option value="Bahaya" {{ old('warna_status_gizi') == 'Bahaya' ? 'selected' : '' }}>Bahaya</option>
-                    </select>
-                    @error('warna_status_gizi')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="mb-4">
-                    <label for="usia_kehamilan" class="block text-sm font-medium text-gray-700">Usia Kehamilan (minggu)</label>
-                    <input type="number" name="usia_kehamilan" id="usia_kehamilan" value="{{ old('usia_kehamilan') }}" min="0" max="40" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                    @error('usia_kehamilan')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="mb-4">
-                    <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                    <input type="number" name="berat" id="berat" value="{{ old('berat') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                    @error('berat')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="mb-4">
-                    <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                    <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
-                    @error('tinggi')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
-            <div class="mb-4">
-                <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
-                <input type="file" name="foto" id="foto" class="mt-1 block w-full" accept="image/*">
-                @error('foto')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="flex space-x-4">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
-                <a href="{{ route('kelurahan.ibu.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
-            </div>
-        </form>
+            </form>
+        @endif
+        
+        <!-- Footer -->
+        <div class="mt-10 pt-6 border-t border-gray-200 text-center text-gray-500 text-sm">
+            <p>© {{ date('Y') }} CSSR - Sistem Informasi Stunting. All rights reserved.</p>
+        </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Initialize Select2 with custom styling
             $('#kartu_keluarga_id').select2({
                 placeholder: 'Pilih Kartu Keluarga',
-                allowClear: true
+                allowClear: true,
+                width: '100%'
             });
 
-            $.ajax({
-                url: '{{ route("kelurahan.ibu.getKartuKeluarga") }}',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    $('#kartu_keluarga_id').empty();
-                    $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
-                    $.each(data, function(index, kk) {
-                        var text = `${kk.no_kk} - ${kk.kepala_keluarga} (${kk.source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi'})`;
-                        var selected = kk.id == {{ old('kartu_keluarga_id') ?? 'null' }} ? 'selected' : '';
-                        $('#kartu_keluarga_id').append(`<option value="${kk.id}" data-source="${kk.source}" ${selected}>${text}</option>`);
-                    });
-                },
-                error: function(xhr) {
-                    console.error('Error fetching kartu keluarga:', xhr);
-                    alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                }
-            });
+            // Custom styling for Select2 dropdown
+            $('.select2-container').addClass('form-input');
+            $('.select2-selection').addClass('form-input');
 
-            // Show/hide ibu hamil fields based on status
-            $('#status').on('change', function() {
-                if ($(this).val() === 'Hamil') {
-                    $('#ibu_hamil_fields').removeClass('hidden');
-                    $('#trimester, #intervensi, #status_gizi, #warna_status_gizi, #usia_kehamilan, #berat, #tinggi').attr('required', true);
-                } else {
-                    $('#ibu_hamil_fields').addClass('hidden');
-                    $('#trimester, #intervensi, #status_gizi, #warna_status_gizi, #usia_kehamilan, #berat, #tinggi').removeAttr('required');
-                }
-            });
+            // Load kartu keluarga on page load
+            loadKartuKeluarga();
 
-            // Trigger change on page load to handle old input
-            if ($('#status').val() === 'Hamil') {
-                $('#ibu_hamil_fields').removeClass('hidden');
-                $('#trimester, #intervensi, #status_gizi, #warna_status_gizi, #usia_kehamilan, #berat, #tinggi').attr('required', true);
+            function loadKartuKeluarga() {
+                $.ajax({
+                    url: '{{ route("kelurahan.ibu.getKartuKeluarga") }}',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#kartu_keluarga_id').empty();
+                        $('#kartu_keluarga_id').append('<option value="">-- Pilih Kartu Keluarga --</option>');
+                        
+                        if (data.length === 0) {
+                            $('#kartu_keluarga_id').after('<div class="alert alert-error mt-2"><i class="fas fa-exclamation-triangle"></i><span>Tidak ada data Kartu Keluarga yang terverifikasi. <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="text-pink-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</span></div>');
+                        }
+                        
+                        $.each(data, function(index, kk) {
+                            var selected = kk.id == '{{ old('kartu_keluarga_id') }}' ? 'selected' : '';
+                            $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                        });
+                        $('#kartu_keluarga_id').trigger('change');
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching kartu keluarga:', xhr);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal memuat kartu keluarga. Silakan coba lagi.',
+                            confirmButtonColor: '#ec4899'
+                        });
+                    }
+                });
             }
+
+            // Photo upload functionality
+            $('#photoUploadArea').on('click', function() {
+                $('#foto').click();
+            });
+
+            $('#foto').on('change', function(e) {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        $('#photoPreview').attr('src', e.target.result);
+                        $('#photoPreview').show();
+                        $('#photoUploadArea').hide();
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Drag and drop functionality for photo upload
+            $('#photoUploadArea').on('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass('dragover');
+            });
+
+            $('#photoUploadArea').on('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('dragover');
+            });
+
+            $('#photoUploadArea').on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('dragover');
+                
+                var files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $('#foto')[0].files = files;
+                    $('#foto').trigger('change');
+                }
+            });
+
+            // Form validation before submission
+            $('#ibuForm').on('submit', function(e) {
+                var isValid = true;
+                var firstErrorField = null;
+                
+                // Check required fields
+                $('input[required], select[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('border-red-500');
+                        
+                        if (!firstErrorField) {
+                            firstErrorField = this;
+                        }
+                    } else {
+                        $(this).removeClass('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Belum Lengkap',
+                        text: 'Harap lengkapi semua field yang wajib diisi.',
+                        confirmButtonColor: '#ec4899'
+                    });
+                    
+                    if (firstErrorField) {
+                        $('html, body').animate({
+                            scrollTop: $(firstErrorField).offset().top - 100
+                        }, 500);
+                    }
+                }
+            });
+
+            // Handle session error with SweetAlert2
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#ec4899'
+                });
+            @endif
+            
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#ec4899'
+                });
+            @endif
         });
     </script>
 </body>
