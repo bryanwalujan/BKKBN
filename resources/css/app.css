@@ -9,7 +9,6 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
-<<<<<<< HEAD
 
 /* Motion tokens */
 :root {
@@ -17,6 +16,9 @@
     --dur-fast: 200ms;
     --dur-med: 350ms;
     --dur-slow: 700ms;
+    --primary: #1447e6;
+    --secondary: #26d48c;
+    --primary-dark: #0d33b3;
 }
 
 /* Respect reduced motion */
@@ -201,13 +203,6 @@
     }
 }
 
-=======
-:root {
-    --primary: #1447e6;
-    --secondary: #26d48c;
-    --primary-dark: #0d33b3;
-}
-
 .bg-primary { background-color: var(--primary); }
 .bg-secondary { background-color: var(--secondary); }
 .bg-primary-dark { background-color: var(--primary-dark); }
@@ -219,4 +214,3 @@
 
 .border-primary { border-color: var(--primary); }
 .border-secondary { border-color: var(--secondary); }
->>>>>>> origin/error
