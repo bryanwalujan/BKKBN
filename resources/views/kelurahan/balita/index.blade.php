@@ -320,7 +320,7 @@
                                     <div class="flex items-center">
                                         <i class="fas fa-weight-scale text-gray-400 mr-1 text-xs"></i>
                                         <span>{{ $berat }} kg</span>
-                                    </div>
+                                    </div> #065f46
                                     <div class="flex items-center mt-1">
                                         <i class="fas fa-ruler-vertical text-gray-400 mr-1 text-xs"></i>
                                         <span>{{ $tinggi }} cm</span>
