@@ -30,6 +30,7 @@ use App\Http\Controllers\AuditStuntingController;
 use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\BayiBaruLahirController;
 use App\Http\Controllers\CatinController;
+use App\Http\Controllers\LandingController;
 
 // Kelurahan Controllers
 use App\Http\Controllers\KelurahanBalitaController;
@@ -63,9 +64,8 @@ use Illuminate\Support\Facades\Auth;
 */
 
 // Landing page
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/', [LandingController::class, 'index'])->name('welcome');
+Route::get('/landing/data', [LandingController::class, 'data'])->name('landing.data');
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

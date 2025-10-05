@@ -264,7 +264,7 @@
                             <span class="text-sm">Data Riset</span>
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('tentang_kami.index') }}" 
                            class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
                                   {{ Route::is('tentang_kami.*') ? 'bg-green-500 text-white shadow-md' : 'hover:bg-white/5 text-white/80 hover:text-white' }}">
@@ -273,7 +273,7 @@
                             </svg>
                             <span class="text-sm">Tentang Kami</span>
                         </a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a href="{{ route('layanan_kami.index') }}" 
                            class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
@@ -284,7 +284,7 @@
                             <span class="text-sm">Layanan Kami</span>
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('galeri_program.index') }}" 
                            class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
                                   {{ Route::is('galeri_program.*') ? 'bg-green-500 text-white shadow-md' : 'hover:bg-white/5 text-white/80 hover:text-white' }}">
@@ -293,7 +293,7 @@
                             </svg>
                             <span class="text-sm">Galeri Program</span>
                         </a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a href="{{ route('edukasi.index') }}" 
                            class="flex items-center space-x-3 p-2 rounded-lg transition-all duration-200 group 
