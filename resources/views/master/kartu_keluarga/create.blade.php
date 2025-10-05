@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>Tambah Kartu Keluarga</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         #map { height: 400px; margin-bottom: 1rem; }
     </style>
@@ -26,7 +28,7 @@
                 @csrf
                 <div class="mb-4">
                     <label for="no_kk" class="block text-sm font-medium text-gray-700">Nomor KK</label>
-                    <input type="text" name="no_kk" id="no_kk" value="{{ old('no_kk') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <input type="number" name="no_kk" id="no_kk" value="{{ old('no_kk') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     @error('no_kk')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -104,7 +106,9 @@
         @endif
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         // Inisialisasi peta
         var map = L.map('map').setView([1.319558, 124.838108], 13);
@@ -153,7 +157,12 @@
                 })
                 .catch(error => {
                     console.error('Error fetching kelurahans:', error);
-                    alert('Gagal memuat data kelurahan. Silakan coba lagi.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal memuat data kelurahan. Silakan coba lagi.',
+                        confirmButtonColor: '#3b82f6',
+                    });
                 });
         }
     </script>

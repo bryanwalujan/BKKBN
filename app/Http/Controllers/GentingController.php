@@ -1,22 +1,37 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Genting;
 use App\Models\KartuKeluarga;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class GentingController extends Controller
 {
-    public function index()
+    public function __construct()
     {
-        $gentings = Genting::with('kartuKeluarga')->get();
-        return view('master.genting.index', compact('gentings'));
+        $this->middleware('auth');
+    }
+
+    public function index(Request $request)
+    {
+        $search = $request->query('search');
+        $query = Genting::with(['kartuKeluarga', 'createdBy']);
+
+        if ($search) {
+            $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+        }
+
+        $gentings = $query->paginate(10)->appends(['search' => $search]);
+        return view('master.genting.index', compact('gentings', 'search'));
     }
 
     public function create()
     {
-        $kartuKeluargas = KartuKeluarga::all();
+        $kartuKeluargas = KartuKeluarga::all(['id', 'no_kk', 'kepala_keluarga']);
         return view('master.genting.create', compact('kartuKeluargas'));
     }
 
@@ -53,21 +68,27 @@ class GentingController extends Controller
             'tokoh_masyarakat_frekuensi' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $data = $request->all();
+        try {
+            $data = $request->all();
+            $data['created_by'] = Auth::id();
 
-        if ($request->hasFile('dokumentasi')) {
-            $data['dokumentasi'] = $request->file('dokumentasi')->store('genting_dokumentasi', 'public');
+            if ($request->hasFile('dokumentasi')) {
+                $data['dokumentasi'] = $request->file('dokumentasi')->store('genting_dokumentasi', 'public');
+            }
+
+            Genting::create($data);
+            Log::info('Menyimpan data genting', ['data' => $data]);
+            return redirect()->route('genting.index')->with('success', 'Data kegiatan genting berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan data genting: ' . $e->getMessage(), ['data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data genting: ' . $e->getMessage());
         }
-
-        Genting::create($data);
-
-        return redirect()->route('genting.index')->with('success', 'Data kegiatan Genting berhasil ditambahkan.');
     }
 
     public function edit($id)
     {
-        $genting = Genting::findOrFail($id);
-        $kartuKeluargas = KartuKeluarga::all();
+        $genting = Genting::with('createdBy')->findOrFail($id);
+        $kartuKeluargas = KartuKeluarga::all(['id', 'no_kk', 'kepala_keluarga']);
         return view('master.genting.edit', compact('genting', 'kartuKeluargas'));
     }
 
@@ -104,29 +125,40 @@ class GentingController extends Controller
             'tokoh_masyarakat_frekuensi' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $genting = Genting::findOrFail($id);
-        $data = $request->all();
+        try {
+            $genting = Genting::findOrFail($id);
+            $data = $request->all();
+            $data['created_by'] = Auth::id();
 
-        if ($request->hasFile('dokumentasi')) {
-            if ($genting->dokumentasi) {
-                Storage::disk('public')->delete($genting->dokumentasi);
+            if ($request->hasFile('dokumentasi')) {
+                if ($genting->dokumentasi && Storage::disk('public')->exists($genting->dokumentasi)) {
+                    Storage::disk('public')->delete($genting->dokumentasi);
+                }
+                $data['dokumentasi'] = $request->file('dokumentasi')->store('genting_dokumentasi', 'public');
             }
-            $data['dokumentasi'] = $request->file('dokumentasi')->store('genting_dokumentasi', 'public');
+
+            $genting->update($data);
+            Log::info('Memperbarui data genting', ['id' => $id, 'data' => $data]);
+            return redirect()->route('genting.index')->with('success', 'Data kegiatan genting berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Gagal memperbarui data genting: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data genting: ' . $e->getMessage());
         }
-
-        $genting->update($data);
-
-        return redirect()->route('genting.index')->with('success', 'Data kegiatan Genting berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $genting = Genting::findOrFail($id);
-        if ($genting->dokumentasi) {
-            Storage::disk('public')->delete($genting->dokumentasi);
+        try {
+            $genting = Genting::findOrFail($id);
+            if ($genting->dokumentasi && Storage::disk('public')->exists($genting->dokumentasi)) {
+                Storage::disk('public')->delete($genting->dokumentasi);
+            }
+            $genting->delete();
+            Log::info('Menghapus data genting', ['id' => $id]);
+            return redirect()->route('genting.index')->with('success', 'Data kegiatan genting berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menghapus data genting: ' . $e->getMessage(), ['id' => $id]);
+            return redirect()->route('genting.index')->with('error', 'Gagal menghapus data genting: ' . $e->getMessage());
         }
-        $genting->delete();
-
-        return redirect()->route('genting.index')->with('success', 'Data kegiatan Genting berhasil dihapus.');
     }
 }

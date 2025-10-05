@@ -21,15 +21,15 @@
                     </a>
                 </li>
                 <li class="mb-3">
-                    <a href="{{ route('kelurahan.balita.index') }}"
+                    <a href="{{ route('kelurahan.bayi_baru_lahir.index') }}"
                        class="block p-3 hover:bg-blue-800 rounded transition-colors duration-200 {{ Route::currentRouteName() === 'kelurahan.balita.index' ? 'bg-blue-800' : '' }}">
-                        <i class="fas fa-child mr-2"></i> Data Balita
+                        <i class="fas fa-child mr-2"></i> Bayi Baru Lahir
                     </a>
                 </li>
                 <li class="mb-3">
-                    <a href="{{ route('kelurahan.remaja_putri.index') }}"
-                       class="block p-3 hover:bg-blue-800 rounded transition-colors duration-200 {{ Route::currentRouteName() === 'kelurahan.remaja_putri.index' ? 'bg-blue-800' : '' }}">
-                        <i class="fas fa-female mr-2"></i> Data Remaja Putri
+                    <a href="{{ route('kelurahan.balita.index') }}"
+                       class="block p-3 hover:bg-blue-800 rounded transition-colors duration-200 {{ Route::currentRouteName() === 'kelurahan.balita.index' ? 'bg-blue-800' : '' }}">
+                        <i class="fas fa-child mr-2"></i> Data Balita
                     </a>
                 </li>
                 <li class="mb-3">
@@ -60,6 +60,12 @@
                     <a href="{{ route('kelurahan.stunting.index') }}"
                        class="block p-3 hover:bg-blue-800 rounded transition-colors duration-200 {{ Route::currentRouteName() === 'kelurahan.stunting.index' ? 'bg-blue-800' : '' }}">
                         <i class="fas fa-chart-line mr-2"></i> Data Stunting
+                    </a>
+                </li>
+                <li class="mb-3">
+                    <a href="{{ route('kelurahan.catin.index') }}"
+                       class="block p-3 hover:bg-blue-800 rounded transition-colors duration-200 {{ Route::currentRouteName() === 'kelurahan.stunting.index' ? 'bg-blue-800' : '' }}">
+                        <i class="fas fa-chart-line mr-2"></i> Calon Pengantin
                     </a>
                 </li>
                 <li class="mb-3">

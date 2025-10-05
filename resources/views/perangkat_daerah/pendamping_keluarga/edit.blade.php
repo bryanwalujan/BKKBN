@@ -5,6 +5,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
@@ -20,26 +21,37 @@
     @include('perangkat_daerah.partials.sidebar')
     <div class="ml-64 p-6">
         <h2 class="text-2xl font-semibold mb-4">Edit Pendamping Keluarga</h2>
-        <a href="{{ route('perangkat_daerah.pendamping_keluarga.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-gray-600">Kembali</a>
+        <a href="{{ route('perangkat_daerah.pendamping_keluarga.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-gray-600">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+        </a>
         @if (session('error'))
             <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
                 {{ session('error') }}
             </div>
         @endif
-        <form action="{{ route('perangkat_daerah.pendamping_keluarga.update', [$pendamping->id, $source]) }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+        @if ($errors->any())
+            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <form action="{{ route('perangkat_daerah.pendamping_keluarga.update', $pendamping->id) }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
             @csrf
             @method('PUT')
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                    <input type="text" name="nama" id="nama" value="{{ old('nama', $pendamping->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <input type="text" name="nama" id="nama" value="{{ old('nama', $pendamping->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     @error('nama')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div>
                     <label for="peran" class="block text-sm font-medium text-gray-700">Peran</label>
-                    <select name="peran" id="peran" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <select name="peran" id="peran" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                         <option value="" disabled>-- Pilih Peran --</option>
                         <option value="Bidan" {{ old('peran', $pendamping->peran) == 'Bidan' ? 'selected' : '' }}>Bidan</option>
                         <option value="Kader Posyandu" {{ old('peran', $pendamping->peran) == 'Kader Posyandu' ? 'selected' : '' }}>Kader Posyandu</option>
@@ -52,7 +64,7 @@
                 </div>
                 <div>
                     <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
-                    <input type="text" value="{{ $kecamatan->nama_kecamatan ?? '-' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" readonly>
+                    <input type="text" value="{{ $kecamatan->nama_kecamatan ?? '-' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100" readonly>
                     <input type="hidden" name="kecamatan_id" value="{{ $kecamatan->id ?? '' }}">
                     @error('kecamatan_id')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -60,7 +72,7 @@
                 </div>
                 <div>
                     <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
-                    <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                         <option value="">Pilih Kelurahan</option>
                         @foreach ($kelurahans as $kelurahan)
                             <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $pendamping->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
@@ -72,7 +84,7 @@
                 </div>
                 <div>
                     <label for="kartu_keluarga_ids" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
-                    <select name="kartu_keluarga_ids[]" id="kartu_keluarga_ids" multiple class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <select name="kartu_keluarga_ids[]" id="kartu_keluarga_ids" multiple class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Pilih Kartu Keluarga</option>
                         @foreach ($kartuKeluargas as $kk)
                             <option value="{{ $kk->id }}" {{ in_array($kk->id, old('kartu_keluarga_ids', $pendamping->kartuKeluargas->pluck('id')->toArray())) ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
@@ -84,7 +96,7 @@
                 </div>
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                    <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                         <option value="" disabled>-- Pilih Status --</option>
                         <option value="Aktif" {{ old('status', $pendamping->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="Non-Aktif" {{ old('status', $pendamping->status) == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
@@ -95,17 +107,17 @@
                 </div>
                 <div>
                     <label for="tahun_bergabung" class="block text-sm font-medium text-gray-700">Tahun Bergabung</label>
-                    <input type="number" name="tahun_bergabung" id="tahun_bergabung" value="{{ old('tahun_bergabung', $pendamping->tahun_bergabung) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <input type="number" name="tahun_bergabung" id="tahun_bergabung" value="{{ old('tahun_bergabung', $pendamping->tahun_bergabung) }}" min="1900" max="{{ date('Y') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     @error('tahun_bergabung')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div>
-                    <label for="foto" class="block text-sm font-medium text-gray-700">Foto (opsional)</label>
-                    <input type="file" name="foto" id="foto" accept="image/jpeg,image/jpg,image/png" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <label for="foto" class="block text-sm font-medium text-gray-700">Foto (Maks. 7MB)</label>
                     @if ($pendamping->foto)
-                        <img src="{{ asset('storage/' . $pendamping->foto) }}" alt="Foto {{ $pendamping->nama }}" class="mt-2 w-16 h-16 object-cover rounded">
+                        <p class="mt-2 text-sm text-gray-600">Foto saat ini: <a href="{{ Storage::url($pendamping->foto) }}" target="_blank" class="text-blue-500 hover:underline">Lihat Foto</a></p>
                     @endif
+                    <input type="file" name="foto" id="foto" accept="image/jpeg,image/jpg,image/png" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                     @error('foto')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -116,7 +128,7 @@
                         <div class="flex items-center">
                             <input type="checkbox" name="penyuluhan" id="penyuluhan" value="1" {{ old('penyuluhan', $pendamping->penyuluhan) ? 'checked' : '' }} class="mr-2">
                             <label for="penyuluhan">Penyuluhan dan Edukasi</label>
-                            <input type="text" name="penyuluhan_frekuensi" id="penyuluhan_frekuensi" value="{{ old('penyuluhan_frekuensi', $pendamping->penyuluhan_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" placeholder="Frekuensi (misal: 2 kali/minggu)">
+                            <input type="text" name="penyuluhan_frekuensi" id="penyuluhan_frekuensi" value="{{ old('penyuluhan_frekuensi', $pendamping->penyuluhan_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Frekuensi (misal: 2 kali/minggu)">
                             @error('penyuluhan_frekuensi')
                                 <span class="text-red-600 text-sm">{{ $message }}</span>
                             @enderror
@@ -124,7 +136,7 @@
                         <div class="flex items-center">
                             <input type="checkbox" name="rujukan" id="rujukan" value="1" {{ old('rujukan', $pendamping->rujukan) ? 'checked' : '' }} class="mr-2">
                             <label for="rujukan">Memfasilitasi Pelayanan Rujukan</label>
-                            <input type="text" name="rujukan_frekuensi" id="rujukan_frekuensi" value="{{ old('rujukan_frekuensi', $pendamping->rujukan_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" placeholder="Frekuensi (misal: 1 kali/bulan)">
+                            <input type="text" name="rujukan_frekuensi" id="rujukan_frekuensi" value="{{ old('rujukan_frekuensi', $pendamping->rujukan_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Frekuensi (misal: 1 kali/bulan)">
                             @error('rujukan_frekuensi')
                                 <span class="text-red-600 text-sm">{{ $message }}</span>
                             @enderror
@@ -132,7 +144,7 @@
                         <div class="flex items-center">
                             <input type="checkbox" name="kunjungan_krs" id="kunjungan_krs" value="1" {{ old('kunjungan_krs', $pendamping->kunjungan_krs) ? 'checked' : '' }} class="mr-2">
                             <label for="kunjungan_krs">Kunjungan Keluarga Berisiko Stunting (KRS)</label>
-                            <input type="text" name="kunjungan_krs_frekuensi" id="kunjungan_krs_frekuensi" value="{{ old('kunjungan_krs_frekuensi', $pendamping->kunjungan_krs_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" placeholder="Frekuensi (misal: 3 kali/minggu)">
+                            <input type="text" name="kunjungan_krs_frekuensi" id="kunjungan_krs_frekuensi" value="{{ old('kunjungan_krs_frekuensi', $pendamping->kunjungan_krs_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Frekuensi (misal: 3 kali/minggu)">
                             @error('kunjungan_krs_frekuensi')
                                 <span class="text-red-600 text-sm">{{ $message }}</span>
                             @enderror
@@ -140,7 +152,7 @@
                         <div class="flex items-center">
                             <input type="checkbox" name="pendataan_bansos" id="pendataan_bansos" value="1" {{ old('pendataan_bansos', $pendamping->pendataan_bansos) ? 'checked' : '' }} class="mr-2">
                             <label for="pendataan_bansos">Pendataan dan Rekomendasi Bantuan Sosial</label>
-                            <input type="text" name="pendataan_bansos_frekuensi" id="pendataan_bansos_frekuensi" value="{{ old('pendataan_bansos_frekuensi', $pendamping->pendataan_bansos_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" placeholder="Frekuensi (misal: 1 kali/bulan)">
+                            <input type="text" name="pendataan_bansos_frekuensi" id="pendataan_bansos_frekuensi" value="{{ old('pendataan_bansos_frekuensi', $pendamping->pendataan_bansos_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Frekuensi (misal: 1 kali/bulan)">
                             @error('pendataan_bansos_frekuensi')
                                 <span class="text-red-600 text-sm">{{ $message }}</span>
                             @enderror
@@ -148,7 +160,7 @@
                         <div class="flex items-center">
                             <input type="checkbox" name="pemantauan_kesehatan" id="pemantauan_kesehatan" value="1" {{ old('pemantauan_kesehatan', $pendamping->pemantauan_kesehatan) ? 'checked' : '' }} class="mr-2">
                             <label for="pemantauan_kesehatan">Pemantauan Kesehatan dan Perkembangan Keluarga</label>
-                            <input type="text" name="pemantauan_kesehatan_frekuensi" id="pemantauan_kesehatan_frekuensi" value="{{ old('pemantauan_kesehatan_frekuensi', $pendamping->pemantauan_kesehatan_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" placeholder="Frekuensi (misal: 2 kali/minggu)">
+                            <input type="text" name="pemantauan_kesehatan_frekuensi" id="pemantauan_kesehatan_frekuensi" value="{{ old('pemantauan_kesehatan_frekuensi', $pendamping->pemantauan_kesehatan_frekuensi) }}" class="ml-4 block w-1/2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Frekuensi (misal: 2 kali/minggu)">
                             @error('pemantauan_kesehatan_frekuensi')
                                 <span class="text-red-600 text-sm">{{ $message }}</span>
                             @enderror
@@ -156,25 +168,25 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+            <div class="flex space-x-4 mt-4">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+                <a href="{{ route('perangkat_daerah.pendamping_keluarga.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</a>
+            </div>
         </form>
     </div>
     <script>
         $(document).ready(function() {
-            // Inisialisasi Select2 untuk kelurahan
             $('#kelurahan_id').select2({
                 placeholder: 'Pilih Kelurahan',
                 allowClear: true
             });
 
-            // Inisialisasi Select2 untuk kartu keluarga dengan multiple select
             $('#kartu_keluarga_ids').select2({
                 placeholder: 'Pilih Kartu Keluarga',
                 allowClear: true,
                 multiple: true
             });
 
-            // Event saat kelurahan berubah
             $('#kelurahan_id').on('change', function() {
                 var kelurahanId = $(this).val();
                 if (kelurahanId) {
@@ -192,8 +204,8 @@
                                 alert(data.error);
                             } else {
                                 $.each(data, function(index, kk) {
-                                    var selected = @json($pendamping->kartuKeluargas->pluck('id')->toArray()).includes(kk.id) ? 'selected' : '';
-                                    $('#kartu_keluarga_ids').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                                    var isSelected = {{ json_encode(old('kartu_keluarga_ids', $pendamping->kartuKeluargas->pluck('id')->toArray())) }}.includes(kk.id);
+                                    $('#kartu_keluarga_ids').append('<option value="' + kk.id + '"' + (isSelected ? ' selected' : '') + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
                                 });
                             }
                             $('#kartu_keluarga_ids').trigger('change');
@@ -216,11 +228,7 @@
                 }
             });
 
-            // Muat kartu keluarga awal jika kelurahan sudah dipilih
-            var initialKelurahanId = $('#kelurahan_id').val();
-            if (initialKelurahanId) {
-                $('#kelurahan_id').trigger('change');
-            }
+            $('#kelurahan_id').trigger('change');
         });
     </script>
 </body>

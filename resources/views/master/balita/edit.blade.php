@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>Edit Balita</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -14,10 +16,19 @@
                 {{ session('error') }}
             </div>
         @endif
-        <form action="{{ route('balita.update', $balita->id) }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+        @if ($errors->any())
+            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <form action="{{ route('balita.update', $balita->id) }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow space-y-4">
             @csrf
             @method('PUT')
-            <div class="mb-4">
+            <div>
                 <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
                 <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kecamatan</option>
@@ -29,7 +40,7 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
                 <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kelurahan</option>
@@ -41,42 +52,43 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
-                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
+            <div>
+                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">No KK</label>
                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kartu Keluarga</option>
-                    @if ($balita->kartuKeluarga)
-                        <option value="{{ $balita->kartuKeluarga->id }}" selected>{{ $balita->kartuKeluarga->no_kk }} - {{ $balita->kartuKeluarga->kepala_keluarga }}</option>
-                    @endif
+                    @foreach (\App\Models\KartuKeluarga::where('kecamatan_id', $balita->kecamatan_id)->where('kelurahan_id', $balita->kelurahan_id)->get() as $kk)
+                        <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $balita->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
+                    @endforeach
                 </select>
                 @error('kartu_keluarga_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik', $balita->nik) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                <input type="text" name="nik" id="nik" value="{{ old('nik', $balita->nik) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" pattern="[0-9]{16}" inputmode="numeric" maxlength="16" placeholder="Masukkan 16 digit NIK">
                 @error('nik')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
                 <input type="text" name="nama" id="nama" value="{{ old('nama', $balita->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('nama')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
-                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $balita->tanggal_lahir->format('Y-m-d')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $balita->tanggal_lahir ? $balita->tanggal_lahir->format('Y-m-d') : '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('tanggal_lahir')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
                 <select name="jenis_kelamin" id="jenis_kelamin" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                    <option value="">Pilih Jenis Kelamin</option>
                     <option value="Laki-laki" {{ old('jenis_kelamin', $balita->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                     <option value="Perempuan" {{ old('jenis_kelamin', $balita->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                 </select>
@@ -84,42 +96,42 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                <input type="number" step="0.1" name="berat" id="berat" value="{{ old('berat', explode('/', $balita->berat_tinggi)[0]) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="number" step="0.1" name="berat" id="berat" value="{{ old('berat', explode('/', $balita->berat_tinggi)[0] ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('berat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                <input type="number" step="0.1" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $balita->berat_tinggi)[1]) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
+                <input type="number" step="0.1" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $balita->berat_tinggi)[1] ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                 @error('tinggi')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="lingkar_kepala" class="block text-sm font-medium text-gray-700">Lingkar Kepala (cm)</label>
                 <input type="number" step="0.1" name="lingkar_kepala" id="lingkar_kepala" value="{{ old('lingkar_kepala', $balita->lingkar_kepala) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
                 @error('lingkar_kepala')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="lingkar_lengan" class="block text-sm font-medium text-gray-700">Lingkar Lengan (cm)</label>
                 <input type="number" step="0.1" name="lingkar_lengan" id="lingkar_lengan" value="{{ old('lingkar_lengan', $balita->lingkar_lengan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
                 @error('lingkar_lengan')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
                 <textarea name="alamat" id="alamat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">{{ old('alamat', $balita->alamat) }}</textarea>
                 @error('alamat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="status_gizi" class="block text-sm font-medium text-gray-700">Status Gizi</label>
                 <select name="status_gizi" id="status_gizi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="Sehat" {{ old('status_gizi', $balita->status_gizi) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
@@ -131,7 +143,7 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="warna_label" class="block text-sm font-medium text-gray-700">Warna Label</label>
                 <select name="warna_label" id="warna_label" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="Sehat" {{ old('warna_label', $balita->warna_label) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
@@ -142,28 +154,33 @@
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="status_pemantauan" class="block text-sm font-medium text-gray-700">Status Pemantauan</label>
                 <input type="text" name="status_pemantauan" id="status_pemantauan" value="{{ old('status_pemantauan', $balita->status_pemantauan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
                 @error('status_pemantauan')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="mb-4">
+            <div>
                 <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
                 @if ($balita->foto)
-                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-32 h-32 object-cover rounded mb-2">
+                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-24 h-24 object-cover rounded mb-2">
+                    <p class="text-sm text-gray-600">Upload foto baru untuk mengganti foto saat ini.</p>
                 @endif
-                <input type="file" name="foto" id="foto" class="mt-1 block w-full">
+                <input type="file" name="foto" id="foto" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" accept="image/*">
                 @error('foto')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+                <a href="{{ route('balita.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
+            </div>
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
             // Initialize Select2
@@ -182,27 +199,36 @@
                 allowClear: true
             });
 
-            // Load kelurahans and kartu keluarga for selected kecamatan on page load
-            var initialKecamatanId = '{{ old('kecamatan_id', $balita->kecamatan_id) }}';
+            // Load kelurahans and kartu keluarga for initial kecamatan_id on page load
+            var initialKecamatanId = $('#kecamatan_id').val();
             if (initialKecamatanId) {
                 $.ajax({
                     url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', initialKecamatanId),
                     type: 'GET',
                     dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(data) {
                         $('#kelurahan_id').empty();
                         $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
                         $.each(data, function(index, kelurahan) {
-                            var selected = kelurahan.id == '{{ old('kelurahan_id', $balita->kelurahan_id) }}' ? 'selected' : '';
+                            var selected = kelurahan.id == {{ old('kelurahan_id', $balita->kelurahan_id) ?? 'null' }} ? 'selected' : '';
                             $('#kelurahan_id').append('<option value="' + kelurahan.id + '" ' + selected + '>' + kelurahan.nama_kelurahan + '</option>');
                         });
                         $('#kelurahan_id').trigger('change');
                     },
                     error: function(xhr) {
                         console.error('Error fetching kelurahans:', xhr);
-                        alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal memuat kelurahan. Silakan coba lagi.',
+                            confirmButtonColor: '#3b82f6',
+                        });
                     }
                 });
+                updateKartuKeluarga();
             }
 
             // Update kelurahans and kartu keluarga when kecamatan changes
@@ -213,6 +239,9 @@
                         url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', kecamatanId),
                         type: 'GET',
                         dataType: 'json',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         success: function(data) {
                             $('#kelurahan_id').empty();
                             $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
@@ -223,7 +252,12 @@
                         },
                         error: function(xhr) {
                             console.error('Error fetching kelurahans:', xhr);
-                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Gagal memuat kelurahan. Silakan coba lagi.',
+                                confirmButtonColor: '#3b82f6',
+                            });
                         }
                     });
                 } else {
@@ -242,31 +276,52 @@
             function updateKartuKeluarga() {
                 var kecamatanId = $('#kecamatan_id').val();
                 var kelurahanId = $('#kelurahan_id').val();
-                var url = '{{ route("kartu_keluarga.by-kecamatan-kelurahan") }}';
-                var data = {};
-                if (kecamatanId) data.kecamatan_id = kecamatanId;
-                if (kelurahanId) data.kelurahan_id = kelurahanId;
+                if (!kecamatanId || !kelurahanId) {
+                    $('#kartu_keluarga_id').empty();
+                    $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
+                    $('#kartu_keluarga_id').trigger('change');
+                    return;
+                }
 
                 $.ajax({
-                    url: url,
+                    url: '{{ route("kartu_keluarga.by-kecamatan-kelurahan") }}',
                     type: 'GET',
-                    data: data,
+                    data: {
+                        kecamatan_id: kecamatanId,
+                        kelurahan_id: kelurahanId
+                    },
                     dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(data) {
                         $('#kartu_keluarga_id').empty();
                         $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
                         $.each(data, function(index, kk) {
-                            var selected = kk.id == '{{ old('kartu_keluarga_id', $balita->kartu_keluarga_id) }}' ? 'selected' : '';
+                            var selected = kk.id == {{ old('kartu_keluarga_id', $balita->kartu_keluarga_id) ?? 'null' }} ? 'selected' : '';
                             $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
                         });
                         $('#kartu_keluarga_id').trigger('change');
                     },
                     error: function(xhr) {
                         console.error('Error fetching kartu keluarga:', xhr);
-                        alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal memuat kartu keluarga. Silakan coba lagi.',
+                            confirmButtonColor: '#3b82f6',
+                        });
                     }
                 });
             }
+
+            // Validasi sisi klien untuk NIK
+            $('#nik').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); // Hanya izinkan angka
+                if (this.value.length > 16) {
+                    this.value = this.value.slice(0, 16); // Batasi 16 digit
+                }
+            });
         });
     </script>
 </body>

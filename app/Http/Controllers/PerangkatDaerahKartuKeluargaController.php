@@ -52,7 +52,6 @@ class PerangkatDaerahKartuKeluargaController extends Controller
             'kelurahan',
             'balitas',
             'ibu',
-            'remajaPutris',
             'pendampingKeluargas',
             'aksiKonvergensis',
             'gentings',

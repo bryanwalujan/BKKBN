@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\AksiKonvergensi;
@@ -6,19 +7,33 @@ use App\Models\KartuKeluarga;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class AksiKonvergensiController extends Controller
 {
-    public function index()
+    public function __construct()
     {
-        $aksiKonvergensis = AksiKonvergensi::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])->get();
-        return view('master.aksi_konvergensi.index', compact('aksiKonvergensis'));
+        $this->middleware('auth');
+    }
+
+    public function index(Request $request)
+    {
+        $search = $request->query('search');
+        $query = AksiKonvergensi::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy']);
+
+        if ($search) {
+            $query->where('nama_aksi', 'like', '%' . $search . '%');
+        }
+
+        $aksiKonvergensis = $query->paginate(10)->appends(['search' => $search]);
+        return view('master.aksi_konvergensi.index', compact('aksiKonvergensis', 'search'));
     }
 
     public function create()
     {
-        $kecamatans = Kecamatan::all();
+        $kecamatans = Kecamatan::all(['id', 'nama_kecamatan']);
         return view('master.aksi_konvergensi.create', compact('kecamatans'));
     }
 
@@ -54,24 +69,30 @@ class AksiKonvergensiController extends Controller
             'waktu_pelaksanaan' => ['nullable', 'date'],
         ]);
 
-        $data = $request->all();
-        $data['selesai'] = $request->has('selesai');
+        try {
+            $data = $request->all();
+            $data['selesai'] = $request->has('selesai');
+            $data['created_by'] = Auth::id();
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('aksi_konvergensi_fotos', 'public');
+            if ($request->hasFile('foto')) {
+                $data['foto'] = $request->file('foto')->store('aksi_konvergensi_fotos', 'public');
+            }
+
+            AksiKonvergensi::create($data);
+            Log::info('Menyimpan data aksi konvergensi', ['data' => $data]);
+            return redirect()->route('aksi_konvergensi.index')->with('success', 'Data Aksi Konvergensi berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan data aksi konvergensi: ' . $e->getMessage(), ['data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data aksi konvergensi: ' . $e->getMessage());
         }
-
-        AksiKonvergensi::create($data);
-
-        return redirect()->route('aksi_konvergensi.index')->with('success', 'Data Aksi Konvergensi berhasil ditambahkan.');
     }
 
     public function edit($id)
     {
-        $aksiKonvergensi = AksiKonvergensi::findOrFail($id);
-        $kecamatans = Kecamatan::all();
-        $kelurahans = Kelurahan::where('kecamatan_id', $aksiKonvergensi->kecamatan_id)->get();
-        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $aksiKonvergensi->kelurahan_id)->get();
+        $aksiKonvergensi = AksiKonvergensi::with('createdBy')->findOrFail($id);
+        $kecamatans = Kecamatan::all(['id', 'nama_kecamatan']);
+        $kelurahans = Kelurahan::where('kecamatan_id', $aksiKonvergensi->kecamatan_id)->get(['id', 'nama_kelurahan']);
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $aksiKonvergensi->kelurahan_id)->get(['id', 'no_kk', 'kepala_keluarga']);
         return view('master.aksi_konvergensi.edit', compact('aksiKonvergensi', 'kecamatans', 'kelurahans', 'kartuKeluargas'));
     }
 
@@ -107,48 +128,53 @@ class AksiKonvergensiController extends Controller
             'waktu_pelaksanaan' => ['nullable', 'date'],
         ]);
 
-        $aksiKonvergensi = AksiKonvergensi::findOrFail($id);
-        $data = $request->all();
-        $data['selesai'] = $request->has('selesai');
+        try {
+            $aksiKonvergensi = AksiKonvergensi::findOrFail($id);
+            $data = $request->all();
+            $data['selesai'] = $request->has('selesai');
+            $data['created_by'] = Auth::id();
 
-        if ($request->hasFile('foto')) {
-            if ($aksiKonvergensi->foto) {
-                Storage::disk('public')->delete($aksiKonvergensi->foto);
+            if ($request->hasFile('foto')) {
+                if ($aksiKonvergensi->foto && Storage::disk('public')->exists($aksiKonvergensi->foto)) {
+                    Storage::disk('public')->delete($aksiKonvergensi->foto);
+                }
+                $data['foto'] = $request->file('foto')->store('aksi_konvergensi_fotos', 'public');
             }
-            $data['foto'] = $request->file('foto')->store('aksi_konvergensi_fotos', 'public');
+
+            $aksiKonvergensi->update($data);
+            Log::info('Memperbarui data aksi konvergensi', ['id' => $id, 'data' => $data]);
+            return redirect()->route('aksi_konvergensi.index')->with('success', 'Data Aksi Konvergensi berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Gagal memperbarui data aksi konvergensi: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data aksi konvergensi: ' . $e->getMessage());
         }
-
-        $aksiKonvergensi->update($data);
-
-        return redirect()->route('aksi_konvergensi.index')->with('success', 'Data Aksi Konvergensi berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $aksiKonvergensi = AksiKonvergensi::findOrFail($id);
-        if ($aksiKonvergensi->foto) {
-            Storage::disk('public')->delete($aksiKonvergensi->foto);
+        try {
+            $aksiKonvergensi = AksiKonvergensi::findOrFail($id);
+            if ($aksiKonvergensi->foto && Storage::disk('public')->exists($aksiKonvergensi->foto)) {
+                Storage::disk('public')->delete($aksiKonvergensi->foto);
+            }
+            $aksiKonvergensi->delete();
+            Log::info('Menghapus data aksi konvergensi', ['id' => $id]);
+            return redirect()->route('aksi_konvergensi.index')->with('success', 'Data Aksi Konvergensi berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menghapus data aksi konvergensi: ' . $e->getMessage(), ['id' => $id]);
+            return redirect()->route('aksi_konvergensi.index')->with('error', 'Gagal menghapus data aksi konvergensi: ' . $e->getMessage());
         }
-        $aksiKonvergensi->delete();
-
-        return redirect()->route('aksi_konvergensi.index')->with('success', 'Data Aksi Konvergensi berhasil dihapus.');
-    }
-
-    public function showByKK($kartu_keluarga_id)
-    {
-        $kartuKeluarga = KartuKeluarga::with('aksiKonvergensis')->findOrFail($kartu_keluarga_id);
-        return view('master.kartu_keluarga.aksi_konvergensi', compact('kartuKeluarga'));
     }
 
     public function getKelurahansByKecamatan($kecamatanId)
     {
-        $kelurahans = Kelurahan::where('kecamatan_id', $kecamatanId)->get();
+        $kelurahans = Kelurahan::where('kecamatan_id', $kecamatanId)->get(['id', 'nama_kelurahan']);
         return response()->json($kelurahans);
     }
 
     public function getKartuKeluargaByKelurahan($kelurahanId)
     {
-        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $kelurahanId)->get();
+        $kartuKeluargas = KartuKeluarga::where('kelurahan_id', $kelurahanId)->get(['id', 'no_kk', 'kepala_keluarga']);
         return response()->json($kartuKeluargas);
     }
 }

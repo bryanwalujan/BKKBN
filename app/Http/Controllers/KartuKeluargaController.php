@@ -6,16 +6,22 @@ use App\Models\Kecamatan;
 use App\Models\Kelurahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class KartuKeluargaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index(Request $request)
     {
         $kecamatan_id = $request->query('kecamatan_id');
         $kelurahan_id = $request->query('kelurahan_id');
         $search = $request->query('search');
 
-        $query = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas'])->withCount('balitas');
+        $query = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas', 'createdBy'])->withCount('balitas');
 
         if ($kecamatan_id) {
             $query->where('kecamatan_id', $kecamatan_id);
@@ -27,7 +33,7 @@ class KartuKeluargaController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('no_kk', 'like', '%' . $search . '%')
+                $q->whereRaw('CAST(AES_DECRYPT(no_kk, ?) AS CHAR) LIKE ?', [config('app.key'), '%' . $search . '%'])
                   ->orWhere('kepala_keluarga', 'like', '%' . $search . '%');
             });
         }
@@ -40,7 +46,7 @@ class KartuKeluargaController extends Controller
 
     public function show($id)
     {
-        $kartuKeluarga = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas', 'ibu', 'remajaPutris'])->findOrFail($id);
+        $kartuKeluarga = KartuKeluarga::with(['kecamatan', 'kelurahan', 'balitas', 'ibu', 'createdBy'])->findOrFail($id);
         return view('master.kartu_keluarga.show', compact('kartuKeluarga'));
     }
 
@@ -54,7 +60,7 @@ class KartuKeluargaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'no_kk' => ['required', 'string', 'max:16', 'unique:kartu_keluargas,no_kk'],
+            'no_kk' => ['required', 'numeric', 'digits_between:1,16', 'unique:kartu_keluargas,no_kk'],
             'kepala_keluarga' => ['required', 'string', 'max:255'],
             'kecamatan_id' => ['required', 'exists:kecamatans,id'],
             'kelurahan_id' => ['required', 'exists:kelurahans,id'],
@@ -65,7 +71,7 @@ class KartuKeluargaController extends Controller
         ]);
 
         try {
-            KartuKeluarga::create($request->all());
+            KartuKeluarga::create(array_merge($request->all(), ['created_by' => Auth::id()]));
             return redirect()->route('kartu_keluarga.index')->with('success', 'Data Kartu Keluarga berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data Kartu Keluarga: ' . $e->getMessage(), ['data' => $request->all()]);
@@ -75,7 +81,7 @@ class KartuKeluargaController extends Controller
 
     public function edit($id)
     {
-        $kartuKeluarga = KartuKeluarga::findOrFail($id);
+        $kartuKeluarga = KartuKeluarga::with('createdBy')->findOrFail($id);
         $kecamatans = Kecamatan::all();
         $kelurahans = Kelurahan::where('kecamatan_id', $kartuKeluarga->kecamatan_id)->get();
         return view('master.kartu_keluarga.edit', compact('kartuKeluarga', 'kecamatans', 'kelurahans'));
@@ -84,7 +90,7 @@ class KartuKeluargaController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'no_kk' => ['required', 'string', 'max:16', 'unique:kartu_keluargas,no_kk,' . $id],
+            'no_kk' => ['required', 'numeric', 'digits_between:1,16', 'unique:kartu_keluargas,no_kk,' . $id],
             'kepala_keluarga' => ['required', 'string', 'max:255'],
             'kecamatan_id' => ['required', 'exists:kecamatans,id'],
             'kelurahan_id' => ['required', 'exists:kelurahans,id'],
@@ -96,7 +102,7 @@ class KartuKeluargaController extends Controller
 
         try {
             $kartuKeluarga = KartuKeluarga::findOrFail($id);
-            $kartuKeluarga->update($request->all());
+            $kartuKeluarga->update(array_merge($request->all(), ['created_by' => Auth::id()]));
             return redirect()->route('kartu_keluarga.index')->with('success', 'Data Kartu Keluarga berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data Kartu Keluarga: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
@@ -113,9 +119,6 @@ class KartuKeluargaController extends Controller
             }
             if ($kartuKeluarga->ibu()->count() > 0) {
                 return redirect()->route('kartu_keluarga.index')->with('error', 'Kartu Keluarga tidak dapat dihapus karena masih memiliki data ibu terkait.');
-            }
-            if ($kartuKeluarga->remajaPutris()->count() > 0) {
-                return redirect()->route('kartu_keluarga.index')->with('error', 'Kartu Keluarga tidak dapat dihapus karena masih memiliki data remaja putri terkait.');
             }
             $kartuKeluarga->delete();
             return redirect()->route('kartu_keluarga.index')->with('success', 'Data Kartu Keluarga berhasil dihapus.');
@@ -146,23 +149,23 @@ class KartuKeluargaController extends Controller
     }
 
     public function getIbuAndBalita($kartu_keluarga_id)
-{
-    try {
-        $kartuKeluarga = KartuKeluarga::with(['ibu', 'balitas'])->find($kartu_keluarga_id);
-        if (!$kartuKeluarga) {
-            return response()->json(['error' => 'Kartu Keluarga tidak ditemukan'], 404);
+    {
+        try {
+            $kartuKeluarga = KartuKeluarga::with(['ibu', 'balitas'])->find($kartu_keluarga_id);
+            if (!$kartuKeluarga) {
+                return response()->json(['error' => 'Kartu Keluarga tidak ditemukan'], 404);
+            }
+            return response()->json([
+                'ibus' => $kartuKeluarga->ibu->map(function ($ibu) {
+                    return ['id' => $ibu->id, 'nama' => $ibu->nama];
+                })->toArray(),
+                'balitas' => $kartuKeluarga->balitas->map(function ($balita) {
+                    return ['id' => $balita->id, 'nama' => $balita->nama];
+                })->toArray(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching ibu and balita for kartu_keluarga_id: ' . $kartu_keluarga_id . ' - ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal memuat data ibu dan balita'], 500);
         }
-        return response()->json([
-            'ibus' => $kartuKeluarga->ibu->map(function ($ibu) {
-                return ['id' => $ibu->id, 'nama' => $ibu->nama];
-            })->toArray(),
-            'balitas' => $kartuKeluarga->balitas->map(function ($balita) {
-                return ['id' => $balita->id, 'nama' => $balita->nama];
-            })->toArray(),
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Error fetching ibu and balita for kartu_keluarga_id: ' . $kartu_keluarga_id . ' - ' . $e->getMessage());
-        return response()->json(['error' => 'Gagal memuat data ibu dan balita'], 500);
     }
-}
 }

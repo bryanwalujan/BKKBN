@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Data Stunting</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -20,7 +21,7 @@
             </div>
         @endif
         <div class="flex space-x-4 mb-4">
-            <a href="{{ route('stunting.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Tambah Data Stunting</a>
+            <a href="{{ route('stunting.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Stunting</a>
         </div>
         <div class="mb-4 flex space-x-4">
             <form action="{{ route('stunting.index') }}" method="GET" class="flex space-x-2">
@@ -53,75 +54,79 @@
         @else
             <p class="mt-2 text-sm text-gray-600">Menampilkan semua data stunting ({{ $stuntings->total() }} data)</p>
         @endif
-        <table class="w-full bg-white shadow-md rounded">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-4 text-left">No</th>
-                    <th class="p-4 text-left">NIK</th>
-                    <th class="p-4 text-left">Nama</th>
-                    <th class="p-4 text-left">No KK</th>
-                    <th class="p-4 text-left">Kepala Keluarga</th>
-                    <th class="p-4 text-left">Kecamatan</th>
-                    <th class="p-4 text-left">Kelurahan</th>
-                    <th class="p-4 text-left">Tanggal Lahir</th>
-                    <th class="p-4 text-left">Kategori Umur</th>
-                    <th class="p-4 text-left">Jenis Kelamin</th>
-                    <th class="p-4 text-left">Berat/Tinggi</th>
-                    <th class="p-4 text-left">Status Gizi</th>
-                    <th class="p-4 text-left">Warna Gizi</th>
-                    <th class="p-4 text-left">Tindak Lanjut</th>
-                    <th class="p-4 text-left">Warna Tindak Lanjut</th>
-                    <th class="p-4 text-left">Foto</th>
-                    <th class="p-4 text-left">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($stuntings as $index => $stunting)
-                    <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-gray-200' }}">
-                        <td class="p-4">{{ $stuntings->firstItem() + $index }}</td>
-                        <td class="p-4">{{ $stunting->nik ?? '-' }}</td>
-                        <td class="p-4">{{ $stunting->nama }}</td>
-                        <td class="p-4">{{ $stunting->kartuKeluarga->no_kk ?? '-' }}</td>
-                        <td class="p-4">{{ $stunting->kartuKeluarga->kepala_keluarga ?? '-' }}</td>
-                        <td class="p-4">{{ $stunting->kecamatan_id ? ($stunting->kecamatan ? $stunting->kecamatan->nama_kecamatan : '-') : ($stunting->kecamatan ?? '-') }}</td>
-                        <td class="p-4">{{ $stunting->kelurahan_id ? ($stunting->kelurahan ? $stunting->kelurahan->nama_kelurahan : '-') : ($stunting->kelurahan ?? '-') }}</td>
-                        <td class="p-4">{{ $stunting->tanggal_lahir ? $stunting->tanggal_lahir->format('d/m/Y') : '-' }}</td>
-                        <td class="p-4">{{ $stunting->kategori_umur }}</td>
-                        <td class="p-4">{{ $stunting->jenis_kelamin }}</td>
-                        <td class="p-4">{{ $stunting->berat_tinggi }}</td>
-                        <td class="p-4">{{ $stunting->status_gizi }}</td>
-                        <td class="p-4">
-                            <span class="inline-block px-2 py-1 rounded text-white
-                                {{ $stunting->warna_gizi == 'Sehat' ? 'bg-green-500' : ($stunting->warna_gizi == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                {{ $stunting->warna_gizi }}
-                            </span>
-                        </td>
-                        <td class="p-4">{{ $stunting->tindak_lanjut ?? '-' }}</td>
-                        <td class="p-4">
-                            <span class="inline-block px-2 py-1 rounded text-white
-                                {{ $stunting->warna_tindak_lanjut == 'Sehat' ? 'bg-green-500' : ($stunting->warna_tindak_lanjut == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                {{ $stunting->warna_tindak_lanjut }}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            @if ($stunting->foto)
-                                <img src="{{ Storage::url($stunting->foto) }}" alt="Foto Stunting" class="w-16 h-16 object-cover rounded">
-                            @else
-                                <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
-                            @endif
-                        </td>
-                        <td class="p-4">
-                            <a href="{{ route('stunting.edit', $stunting->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                            <button type="button" class="text-red-500 hover:underline" onclick="showDeleteModal('{{ route('stunting.destroy', $stunting->id) }}', '{{ $stunting->nama }}')">Hapus</button>
-                        </td>
+        <div class="bg-white p-6 rounded shadow overflow-x-auto">
+            <table class="w-full bg-white shadow-md rounded">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-4 text-left">No</th>
+                        <th class="p-4 text-left">NIK</th>
+                        <th class="p-4 text-left">Nama</th>
+                        <th class="p-4 text-left">No KK</th>
+                        <th class="p-4 text-left">Kepala Keluarga</th>
+                        <th class="p-4 text-left">Kecamatan</th>
+                        <th class="p-4 text-left">Kelurahan</th>
+                        <th class="p-4 text-left">Tanggal Lahir</th>
+                        <th class="p-4 text-left">Kategori Umur</th>
+                        <th class="p-4 text-left">Jenis Kelamin</th>
+                        <th class="p-4 text-left">Berat/Tinggi</th>
+                        <th class="p-4 text-left">Status Gizi</th>
+                        <th class="p-4 text-left">Warna Gizi</th>
+                        <th class="p-4 text-left">Tindak Lanjut</th>
+                        <th class="p-4 text-left">Warna Tindak Lanjut</th>
+                        <th class="p-4 text-left">Diunggah Oleh</th>
+                        <th class="p-4 text-left">Foto</th>
+                        <th class="p-4 text-left">Aksi</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="17" class="p-4 text-center">Tidak ada data stunting yang sesuai dengan filter.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($stuntings as $index => $stunting)
+                        <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-gray-200' }}">
+                            <td class="p-4">{{ $stuntings->firstItem() + $index }}</td>
+                            <td class="p-4">{{ $stunting->nik ?? '-' }}</td>
+                            <td class="p-4">{{ $stunting->nama }}</td>
+                            <td class="p-4">{{ $stunting->kartuKeluarga->no_kk ?? '-' }}</td>
+                            <td class="p-4">{{ $stunting->kartuKeluarga->kepala_keluarga ?? '-' }}</td>
+                            <td class="p-4">{{ $stunting->kecamatan ? $stunting->kecamatan->nama_kecamatan : '-' }}</td>
+                            <td class="p-4">{{ $stunting->kelurahan ? $stunting->kelurahan->nama_kelurahan : '-' }}</td>
+                            <td class="p-4">{{ $stunting->tanggal_lahir ? $stunting->tanggal_lahir->format('d/m/Y') : '-' }}</td>
+                            <td class="p-4">{{ $stunting->kategori_umur }}</td>
+                            <td class="p-4">{{ $stunting->jenis_kelamin }}</td>
+                            <td class="p-4">{{ $stunting->berat_tinggi }}</td>
+                            <td class="p-4">{{ $stunting->status_gizi }}</td>
+                            <td class="p-4">
+                                <span class="inline-block px-2 py-1 rounded text-white
+                                    {{ $stunting->warna_gizi == 'Sehat' ? 'bg-green-500' : ($stunting->warna_gizi == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                    {{ $stunting->warna_gizi }}
+                                </span>
+                            </td>
+                            <td class="p-4">{{ $stunting->tindak_lanjut ?? '-' }}</td>
+                            <td class="p-4">
+                                <span class="inline-block px-2 py-1 rounded text-white
+                                    {{ $stunting->warna_tindak_lanjut == 'Sehat' ? 'bg-green-500' : ($stunting->warna_tindak_lanjut == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                    {{ $stunting->warna_tindak_lanjut }}
+                                </span>
+                            </td>
+                            <td class="p-4">{{ $stunting->createdBy->name ?? '-' }}</td>
+                            <td class="p-4">
+                                @if ($stunting->foto)
+                                    <img src="{{ Storage::url($stunting->foto) }}" alt="Foto {{ $stunting->nama }}" class="w-16 h-16 object-cover rounded">
+                                @else
+                                    <span class="text-gray-500">Tidak ada foto</span>
+                                @endif
+                            </td>
+                            <td class="p-4">
+                                <a href="{{ route('stunting.edit', $stunting->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('stunting.destroy', $stunting->id) }}', '{{ $stunting->nama }}')">Hapus</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="18" class="p-4 text-center">Tidak ada data stunting yang sesuai dengan filter.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div class="mt-4">
             {{ $stuntings->links() }}
         </div>

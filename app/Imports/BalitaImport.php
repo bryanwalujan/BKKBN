@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class BalitaImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchInserts
 {
@@ -153,6 +154,7 @@ class BalitaImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchIn
                         'latitude' => isset($row['latitude']) ? floatval($row['latitude']) : null,
                         'longitude' => isset($row['longitude']) ? floatval($row['longitude']) : null,
                         'status' => 'Aktif',
+                        'created_by' => Auth::id(),
                     ]
                 );
                 $kartu_keluarga_id = $kartuKeluarga->id;

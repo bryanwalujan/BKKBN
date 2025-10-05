@@ -25,6 +25,7 @@ class PendampingKeluarga extends Model
         'pendataan_bansos_frekuensi',
         'pemantauan_kesehatan',
         'pemantauan_kesehatan_frekuensi',
+        'created_by',
     ];
 
     public function kecamatan()
@@ -45,6 +46,11 @@ class PendampingKeluarga extends Model
 
     public function laporan()
     {
-        return $this->hasMany(LaporanPendamping::class);
+        return $this->hasMany(LaporanPendamping::class, 'pendamping_keluarga_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

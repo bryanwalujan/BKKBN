@@ -10,10 +10,6 @@
     @include('perangkat_daerah.partials.sidebar')
     <div class="ml-64 p-6">
         <h2 class="text-2xl font-semibold mb-4">Data Audit Stunting</h2>
-        <div class="mb-4">
-            <a href="{{ route('perangkat_daerah.audit_stunting.index', ['tab' => 'pending']) }}" class="inline-block px-4 py-2 {{ $tab == 'pending' ? 'bg-blue-500 text-white' : 'bg-gray-200' }} rounded">Pending</a>
-            <a href="{{ route('perangkat_daerah.audit_stunting.index', ['tab' => 'verified']) }}" class="inline-block px-4 py-2 {{ $tab == 'verified' ? 'bg-blue-500 text-white' : 'bg-gray-200' }} rounded">Terverifikasi</a>
-        </div>
         @if (session('success'))
             <div class="bg-green-100 text-green-700 p-4 mb-4 rounded">
                 {{ session('success') }}
@@ -25,7 +21,6 @@
             </div>
         @endif
         <form method="GET" action="{{ route('perangkat_daerah.audit_stunting.index') }}" class="mb-6 bg-white p-4 rounded shadow">
-            <input type="hidden" name="tab" value="{{ $tab }}">
             <div class="flex space-x-4">
                 <div class="w-1/2">
                     <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
@@ -43,9 +38,7 @@
             </div>
             <div class="mt-4">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
-                @if ($tab == 'verified')
-                    <a href="{{ route('perangkat_daerah.audit_stunting.create') }}" class="ml-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Tambah Data</a>
-                @endif
+                <a href="{{ route('perangkat_daerah.audit_stunting.create') }}" class="ml-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Tambah Data</a>
             </div>
         </form>
         <div class="bg-white p-6 rounded shadow">
@@ -61,10 +54,6 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Narasi</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pengaudit</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                        @if ($tab == 'pending')
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Verifikasi</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catatan</th>
-                        @endif
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                     </tr>
                 </thead>
@@ -80,23 +69,13 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $audit->narasi ? \Illuminate\Support\Str::limit($audit->narasi, 50) : '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $audit->user->name ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $audit->created_at->format('d/m/Y') }}</td>
-                            @if ($tab == 'pending')
-                                <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst($audit->status_verifikasi) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $audit->catatan ?? '-' }}</td>
-                            @endif
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if ($tab == 'pending')
-                                    <a href="{{ route('perangkat_daerah.audit_stunting.edit', [$audit->id, 'pending']) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
-                                    <form action="{{ route('perangkat_daerah.audit_stunting.destroy', [$audit->id, 'pending']) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 ml-2" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</button>
-                                    </form>
-                                @elseif ($tab == 'verified')
-                                    <a href="{{ route('perangkat_daerah.audit_stunting.edit', [$audit->id, 'verified']) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
-                                @else
-                                    <span class="text-gray-500">-</span>
-                                @endif
+                                <a href="{{ route('perangkat_daerah.audit_stunting.edit', $audit->id) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
+                                <form action="{{ route('perangkat_daerah.audit_stunting.destroy', $audit->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900 ml-2" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach

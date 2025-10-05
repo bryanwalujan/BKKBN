@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataMonitoring;
-use App\Models\PendingDataMonitoring;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
 use App\Models\KartuKeluarga;
@@ -31,15 +30,14 @@ class PerangkatDaerahDataMonitoringController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $tab = $request->query('tab', 'pending');
         $kelurahan_id = $request->query('kelurahan_id');
         $kategori = $request->query('kategori');
         $warna_badge = $request->query('warna_badge');
 
-        $query = ($tab === 'verified') ? DataMonitoring::query() : PendingDataMonitoring::query();
-        $query->with(['kartuKeluarga', 'ibu', 'balita', 'kecamatan', 'kelurahan'])
-              ->where('kecamatan_id', $user->kecamatan_id)
-              ->orderBy('tanggal_monitoring', 'desc');
+        $query = DataMonitoring::query()
+            ->with(['kartuKeluarga', 'ibu', 'balita', 'kecamatan', 'kelurahan'])
+            ->where('kecamatan_id', $user->kecamatan_id)
+            ->orderBy('tanggal_monitoring', 'desc');
 
         if ($kelurahan_id) {
             $query->where('kelurahan_id', $kelurahan_id);
@@ -49,11 +47,6 @@ class PerangkatDaerahDataMonitoringController extends Controller
         }
         if ($warna_badge && in_array($warna_badge, ['Hijau', 'Kuning', 'Merah', 'Biru'])) {
             $query->where('warna_badge', $warna_badge);
-        }
-
-        if ($tab === 'pending') {
-            $query->where('status_verifikasi', 'pending')
-                  ->where('created_by', $user->id);
         }
 
         $dataMonitorings = $query->paginate(10);
@@ -70,8 +63,7 @@ class PerangkatDaerahDataMonitoringController extends Controller
             'kategori',
             'warna_badge',
             'kategoriOptions',
-            'warnaBadgeOptions',
-            'tab'
+            'warnaBadgeOptions'
         ));
     }
 
@@ -122,25 +114,20 @@ class PerangkatDaerahDataMonitoringController extends Controller
                 : Balita::findOrFail($request->balita_id)->nama;
             $validated['kecamatan_id'] = $user->kecamatan_id;
             $validated['created_by'] = $user->id;
-            $validated['status_verifikasi'] = 'pending';
 
-            PendingDataMonitoring::create($validated);
-            return redirect()->route('perangkat_daerah.data_monitoring.index', ['tab' => 'pending'])->with('success', 'Data Monitoring berhasil diajukan untuk verifikasi.');
+            DataMonitoring::create($validated);
+            return redirect()->route('perangkat_daerah.data_monitoring.index')->with('success', 'Data Monitoring berhasil ditambahkan.');
         } catch (\Exception $e) {
-            \Log::error('Error storing PendingDataMonitoring: ' . $e->getMessage(), ['data' => $request->all()]);
-            return redirect()->back()->withInput()->with('error', 'Gagal mengajukan data Monitoring: ' . $e->getMessage());
+            \Log::error('Error storing DataMonitoring: ' . $e->getMessage(), ['data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data Monitoring: ' . $e->getMessage());
         }
     }
 
-    public function edit($id, $source = 'pending')
+    public function edit($id)
     {
         $user = Auth::user();
-        $dataMonitoring = ($source === 'verified') 
-            ? DataMonitoring::where('kecamatan_id', $user->kecamatan_id)->findOrFail($id)
-            : PendingDataMonitoring::where('kecamatan_id', $user->kecamatan_id)
-                  ->where('status_verifikasi', 'pending')
-                  ->where('created_by', $user->id)
-                  ->findOrFail($id);
+        $dataMonitoring = DataMonitoring::where('kecamatan_id', $user->kecamatan_id)
+            ->findOrFail($id);
         $kecamatan = Kecamatan::find($user->kecamatan_id);
         $kelurahans = Kelurahan::where('kecamatan_id', $user->kecamatan_id)->get();
         $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
@@ -157,20 +144,15 @@ class PerangkatDaerahDataMonitoringController extends Controller
             'kartuKeluargas',
             'target',
             'kategoriOptions',
-            'statusOptions',
-            'source'
+            'statusOptions'
         ));
     }
 
-    public function update(Request $request, $id, $source = 'pending')
+    public function update(Request $request, $id)
     {
         $user = Auth::user();
-        $dataMonitoring = ($source === 'verified') 
-            ? DataMonitoring::where('kecamatan_id', $user->kecamatan_id)->findOrFail($id)
-            : PendingDataMonitoring::where('kecamatan_id', $user->kecamatan_id)
-                  ->where('status_verifikasi', 'pending')
-                  ->where('created_by', $user->id)
-                  ->findOrFail($id);
+        $dataMonitoring = DataMonitoring::where('kecamatan_id', $user->kecamatan_id)
+            ->findOrFail($id);
 
         $validated = $request->validate([
             'target' => ['required', 'in:Ibu,Balita'],
@@ -196,46 +178,28 @@ class PerangkatDaerahDataMonitoringController extends Controller
                 ? Ibu::findOrFail($request->ibu_id)->nama
                 : Balita::findOrFail($request->balita_id)->nama;
             $validated['kecamatan_id'] = $user->kecamatan_id;
+            $validated['created_by'] = $user->id;
 
-            if ($source === 'verified') {
-                // Jika data verified, buat entri baru di pending untuk perubahan
-                $validated['created_by'] = $user->id;
-                $validated['status_verifikasi'] = 'pending';
-                $validated['original_id'] = $dataMonitoring->id;
-                PendingDataMonitoring::create($validated);
-                $message = 'Perubahan Data Monitoring berhasil diajukan untuk verifikasi.';
-            } else {
-                // Update data pending
-                $dataMonitoring->update($validated);
-                $message = 'Data Monitoring berhasil diperbarui dan menunggu verifikasi.';
-            }
-
-            return redirect()->route('perangkat_daerah.data_monitoring.index', ['tab' => 'pending'])->with('success', $message);
+            $dataMonitoring->update($validated);
+            return redirect()->route('perangkat_daerah.data_monitoring.index')->with('success', 'Data Monitoring berhasil diperbarui.');
         } catch (\Exception $e) {
-            \Log::error('Error updating PendingDataMonitoring: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
+            \Log::error('Error updating DataMonitoring: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data Monitoring: ' . $e->getMessage());
         }
     }
 
-    public function destroy($id, $source = 'pending')
+    public function destroy($id)
     {
         $user = Auth::user();
-        if ($source === 'verified') {
-            return redirect()->route('perangkat_daerah.data_monitoring.index', ['tab' => 'verified'])
-                ->with('error', 'Data Monitoring yang sudah terverifikasi tidak dapat dihapus.');
-        }
-
         try {
-            $dataMonitoring = PendingDataMonitoring::where('kecamatan_id', $user->kecamatan_id)
-                ->where('status_verifikasi', 'pending')
-                ->where('created_by', $user->id)
+            $dataMonitoring = DataMonitoring::where('kecamatan_id', $user->kecamatan_id)
                 ->findOrFail($id);
             $dataMonitoring->delete();
-            return redirect()->route('perangkat_daerah.data_monitoring.index', ['tab' => 'pending'])
+            return redirect()->route('perangkat_daerah.data_monitoring.index')
                 ->with('success', 'Data Monitoring berhasil dihapus.');
         } catch (\Exception $e) {
-            \Log::error('Error deleting PendingDataMonitoring: ' . $e->getMessage(), ['id' => $id]);
-            return redirect()->route('perangkat_daerah.data_monitoring.index', ['tab' => 'pending'])
+            \Log::error('Error deleting DataMonitoring: ' . $e->getMessage(), ['id' => $id]);
+            return redirect()->route('perangkat_daerah.data_monitoring.index')
                 ->with('error', 'Gagal menghapus data Monitoring: ' . $e->getMessage());
         }
     }

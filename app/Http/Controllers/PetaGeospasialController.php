@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\KartuKeluarga;
@@ -75,7 +76,6 @@ class PetaGeospasialController extends Controller
             // Query KartuKeluarga dengan relasi
             $query = KartuKeluarga::with([
                 'balitas',
-                'remajaPutris',
                 'ibu.ibuHamil',
                 'ibu.ibuNifas',
                 'ibu.ibuMenyusui',
@@ -95,7 +95,6 @@ class PetaGeospasialController extends Controller
             }
 
             // Jika ada marker_color dalam database, filter berdasarkan itu
-            // Jika tidak, kita akan filter setelah menentukan warna
             if ($marker_color && \Schema::hasColumn('kartu_keluarga', 'marker_color')) {
                 $query->where('marker_color', $marker_color);
             }
@@ -122,15 +121,6 @@ class PetaGeospasialController extends Controller
                     ];
                 });
 
-                // Process remaja putris
-                $remajaPutris = $kk->remajaPutris->map(function ($remaja) {
-                    return [
-                        'nama' => $remaja->nama,
-                        'umur' => $remaja->umur,
-                        'status_anemia' => $remaja->status_anemia ? trim($remaja->status_anemia) : null,
-                    ];
-                });
-
                 // Process ibu
                 $ibu = $kk->ibu->map(function ($ibu) {
                     return [
@@ -142,12 +132,10 @@ class PetaGeospasialController extends Controller
                 });
 
                 // Tentukan warna marker
-                // Cek dulu apakah sudah ada di database
                 $markerColorForKK = null;
                 if (isset($kk->marker_color) && $kk->marker_color) {
                     $markerColorForKK = $kk->marker_color;
                 } else {
-                    // Jika tidak ada di database, tentukan berdasarkan status
                     $worstStatus = $this->getWorstStatus($kk);
                     $markerColorForKK = $this->getMarkerColor($worstStatus);
                 }
@@ -163,12 +151,11 @@ class PetaGeospasialController extends Controller
                     'kecamatan' => $kk->kecamatan ? ['nama_kecamatan' => $kk->kecamatan->nama_kecamatan] : null,
                     'kelurahan' => $kk->kelurahan ? ['nama_kelurahan' => $kk->kelurahan->nama_kelurahan] : null,
                     'balitas' => $balitas->toArray(),
-                    'remaja_putris' => $remajaPutris->toArray(),
                     'ibu' => $ibu->toArray(),
                     'marker_color' => $markerColorForKK,
                 ];
 
-                // Filter berdasarkan warna jika diperlukan (untuk kasus tidak ada kolom marker_color di DB)
+                // Filter berdasarkan warna jika diperlukan
                 if (!$marker_color || $markerColorForKK === $marker_color) {
                     $processedData->push($processedKK);
                 }
@@ -192,10 +179,10 @@ class PetaGeospasialController extends Controller
 
             // Definisikan opsi warna marker
             $markerColors = [
-                ['value' => '#dc2626', 'label' => 'Merah (Bahaya/Anemia Berat)'],
-                ['value' => '#f59e0b', 'label' => 'Oranye (Waspada/Anemia Sedang)'],
-                ['value' => '#eab308', 'label' => 'Kuning (Anemia Ringan)'],
-                ['value' => '#22c55e', 'label' => 'Hijau (Sehat/Tidak Anemia)'],
+                ['value' => '#dc2626', 'label' => 'Merah (Bahaya)'],
+                ['value' => '#f59e0b', 'label' => 'Oranye (Waspada)'],
+                ['value' => '#eab308', 'label' => 'Kuning (Kurang Gizi)'],
+                ['value' => '#22c55e', 'label' => 'Hijau (Sehat)'],
                 ['value' => '#3b82f6', 'label' => 'Biru (Tidak Diketahui)'],
             ];
 
@@ -242,10 +229,10 @@ class PetaGeospasialController extends Controller
                 'kelurahan_id' => '',
                 'marker_color' => '',
                 'markerColors' => [
-                    ['value' => '#dc2626', 'label' => 'Merah (Bahaya/Anemia Berat)'],
-                    ['value' => '#f59e0b', 'label' => 'Oranye (Waspada/Anemia Sedang)'],
-                    ['value' => '#eab308', 'label' => 'Kuning (Anemia Ringan)'],
-                    ['value' => '#22c55e', 'label' => 'Hijau (Sehat/Tidak Anemia)'],
+                    ['value' => '#dc2626', 'label' => 'Merah (Bahaya)'],
+                    ['value' => '#f59e0b', 'label' => 'Oranye (Waspada)'],
+                    ['value' => '#eab308', 'label' => 'Kuning (Kurang Gizi)'],
+                    ['value' => '#22c55e', 'label' => 'Hijau (Sehat)'],
                     ['value' => '#3b82f6', 'label' => 'Biru (Tidak Diketahui)'],
                 ],
                 'errorMessage' => 'Gagal memuat peta geospasial: ' . $e->getMessage()
@@ -263,15 +250,14 @@ class PetaGeospasialController extends Controller
         
         switch ($status) {
             case 'bahaya':
-            case 'anemia berat':
+            case 'stunting':
                 return '#dc2626'; // Merah
             case 'waspada':
-            case 'anemia sedang':
+            case 'kurang gizi':
                 return '#f59e0b'; // Oranye
-            case 'anemia ringan':
+            case 'obesitas':
                 return '#eab308'; // Kuning
             case 'sehat':
-            case 'tidak anemia':
                 return '#22c55e'; // Hijau
             default:
                 return '#3b82f6'; // Biru untuk tidak diketahui
@@ -288,13 +274,6 @@ class PetaGeospasialController extends Controller
                 $statuses[] = strtolower(trim($balita->status_gizi));
             }
         }
-        
-        // Kumpulkan status dari remaja putri
-        foreach ($kk->remajaPutris as $remaja) {
-            if ($remaja->status_anemia) {
-                $statuses[] = strtolower(trim($remaja->status_anemia));
-            }
-        }
 
         // Jika tidak ada status sama sekali
         if (empty($statuses)) {
@@ -302,16 +281,16 @@ class PetaGeospasialController extends Controller
         }
 
         // Prioritas status (dari terburuk ke terbaik)
-        if (in_array('bahaya', $statuses) || in_array('anemia berat', $statuses)) {
+        if (in_array('bahaya', $statuses) || in_array('stunting', $statuses)) {
             return 'bahaya';
         }
-        if (in_array('waspada', $statuses) || in_array('anemia sedang', $statuses)) {
+        if (in_array('waspada', $statuses) || in_array('kurang gizi', $statuses)) {
             return 'waspada';
         }
-        if (in_array('anemia ringan', $statuses)) {
-            return 'anemia ringan';
+        if (in_array('obesitas', $statuses)) {
+            return 'obesitas';
         }
-        if (in_array('sehat', $statuses) || in_array('tidak anemia', $statuses)) {
+        if (in_array('sehat', $statuses)) {
             return 'sehat';
         }
 

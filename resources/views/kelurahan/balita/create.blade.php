@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Tambah Balita</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 </head>
@@ -10,7 +11,7 @@
     <div class="ml-64 p-6">
         <h2 class="text-2xl font-semibold mb-4">Tambah Balita</h2>
         @if (session('error'))
-            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
+            <div class="bg-red-100 border border-red-400 text-red-700 p-4 mb-4 rounded">
                 {{ session('error') }}
             </div>
         @endif
@@ -21,7 +22,7 @@
                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Kartu Keluarga</option>
                     @foreach ($kartuKeluargas as $kk)
-                        <option value="{{ $kk->id }}" data-source="{{ $kk->source }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }} ({{ $kk->source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi' }})</option>
+                        <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id') == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
                     @endforeach
                 </select>
                 @error('kartu_keluarga_id')
@@ -30,7 +31,7 @@
             </div>
             <div class="mb-4">
                 <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+               <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" pattern="[0-9]{16}" inputmode="numeric" maxlength="16" placeholder="Masukkan 16 digit NIK">
                 @error('nik')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -141,13 +142,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize Select2
             $('#kartu_keluarga_id').select2({
                 placeholder: 'Pilih Kartu Keluarga',
                 allowClear: true
             });
 
-            // Load kartu keluarga on page load
             $.ajax({
                 url: '{{ route("kelurahan.balita.getKartuKeluarga") }}',
                 type: 'GET',
@@ -156,9 +155,9 @@
                     $('#kartu_keluarga_id').empty();
                     $('#kartu_keluarga_id').append('<option value="">Pilih Kartu Keluarga</option>');
                     $.each(data, function(index, kk) {
-                        var text = `${kk.no_kk} - ${kk.kepala_keluarga} (${kk.source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi'})`;
+                        var text = `${kk.no_kk} - ${kk.kepala_keluarga}`;
                         var selected = kk.id == {{ old('kartu_keluarga_id') ?? 'null' }} ? 'selected' : '';
-                        $('#kartu_keluarga_id').append(`<option value="${kk.id}" data-source="${kk.source}" ${selected}>${text}</option>`);
+                        $('#kartu_keluarga_id').append(`<option value="${kk.id}" ${selected}>${text}</option>`);
                     });
                 },
                 error: function(xhr) {

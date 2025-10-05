@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Kelola Balita</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
@@ -73,53 +74,68 @@
         @else
             <p class="mt-2 text-sm text-gray-600">Menampilkan semua data balita ({{ $balitas->total() }} data)</p>
         @endif
-        <table class="w-full bg-white shadow-md rounded">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-4 text-left">No</th>
-                    <th class="p-4 text-left">Nama</th>
-                    <th class="p-4 text-left">NIK</th>
-                    <th class="p-4 text-left">No KK</th>
-                    <th class="p-4 text-left">Kecamatan</th>
-                    <th class="p-4 text-left">Kelurahan</th>
-                    <th class="p-4 text-left">Usia</th>
-                    <th class="p-4 text-left">Kategori Umur</th>
-                    <th class="p-4 text-left">Berat/Tinggi</th>
-                    <th class="p-4 text-left">Lingkar Kepala</th>
-                    <th class="p-4 text-left">Lingkar Lengan</th>
-                    <th class="p-4 text-left">Status Gizi</th>
-                    <th class="p-4 text-left">Warna Label</th>
-                    <th class="p-4 text-left">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($balitas as $index => $balita)
-                    <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-gray-200' }}">
-                        <td class="p-4">{{ $balitas->firstItem() + $index }}</td>
-                        <td class="p-4">{{ $balita->nama }}</td>
-                        <td class="p-4">{{ $balita->nik ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->kartuKeluarga->no_kk ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->kecamatan->nama_kecamatan ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->kelurahan->nama_kelurahan ?? '-' }}</td>
-                        <td class="p-4">{{ $balita->usia !== null ? $balita->usia . ' bulan' : '-' }}</td>
-                        <td class="p-4">{{ $balita->kategoriUmur }}</td>
-                        <td class="p-4">{{ $balita->berat_tinggi }}</td>
-                        <td class="p-4">{{ $balita->lingkar_kepala ? $balita->lingkar_kepala . ' cm' : '-' }}</td>
-                        <td class="p-4">{{ $balita->lingkar_lengan ? $balita->lingkar_lengan . ' cm' : '-' }}</td>
-                        <td class="p-4">{{ $balita->status_gizi }}</td>
-                        <td class="p-4">{{ $balita->warna_label }}</td>
-                        <td class="p-4">
-                            <a href="{{ route('balita.edit', $balita->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                            <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('balita.destroy', $balita->id) }}', '{{ $balita->nama }}')">Hapus</button>
-                        </td>
+        <div class="bg-white p-6 rounded shadow overflow-x-auto">
+            <table class="w-full bg-white shadow-md rounded">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-4 text-left">No</th>
+                        <th class="p-4 text-left">Nama</th>
+                        <th class="p-4 text-left">NIK</th>
+                        <th class="p-4 text-left">No KK</th>
+                        <th class="p-4 text-left">Kecamatan</th>
+                        <th class="p-4 text-left">Kelurahan</th>
+                        <th class="p-4 text-left">Usia</th>
+                        <th class="p-4 text-left">Kategori Umur</th>
+                        <th class="p-4 text-left">Berat/Tinggi</th>
+                        <th class="p-4 text-left">Lingkar Kepala</th>
+                        <th class="p-4 text-left">Lingkar Lengan</th>
+                        <th class="p-4 text-left">Status Gizi</th>
+                        <th class="p-4 text-left">Warna Label</th>
+                        <th class="p-4 text-left">Diunggah Oleh</th>
+                        <th class="p-4 text-left">Foto</th>
+                        <th class="p-4 text-left">Aksi</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="14" class="p-4 text-center">Tidak ada data balita yang sesuai dengan filter.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($balitas as $index => $balita)
+                        <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-gray-200' }}">
+                            <td class="p-4">{{ $balitas->firstItem() + $index }}</td>
+                            <td class="p-4">{{ $balita->nama }}</td>
+                            <td class="p-4">{{ $balita->nik ?? '-' }}</td>
+                            <td class="p-4">{{ $balita->kartuKeluarga->no_kk ?? '-' }}</td>
+                            <td class="p-4">{{ $balita->kecamatan->nama_kecamatan ?? '-' }}</td>
+                            <td class="p-4">{{ $balita->kelurahan->nama_kelurahan ?? '-' }}</td>
+                            <td class="p-4">{{ $balita->usia !== null ? $balita->usia . ' bulan' : '-' }}</td>
+                            <td class="p-4">{{ $balita->kategoriUmur }}</td>
+                            <td class="p-4">{{ $balita->berat_tinggi ?? '-' }}</td>
+                            <td class="p-4">{{ $balita->lingkar_kepala ? $balita->lingkar_kepala . ' cm' : '-' }}</td>
+                            <td class="p-4">{{ $balita->lingkar_lengan ? $balita->lingkar_lengan . ' cm' : '-' }}</td>
+                            <td class="p-4">{{ $balita->status_gizi }}</td>
+                            <td class="p-4">{{ $balita->warna_label }}</td>
+                            <td class="p-4">{{ $balita->createdBy->name ?? '-' }}</td>
+                            <td class="p-4">
+                                @if ($balita->foto)
+                                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto {{ $balita->nama }}" class="w-16 h-16 object-cover rounded">
+                                @else
+                                    <span class="text-gray-500">Tidak ada foto</span>
+                                @endif
+                            </td>
+                            <td class="p-4">
+                                @if ($balita->kartu_keluarga_id)
+                                    <a href="{{ route('kartu_keluarga.show', $balita->kartu_keluarga_id) }}" class="text-green-500 hover:underline">Detail</a>
+                                @else
+                                    <span class="text-gray-500">Tidak ada KK</span>
+                                @endif
+                                <a href="{{ route('balita.edit', $balita->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
+                                <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('balita.destroy', $balita->id) }}', '{{ $balita->nama }}')">Hapus</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <td colspan="16" class="p-4 text-center">Tidak ada data balita yang sesuai dengan filter.</td>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div class="mt-4">
             {{ $balitas->links() }}
         </div>
@@ -163,6 +179,9 @@
                     url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', initialKecamatanId),
                     type: 'GET',
                     dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(data) {
                         $('#kelurahan_id').empty();
                         $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
@@ -187,6 +206,9 @@
                         url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', kecamatanId),
                         type: 'GET',
                         dataType: 'json',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         success: function(data) {
                             $('#kelurahan_id').empty();
                             $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
@@ -208,11 +230,11 @@
             });
 
             // Delete modal
-            function showDeleteModal(url, name) {
+            window.showDeleteModal = function(url, name) {
                 document.getElementById('deleteModal').classList.remove('hidden');
                 document.getElementById('deleteName').textContent = name;
                 document.getElementById('deleteForm').action = url;
-            }
+            };
 
             document.getElementById('cancelDelete').addEventListener('click', function() {
                 document.getElementById('deleteModal').classList.add('hidden');

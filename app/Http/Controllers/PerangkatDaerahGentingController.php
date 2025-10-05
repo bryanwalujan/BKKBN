@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PendingGenting;
+use App\Http\Controllers\Controller;
 use App\Models\Genting;
 use App\Models\KartuKeluarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class PerangkatDaerahGentingController extends Controller
 {
@@ -27,55 +26,18 @@ class PerangkatDaerahGentingController extends Controller
         }
 
         $search = $request->query('search');
-        $tab = $request->query('tab', 'pending');
-
-        // Query untuk PendingGenting
-        $pendingQuery = PendingGenting::with(['kartuKeluarga', 'createdBy'])
+        $query = Genting::with('kartuKeluarga')
             ->whereHas('kartuKeluarga', function ($query) use ($user) {
                 $query->where('kecamatan_id', $user->kecamatan_id);
             })
-            ->where('status', 'pending')
             ->where('created_by', $user->id);
 
         if ($search) {
-            $pendingQuery->where('nama_kegiatan', 'like', '%' . $search . '%');
+            $query->where('nama_kegiatan', 'like', '%' . $search . '%');
         }
 
-        $pendingGentings = $pendingQuery->get()->map(function ($genting) {
-            $genting->source = 'pending';
-            return $genting;
-        });
-
-        // Query untuk Genting (terverifikasi)
-        $verifiedQuery = Genting::with('kartuKeluarga')
-            ->whereHas('kartuKeluarga', function ($query) use ($user) {
-                $query->where('kecamatan_id', $user->kecamatan_id);
-            });
-
-        if ($search) {
-            $verifiedQuery->where('nama_kegiatan', 'like', '%' . $search . '%');
-        }
-
-        $verifiedGentings = $verifiedQuery->get()->map(function ($genting) {
-            $genting->source = 'verified';
-            return $genting;
-        });
-
-        // Gabungkan data untuk tab yang dipilih
-        $gentings = $tab === 'verified' ? $verifiedGentings : $pendingGentings;
-
-        // Paginate
-        $perPage = 10;
-        $currentPage = $request->query('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-        $total = $gentings->count();
-        $paginatedGentings = $gentings->slice($offset, $perPage);
-        $gentings = new LengthAwarePaginator($paginatedGentings, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
-
-        return view('perangkat_daerah.genting.index', compact('gentings', 'search', 'tab'));
+        $gentings = $query->paginate(10)->appends(['search' => $search]);
+        return view('perangkat_daerah.genting.index', compact('gentings', 'search'));
     }
 
     public function create()
@@ -88,7 +50,6 @@ class PerangkatDaerahGentingController extends Controller
         $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
             ->where('status', 'Aktif')
             ->get(['id', 'no_kk', 'kepala_keluarga']);
-
         $kecamatan = $user->kecamatan;
 
         if ($kartuKeluargas->isEmpty() || !$kecamatan) {
@@ -141,56 +102,46 @@ class PerangkatDaerahGentingController extends Controller
         try {
             $data = $request->all();
             $data['created_by'] = $user->id;
-            $data['status'] = 'pending';
 
             if ($request->hasFile('dokumentasi')) {
-                $data['dokumentasi'] = $request->file('dokumentasi')->store('pending_genting_dokumentasi', 'public');
+                $data['dokumentasi'] = $request->file('dokumentasi')->store('genting_dokumentasi', 'public');
             }
 
-            PendingGenting::create($data);
-            Log::info('Menyimpan data genting ke pending_gentings', ['data' => $data]);
-            return redirect()->route('perangkat_daerah.genting.index', ['tab' => 'pending'])->with('success', 'Data kegiatan genting berhasil diajukan untuk verifikasi.');
+            Genting::create($data);
+            Log::info('Menyimpan data genting', ['data' => $data]);
+            return redirect()->route('perangkat_daerah.genting.index')->with('success', 'Data kegiatan genting berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data genting: ' . $e->getMessage(), ['data' => $request->all()]);
-            return redirect()->back()->withInput()->with('error', 'Gagal mengajukan data genting: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data genting: ' . $e->getMessage());
         }
     }
 
-    public function edit($id, $source = 'pending')
+    public function edit($id)
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
             return redirect()->route('perangkat_daerah.genting.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
-        if ($source === 'verified') {
-            $genting = Genting::whereHas('kartuKeluarga', function ($query) use ($user) {
-                $query->where('kecamatan_id', $user->kecamatan_id);
-            })->findOrFail($id);
-        } else {
-            $genting = PendingGenting::whereHas('kartuKeluarga', function ($query) use ($user) {
-                $query->where('kecamatan_id', $user->kecamatan_id);
-            })->where('created_by', $user->id)
-              ->where('status', 'pending')
-              ->findOrFail($id);
-        }
+        $genting = Genting::whereHas('kartuKeluarga', function ($query) use ($user) {
+            $query->where('kecamatan_id', $user->kecamatan_id);
+        })->where('created_by', $user->id)->findOrFail($id);
 
         $kartuKeluargas = KartuKeluarga::where('kecamatan_id', $user->kecamatan_id)
             ->where('status', 'Aktif')
             ->get(['id', 'no_kk', 'kepala_keluarga']);
-
         $kecamatan = $user->kecamatan;
 
         if ($kartuKeluargas->isEmpty() || !$kecamatan) {
             Log::warning('Tidak ada data Kartu Keluarga atau kecamatan tidak ditemukan untuk kecamatan_id: ' . $user->kecamatan_id);
-            return view('perangkat_daerah.genting.edit', compact('genting', 'kartuKeluargas', 'kecamatan', 'source'))
+            return view('perangkat_daerah.genting.edit', compact('genting', 'kartuKeluargas', 'kecamatan'))
                 ->with('error', 'Tidak ada data Kartu Keluarga yang terverifikasi atau kecamatan tidak ditemukan.');
         }
 
-        return view('perangkat_daerah.genting.edit', compact('genting', 'kartuKeluargas', 'kecamatan', 'source'));
+        return view('perangkat_daerah.genting.edit', compact('genting', 'kartuKeluargas', 'kecamatan'));
     }
 
-    public function update(Request $request, $id, $source = 'pending')
+    public function update(Request $request, $id)
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
@@ -229,71 +180,50 @@ class PerangkatDaerahGentingController extends Controller
         ]);
 
         try {
+            $genting = Genting::whereHas('kartuKeluarga', function ($query) use ($user) {
+                $query->where('kecamatan_id', $user->kecamatan_id);
+            })->where('created_by', $user->id)->findOrFail($id);
+
             $data = $request->all();
             $data['created_by'] = $user->id;
-            $data['status'] = 'pending';
 
-            if ($source === 'verified') {
-                $genting = Genting::whereHas('kartuKeluarga', function ($query) use ($user) {
-                    $query->where('kecamatan_id', $user->kecamatan_id);
-                })->findOrFail($id);
-                if ($request->hasFile('dokumentasi')) {
-                    $data['dokumentasi'] = $request->file('dokumentasi')->store('pending_genting_dokumentasi', 'public');
-                } else {
-                    $data['dokumentasi'] = $genting->dokumentasi;
+            if ($request->hasFile('dokumentasi')) {
+                if ($genting->dokumentasi && Storage::disk('public')->exists($genting->dokumentasi)) {
+                    Storage::disk('public')->delete($genting->dokumentasi);
                 }
-                $data['original_genting_id'] = $genting->id;
-                PendingGenting::create($data);
-                $message = 'Perubahan data kegiatan genting berhasil diajukan untuk verifikasi.';
-            } else {
-                $genting = PendingGenting::whereHas('kartuKeluarga', function ($query) use ($user) {
-                    $query->where('kecamatan_id', $user->kecamatan_id);
-                })->where('created_by', $user->id)
-                  ->where('status', 'pending')
-                  ->findOrFail($id);
-                if ($request->hasFile('dokumentasi')) {
-                    if ($genting->dokumentasi && Storage::disk('public')->exists($genting->dokumentasi)) {
-                        Storage::disk('public')->delete($genting->dokumentasi);
-                    }
-                    $data['dokumentasi'] = $request->file('dokumentasi')->store('pending_genting_dokumentasi', 'public');
-                }
-                $genting->update($data);
-                $message = 'Data kegiatan genting berhasil diperbarui dan menunggu verifikasi.';
+                $data['dokumentasi'] = $request->file('dokumentasi')->store('genting_dokumentasi', 'public');
             }
 
-            Log::info('Memperbarui data genting', ['id' => $id, 'source' => $source, 'data' => $data]);
-            return redirect()->route('perangkat_daerah.genting.index', ['tab' => 'pending'])->with('success', $message);
+            $genting->update($data);
+            Log::info('Memperbarui data genting', ['id' => $id, 'data' => $data]);
+            return redirect()->route('perangkat_daerah.genting.index')->with('success', 'Data kegiatan genting berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data genting: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data genting: ' . $e->getMessage());
         }
     }
 
-    public function destroy($id, $source = 'pending')
+    public function destroy($id)
     {
         $user = Auth::user();
         if (!$user->kecamatan_id) {
-            return redirect()->route('perangkat_daerah.genting.index', ['tab' => 'pending'])->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
-        }
-
-        if ($source === 'verified') {
-            return redirect()->route('perangkat_daerah.genting.index', ['tab' => 'verified'])->with('error', 'Data kegiatan genting yang sudah terverifikasi tidak dapat dihapus.');
+            return redirect()->route('perangkat_daerah.genting.index')->with('error', 'Perangkat daerah tidak terkait dengan kecamatan.');
         }
 
         try {
-            $genting = PendingGenting::whereHas('kartuKeluarga', function ($query) use ($user) {
+            $genting = Genting::whereHas('kartuKeluarga', function ($query) use ($user) {
                 $query->where('kecamatan_id', $user->kecamatan_id);
-            })->where('created_by', $user->id)
-              ->where('status', 'pending')
-              ->findOrFail($id);
+            })->where('created_by', $user->id)->findOrFail($id);
+
             if ($genting->dokumentasi && Storage::disk('public')->exists($genting->dokumentasi)) {
                 Storage::disk('public')->delete($genting->dokumentasi);
             }
             $genting->delete();
-            return redirect()->route('perangkat_daerah.genting.index', ['tab' => 'pending'])->with('success', 'Data kegiatan genting berhasil dihapus.');
+            Log::info('Menghapus data genting', ['id' => $id]);
+            return redirect()->route('perangkat_daerah.genting.index')->with('success', 'Data kegiatan genting berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data genting: ' . $e->getMessage(), ['id' => $id]);
-            return redirect()->route('perangkat_daerah.genting.index', ['tab' => 'pending'])->with('error', 'Gagal menghapus data genting: ' . $e->getMessage());
+            return redirect()->route('perangkat_daerah.genting.index')->with('error', 'Gagal menghapus data genting: ' . $e->getMessage());
         }
     }
 }

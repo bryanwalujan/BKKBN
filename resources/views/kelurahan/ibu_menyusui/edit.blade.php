@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>Edit Data Ibu Menyusui</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     @include('kelurahan.partials.sidebar')
@@ -14,28 +14,29 @@
                 {{ session('error') }}
             </div>
         @endif
-        <form action="{{ route('kelurahan.ibu_menyusui.update', [$ibuMenyusui->id, $source]) }}" method="POST" class="bg-white p-6 rounded shadow">
+        @if (session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+        <form action="{{ route('kelurahan.ibu_menyusui.update', $ibuMenyusui->id) }}" method="POST" class="bg-white p-6 rounded shadow">
             @csrf
             @method('PUT')
             <div class="mb-4">
                 <label for="ibu_id" class="block text-sm font-medium text-gray-700">Nama Ibu</label>
-                <select name="ibu_id" id="ibu_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <select name="ibu_id" id="ibu_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Ibu --</option>
                     @foreach ($ibus as $ibu)
-                        <option value="{{ $ibu->id }}" data-source="{{ $ibu->source }}" {{ old('ibu_id', $source == 'verified' ? $ibuMenyusui->ibu_id : $ibuMenyusui->pending_ibu_id) == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }}) - {{ $ibu->source == 'verified' ? 'Terverifikasi' : 'Menunggu Verifikasi' }}</option>
+                        <option value="{{ $ibu->id }}" {{ old('ibu_id', $ibuMenyusui->ibu_id) == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }})</option>
                     @endforeach
                 </select>
-                <input type="hidden" name="ibu_source" id="ibu_source" value="{{ old('ibu_source', $source) }}">
                 @error('ibu_id')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-                @error('ibu_source')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="status_menyusui" class="block text-sm font-medium text-gray-700">Status Menyusui</label>
-                <select name="status_menyusui" id="status_menyusui" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <select name="status_menyusui" id="status_menyusui" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="" {{ old('status_menyusui', $ibuMenyusui->status_menyusui) == '' ? 'selected' : '' }}>-- Pilih Status --</option>
                     <option value="Eksklusif" {{ old('status_menyusui', $ibuMenyusui->status_menyusui) == 'Eksklusif' ? 'selected' : '' }}>Eksklusif</option>
                     <option value="Non-Eksklusif" {{ old('status_menyusui', $ibuMenyusui->status_menyusui) == 'Non-Eksklusif' ? 'selected' : '' }}>Non-Eksklusif</option>
@@ -46,21 +47,21 @@
             </div>
             <div class="mb-4">
                 <label for="frekuensi_menyusui" class="block text-sm font-medium text-gray-700">Frekuensi Menyusui (kali/hari)</label>
-                <input type="number" name="frekuensi_menyusui" id="frekuensi_menyusui" value="{{ old('frekuensi_menyusui', $ibuMenyusui->frekuensi_menyusui) }}" min="0" max="24" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <input type="number" name="frekuensi_menyusui" id="frekuensi_menyusui" value="{{ old('frekuensi_menyusui', $ibuMenyusui->frekuensi_menyusui) }}" min="0" max="24" step="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                 @error('frekuensi_menyusui')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="kondisi_ibu" class="block text-sm font-medium text-gray-700">Kondisi Ibu</label>
-                <input type="text" name="kondisi_ibu" id="kondisi_ibu" value="{{ old('kondisi_ibu', $ibuMenyusui->kondisi_ibu) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <input type="text" name="kondisi_ibu" id="kondisi_ibu" value="{{ old('kondisi_ibu', $ibuMenyusui->kondisi_ibu) }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                 @error('kondisi_ibu')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="warna_kondisi" class="block text-sm font-medium text-gray-700">Warna Kondisi</label>
-                <select name="warna_kondisi" id="warna_kondisi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <select name="warna_kondisi" id="warna_kondisi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="" {{ old('warna_kondisi', $ibuMenyusui->warna_kondisi) == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
                     <option value="Hijau (success)" {{ old('warna_kondisi', $ibuMenyusui->warna_kondisi) == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
                     <option value="Kuning (warning)" {{ old('warna_kondisi', $ibuMenyusui->warna_kondisi) == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
@@ -72,14 +73,14 @@
             </div>
             <div class="mb-4">
                 <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                <input type="number" name="berat" id="berat" value="{{ old('berat', $ibuMenyusui->berat) }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <input type="number" name="berat" id="berat" value="{{ old('berat', $ibuMenyusui->berat) }}" step="0.1" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                 @error('berat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $ibuMenyusui->tinggi) }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $ibuMenyusui->tinggi) }}" step="0.1" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                 @error('tinggi')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -90,25 +91,5 @@
             </div>
         </form>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#ibu_id').select2({
-                placeholder: 'Pilih Ibu',
-                allowClear: true
-            });
-
-            $('#ibu_id').on('change', function() {
-                var source = $(this).find('option:selected').data('source');
-                $('#ibu_source').val(source);
-            });
-
-            var initialSource = $('#ibu_id').find('option:selected').data('source');
-            if (initialSource) {
-                $('#ibu_source').val(initialSource);
-            }
-        });
-    </script>
 </body>
 </html>

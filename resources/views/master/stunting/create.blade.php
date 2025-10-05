@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Tambah Data Stunting</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -33,6 +34,7 @@
                         url: '/kelurahans/by-kecamatan/' + kecamatanId,
                         type: 'GET',
                         dataType: 'json',
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         success: function(data) {
                             $.each(data, function(index, kelurahan) {
                                 $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
@@ -58,6 +60,7 @@
                         url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + kecamatanId + '&kelurahan_id=' + kelurahanId,
                         type: 'GET',
                         dataType: 'json',
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         success: function(data) {
                             $.each(data, function(index, kk) {
                                 $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
@@ -112,7 +115,7 @@
             </div>
             <div class="mb-4">
                 <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" pattern="[0-9]+" inputmode="numeric" title="NIK hanya boleh berisi angka">
                 @error('nik')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror

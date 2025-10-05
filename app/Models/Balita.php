@@ -4,28 +4,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
 
 class Balita extends Model
 {
     use HasFactory;
 
-    protected $table = 'balitas';
+    protected $table = "balitas";
     protected $fillable = [
         'kartu_keluarga_id',
         'nik',
         'nama',
         'tanggal_lahir',
         'jenis_kelamin',
+        'berat_tinggi',
         'kecamatan_id',
         'kelurahan_id',
-        'berat_tinggi',
-        'lingkar_kepala',
-        'lingkar_lengan',
         'alamat',
         'status_gizi',
         'warna_label',
         'status_pemantauan',
         'foto',
+        'lingkar_kepala',
+        'lingkar_lengan',
+        'created_by',
     ];
 
     protected $dates = ['tanggal_lahir'];
@@ -39,7 +41,7 @@ class Balita extends Model
         'lingkar_lengan' => 'float',
     ];
 
-    // Accessor untuk menghitung usia dalam bulan (dibulatkan)
+     // Accessor untuk menghitung usia dalam bulan (dibulatkan)
     public function getUsiaAttribute()
     {
         if (!$this->tanggal_lahir) {
@@ -48,7 +50,7 @@ class Balita extends Model
         return round(Carbon::parse($this->tanggal_lahir)->diffInMonths(Carbon::now()));
     }
 
-    // Accessor untuk menentukan kategori umur
+     // Accessor untuk menentukan kategori umur
     public function getKategoriUmurAttribute()
     {
         if (!$this->tanggal_lahir) {
@@ -70,11 +72,40 @@ class Balita extends Model
 
     public function kecamatan()
     {
-        return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
+        return $this->belongsTo(Kecamatan::class);
     }
 
     public function kelurahan()
     {
-        return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
+        return $this->belongsTo(Kelurahan::class);
     }
-}
+
+    // Mutator untuk mengenkripsi NIK saat disimpan
+    public function setNikAttribute($value)
+    {
+        if ($value && !empty(trim($value))) {
+            $this->attributes['nik'] = Crypt::encryptString($value);
+        } else {
+            $this->attributes['nik'] = null;
+        }
+    }
+
+    // Accessor untuk mendekripsi NIK saat diambil
+    public function getNikAttribute($value)
+    {
+        
+            try {
+                return Crypt::decryptString($value);
+            } catch (\Exception $e) {
+                \Log::error('Gagal mendekripsi NIK untuk balita ID' . $e->getMessage(), ['id' => $this->id]);
+                return $value; // atau kembalikan string kosong: ''
+            }
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+        
+    }

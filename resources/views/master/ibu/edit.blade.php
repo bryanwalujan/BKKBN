@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Edit Data Ibu</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -22,14 +23,15 @@
                 allowClear: true
             });
 
-            // Load initial kelurahans and kartu keluarga
-            var initialKecamatanId = '{{ old('kecamatan_id', $ibu->kecamatan_id) }}';
-            var initialKelurahanId = '{{ old('kelurahan_id', $ibu->kelurahan_id) }}';
+            // Load kelurahans and kartu keluarga on page load
+            var initialKecamatanId = '{{ $ibu->kecamatan_id }}';
+            var initialKelurahanId = '{{ $ibu->kelurahan_id }}';
             if (initialKecamatanId) {
                 $.ajax({
                     url: '/kelurahans/by-kecamatan/' + initialKecamatanId,
                     type: 'GET',
                     dataType: 'json',
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     success: function(data) {
                         $('#kelurahan_id').empty().append('<option value="">-- Pilih Kelurahan --</option>');
                         $.each(data, function(index, kelurahan) {
@@ -37,30 +39,6 @@
                             $('#kelurahan_id').append('<option value="' + kelurahan.id + '" ' + selected + '>' + kelurahan.nama_kelurahan + '</option>');
                         });
                         $('#kelurahan_id').trigger('change');
-
-                        // Load kartu keluarga for initial kecamatan and kelurahan
-                        if (initialKelurahanId) {
-                            $.ajax({
-                                url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + initialKecamatanId + '&kelurahan_id=' + initialKelurahanId,
-                                type: 'GET',
-                                dataType: 'json',
-                                success: function(data) {
-                                    $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>');
-                                    if (data.length === 0) {
-                                        $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga. <a href="{{ route('kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
-                                    }
-                                    $.each(data, function(index, kk) {
-                                        var selected = kk.id == '{{ old('kartu_keluarga_id', $ibu->kartu_keluarga_id) }}' ? 'selected' : '';
-                                        $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
-                                    });
-                                    $('#kartu_keluarga_id').trigger('change');
-                                },
-                                error: function(xhr) {
-                                    console.error('Gagal mengambil data kartu keluarga:', xhr);
-                                    alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                                }
-                            });
-                        }
                     },
                     error: function(xhr) {
                         console.error('Gagal mengambil data kelurahan:', xhr);
@@ -80,6 +58,7 @@
                         url: '/kelurahans/by-kecamatan/' + kecamatanId,
                         type: 'GET',
                         dataType: 'json',
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         success: function(data) {
                             $.each(data, function(index, kelurahan) {
                                 $('#kelurahan_id').append('<option value="' + kelurahan.id + '">' + kelurahan.nama_kelurahan + '</option>');
@@ -105,12 +84,14 @@
                         url: '/kartu-keluarga/by-kecamatan-kelurahan?kecamatan_id=' + kecamatanId + '&kelurahan_id=' + kelurahanId,
                         type: 'GET',
                         dataType: 'json',
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         success: function(data) {
                             if (data.length === 0) {
                                 $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga. <a href="{{ route('kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
                             }
                             $.each(data, function(index, kk) {
-                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '">' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                                var selected = kk.id == '{{ $ibu->kartu_keluarga_id }}' ? 'selected' : '';
+                                $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
                             });
                             $('#kartu_keluarga_id').trigger('change');
                         },
@@ -120,6 +101,11 @@
                         }
                     });
                 }
+            });
+
+            // Validasi input hanya angka untuk nomor telepon dan jumlah anak
+            $('#nomor_telepon, #jumlah_anak').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
             });
         });
     </script>
@@ -146,7 +132,7 @@
                 <select name="kecamatan_id" id="kecamatan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kecamatan --</option>
                     @foreach ($kecamatans as $kecamatan)
-                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $ibu->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
+                        <option value="{{ $kecamatan->id }}" {{ $ibu->kecamatan_id == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
                     @endforeach
                 </select>
                 @error('kecamatan_id')
@@ -157,6 +143,9 @@
                 <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan</label>
                 <select name="kelurahan_id" id="kelurahan_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kelurahan --</option>
+                    @foreach ($kelurahans as $kelurahan)
+                        <option value="{{ $kelurahan->id }}" {{ $ibu->kelurahan_id == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
+                    @endforeach
                 </select>
                 @error('kelurahan_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -166,6 +155,9 @@
                 <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                     <option value="">-- Pilih Kartu Keluarga --</option>
+                    @foreach ($kartuKeluargas as $kk)
+                        <option value="{{ $kk->id }}" {{ $ibu->kartu_keluarga_id == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
+                    @endforeach
                 </select>
                 @error('kartu_keluarga_id')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -173,21 +165,42 @@
             </div>
             <div class="mb-4">
                 <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik', $ibu->nik) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" name="nik" id="nik" value="{{ $ibu->nik }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" pattern="[0-9]+" inputmode="numeric" title="NIK hanya boleh berisi angka">
                 @error('nik')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                <input type="text" name="nama" id="nama" value="{{ old('nama', $ibu->nama) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                <input type="text" name="nama" id="nama" value="{{ $ibu->nama }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
                 @error('nama')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
             <div class="mb-4">
+                <label for="tempat_lahir" class="block text-sm font-medium text-gray-700">Tempat Lahir</label>
+                <input type="text" name="tempat_lahir" id="tempat_lahir" value="{{ $ibu->tempat_lahir }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                @error('tempat_lahir')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="nomor_telepon" class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+                <input type="text" name="nomor_telepon" id="nomor_telepon" value="{{ $ibu->nomor_telepon }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" pattern="[0-9]+" inputmode="numeric" title="Nomor telepon hanya boleh berisi angka" maxlength="15">
+                @error('nomor_telepon')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="jumlah_anak" class="block text-sm font-medium text-gray-700">Jumlah Anak</label>
+                <input type="number" name="jumlah_anak" id="jumlah_anak" value="{{ $ibu->jumlah_anak }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" min="0" step="1" title="Jumlah anak harus berupa angka positif atau nol">
+                @error('jumlah_anak')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                <textarea name="alamat" id="alamat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('alamat', $ibu->alamat) }}</textarea>
+                <textarea name="alamat" id="alamat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ $ibu->alamat }}</textarea>
                 @error('alamat')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
@@ -195,11 +208,11 @@
             <div class="mb-4">
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                 <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                    <option value="" {{ old('status', $ibu->status) == '' ? 'selected' : '' }}>-- Pilih Status --</option>
-                    <option value="Hamil" {{ old('status', $ibu->status) == 'Hamil' ? 'selected' : '' }}>Hamil</option>
-                    <option value="Nifas" {{ old('status', $ibu->status) == 'Nifas' ? 'selected' : '' }}>Nifas</option>
-                    <option value="Menyusui" {{ old('status', $ibu->status) == 'Menyusui' ? 'selected' : '' }}>Menyusui</option>
-                    <option value="Tidak Aktif" {{ old('status', $ibu->status) == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                    <option value="" {{ $ibu->status == '' ? 'selected' : '' }}>-- Pilih Status --</option>
+                    <option value="Hamil" {{ $ibu->status == 'Hamil' ? 'selected' : '' }}>Hamil</option>
+                    <option value="Nifas" {{ $ibu->status == 'Nifas' ? 'selected' : '' }}>Nifas</option>
+                    <option value="Menyusui" {{ $ibu->status == 'Menyusui' ? 'selected' : '' }}>Menyusui</option>
+                    <option value="Tidak Aktif" {{ $ibu->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                 </select>
                 @error('status')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -207,11 +220,10 @@
             </div>
             <div class="mb-4">
                 <label for="foto" class="block text-sm font-medium text-gray-700">Foto</label>
-                @if ($ibu->foto)
-                    <img src="{{ Storage::url($ibu->foto) }}" alt="Foto Ibu" class="w-32 h-32 object-cover rounded mb-2">
-                    <p class="text-sm text-gray-600">Unggah foto baru untuk mengganti foto saat ini.</p>
-                @endif
                 <input type="file" name="foto" id="foto" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" accept="image/*">
+                @if ($ibu->foto)
+                    <img src="{{ Storage::url($ibu->foto) }}" alt="Foto {{ $ibu->nama }}" class="mt-2 w-32 h-32 object-cover rounded">
+                @endif
                 @error('foto')
                     <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror

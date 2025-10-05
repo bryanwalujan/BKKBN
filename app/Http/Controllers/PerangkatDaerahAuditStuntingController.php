@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditStunting;
-use App\Models\PendingAuditStunting;
 use App\Models\DataMonitoring;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
@@ -20,23 +19,13 @@ class PerangkatDaerahAuditStuntingController extends Controller
 
     public function index(Request $request)
     {
-        $tab = $request->query('tab', 'verified');
         $kelurahan_id = $request->query('kelurahan_id');
         $kecamatan_id = Auth::user()->kecamatan_id;
 
-        if ($tab == 'pending') {
-            $query = PendingAuditStunting::with(['dataMonitoring', 'dataMonitoring.kartuKeluarga', 'dataMonitoring.kecamatan', 'dataMonitoring.kelurahan', 'user', 'createdBy'])
-                ->where('created_by', Auth::id())
-                ->where('status_verifikasi', 'pending')
-                ->whereHas('dataMonitoring', function ($q) use ($kecamatan_id) {
-                    $q->where('kecamatan_id', $kecamatan_id);
-                });
-        } else {
-            $query = AuditStunting::with(['dataMonitoring', 'dataMonitoring.kartuKeluarga', 'dataMonitoring.kecamatan', 'dataMonitoring.kelurahan', 'user'])
-                ->whereHas('dataMonitoring', function ($q) use ($kecamatan_id) {
-                    $q->where('kecamatan_id', $kecamatan_id);
-                });
-        }
+        $query = AuditStunting::with(['dataMonitoring', 'dataMonitoring.kartuKeluarga', 'dataMonitoring.kecamatan', 'dataMonitoring.kelurahan', 'user'])
+            ->whereHas('dataMonitoring', function ($q) use ($kecamatan_id) {
+                $q->where('kecamatan_id', $kecamatan_id);
+            });
 
         if ($kelurahan_id) {
             $query->whereHas('dataMonitoring', function ($q) use ($kelurahan_id) {
@@ -52,8 +41,7 @@ class PerangkatDaerahAuditStuntingController extends Controller
             'auditStuntings',
             'kecamatan',
             'kelurahans',
-            'kelurahan_id',
-            'tab'
+            'kelurahan_id'
         ));
     }
 
@@ -90,40 +78,36 @@ class PerangkatDaerahAuditStuntingController extends Controller
 
             $validated['user_id'] = Auth::id();
             $validated['created_by'] = Auth::id();
-            $validated['status_verifikasi'] = 'pending';
 
-            PendingAuditStunting::create($validated);
-            return redirect()->route('perangkat_daerah.audit_stunting.index', ['tab' => 'pending'])
-                ->with('success', 'Data Audit Stunting berhasil diajukan dan menunggu verifikasi.');
+            AuditStunting::create($validated);
+            return redirect()->route('perangkat_daerah.audit_stunting.index')
+                ->with('success', 'Data Audit Stunting berhasil ditambahkan.');
         } catch (\Exception $e) {
-            \Log::error('Error storing PendingAuditStunting: ' . $e->getMessage(), ['data' => $request->all()]);
-            return redirect()->back()->withInput()->with('error', 'Gagal mengajukan data Audit Stunting: ' . $e->getMessage());
+            \Log::error('Error storing AuditStunting: ' . $e->getMessage(), ['data' => $request->all()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data Audit Stunting: ' . $e->getMessage());
         }
     }
 
-    public function edit($id, $source)
+    public function edit($id)
     {
         $kecamatan_id = Auth::user()->kecamatan_id;
         $kecamatan = Kecamatan::find($kecamatan_id);
+        $auditStunting = AuditStunting::whereHas('dataMonitoring', function ($q) use ($kecamatan_id) {
+            $q->where('kecamatan_id', $kecamatan_id);
+        })->findOrFail($id);
         $kelurahans = Kelurahan::where('kecamatan_id', $kecamatan_id)->get();
-
-        if ($source == 'pending') {
-            $auditStunting = PendingAuditStunting::where('created_by', Auth::id())
-                ->where('status_verifikasi', 'pending')
-                ->findOrFail($id);
-        } else {
-            $auditStunting = AuditStunting::findOrFail($id);
-        }
-
         $dataMonitoring = DataMonitoring::where('kecamatan_id', $kecamatan_id)
             ->findOrFail($auditStunting->data_monitoring_id);
 
-        return view('perangkat_daerah.audit_stunting.edit', compact('auditStunting', 'kecamatan', 'kelurahans', 'dataMonitoring', 'source'));
+        return view('perangkat_daerah.audit_stunting.edit', compact('auditStunting', 'kecamatan', 'kelurahans', 'dataMonitoring'));
     }
 
-    public function update(Request $request, $id, $source)
+    public function update(Request $request, $id)
     {
         $kecamatan_id = Auth::user()->kecamatan_id;
+        $auditStunting = AuditStunting::whereHas('dataMonitoring', function ($q) use ($kecamatan_id) {
+            $q->where('kecamatan_id', $kecamatan_id);
+        })->findOrFail($id);
 
         $validated = $request->validate([
             'data_monitoring_id' => ['required', 'exists:data_monitorings,id,kecamatan_id,' . $kecamatan_id],
@@ -135,62 +119,43 @@ class PerangkatDaerahAuditStuntingController extends Controller
         ]);
 
         try {
-            if ($source == 'pending') {
-                $auditStunting = PendingAuditStunting::where('created_by', Auth::id())
-                    ->where('status_verifikasi', 'pending')
-                    ->findOrFail($id);
-                if ($request->hasFile('foto_dokumentasi')) {
-                    if ($auditStunting->foto_dokumentasi) {
-                        Storage::disk('public')->delete($auditStunting->foto_dokumentasi);
-                    }
-                    $validated['foto_dokumentasi'] = $request->file('foto_dokumentasi')->store('audit_stunting', 'public');
+            if ($request->hasFile('foto_dokumentasi')) {
+                if ($auditStunting->foto_dokumentasi) {
+                    Storage::disk('public')->delete($auditStunting->foto_dokumentasi);
                 }
-                $auditStunting->update($validated);
-                $message = 'Data Audit Stunting berhasil diperbarui dan menunggu verifikasi.';
+                $validated['foto_dokumentasi'] = $request->file('foto_dokumentasi')->store('audit_stunting', 'public');
             } else {
-                $original = AuditStunting::findOrFail($id);
-                if ($request->hasFile('foto_dokumentasi')) {
-                    if ($original->foto_dokumentasi) {
-                        Storage::disk('public')->delete($original->foto_dokumentasi);
-                    }
-                    $validated['foto_dokumentasi'] = $request->file('foto_dokumentasi')->store('audit_stunting', 'public');
-                }
-                $validated['user_id'] = Auth::id();
-                $validated['created_by'] = Auth::id();
-                $validated['status_verifikasi'] = 'pending';
-                $validated['original_id'] = $id;
-                PendingAuditStunting::create($validated);
-                $message = 'Perubahan Data Audit Stunting berhasil diajukan untuk verifikasi.';
+                $validated['foto_dokumentasi'] = $auditStunting->foto_dokumentasi;
             }
 
-            return redirect()->route('perangkat_daerah.audit_stunting.index', ['tab' => 'pending'])
-                ->with('success', $message);
+            $validated['user_id'] = Auth::id();
+            $validated['created_by'] = $auditStunting->created_by ?: Auth::id();
+
+            $auditStunting->update($validated);
+            return redirect()->route('perangkat_daerah.audit_stunting.index')
+                ->with('success', 'Data Audit Stunting berhasil diperbarui.');
         } catch (\Exception $e) {
             \Log::error('Error updating AuditStunting: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data Audit Stunting: ' . $e->getMessage());
         }
     }
 
-    public function destroy($id, $source)
+    public function destroy($id)
     {
-        if ($source == 'verified') {
-            return redirect()->route('perangkat_daerah.audit_stunting.index', ['tab' => 'verified'])
-                ->with('error', 'Data Audit Stunting yang sudah terverifikasi tidak dapat dihapus.');
-        }
-
+        $kecamatan_id = Auth::user()->kecamatan_id;
         try {
-            $auditStunting = PendingAuditStunting::where('created_by', Auth::id())
-                ->where('status_verifikasi', 'pending')
-                ->findOrFail($id);
+            $auditStunting = AuditStunting::whereHas('dataMonitoring', function ($q) use ($kecamatan_id) {
+                $q->where('kecamatan_id', $kecamatan_id);
+            })->findOrFail($id);
             if ($auditStunting->foto_dokumentasi) {
                 Storage::disk('public')->delete($auditStunting->foto_dokumentasi);
             }
             $auditStunting->delete();
-            return redirect()->route('perangkat_daerah.audit_stunting.index', ['tab' => 'pending'])
+            return redirect()->route('perangkat_daerah.audit_stunting.index')
                 ->with('success', 'Data Audit Stunting berhasil dihapus.');
         } catch (\Exception $e) {
-            \Log::error('Error deleting PendingAuditStunting: ' . $e->getMessage(), ['id' => $id]);
-            return redirect()->route('perangkat_daerah.audit_stunting.index', ['tab' => 'pending'])
+            \Log::error('Error deleting AuditStunting: ' . $e->getMessage(), ['id' => $id]);
+            return redirect()->route('perangkat_daerah.audit_stunting.index')
                 ->with('error', 'Gagal menghapus data Audit Stunting: ' . $e->getMessage());
         }
     }

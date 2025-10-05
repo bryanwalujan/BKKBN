@@ -36,7 +36,7 @@ class DataMonitoringController extends Controller
         $kecamatan_id = $request->query('kecamatan_id');
         $kategori = $request->query('kategori');
         $warna_badge = $request->query('warna_badge');
-        $query = DataMonitoring::with(['kartuKeluarga', 'ibu', 'balita', 'kecamatan', 'kelurahan'])
+        $query = DataMonitoring::with(['kartuKeluarga', 'ibu', 'balita', 'kecamatan', 'kelurahan', 'user'])
             ->orderBy('tanggal_monitoring', 'desc');
 
         if ($kecamatan_id) {
@@ -109,12 +109,19 @@ class DataMonitoringController extends Controller
             'tanggal_monitoring' => ['required', 'date'],
             'urutan' => ['required', 'integer', 'min:1'],
             'status_aktif' => ['required', 'boolean'],
+            'terpapar_rokok' => ['nullable', 'in:0,1'],
+            'suplemen_ttd' => ['nullable', 'in:0,1'],
+            'rujukan' => ['nullable', 'in:0,1'],
+            'bantuan_sosial' => ['nullable', 'in:0,1'],
+            'posyandu_bkb' => ['nullable', 'in:0,1'],
+            'kie' => ['nullable', 'in:0,1'],
         ]);
 
         try {
             $validated['nama'] = $request->target === 'Ibu'
                 ? Ibu::findOrFail($request->ibu_id)->nama
                 : Balita::findOrFail($request->balita_id)->nama;
+            $validated['created_by'] = Auth::id();
 
             $dataMonitoring = DataMonitoring::create($validated);
             return redirect()->route('kartu_keluarga.show', $request->kartu_keluarga_id)->with('success', 'Data Monitoring berhasil ditambahkan.');
@@ -171,6 +178,12 @@ class DataMonitoringController extends Controller
             'tanggal_monitoring' => ['required', 'date'],
             'urutan' => ['required', 'integer', 'min:1'],
             'status_aktif' => ['required', 'boolean'],
+            'terpapar_rokok' => ['nullable', 'in:0,1'],
+            'suplemen_ttd' => ['nullable', 'in:0,1'],
+            'rujukan' => ['nullable', 'in:0,1'],
+            'bantuan_sosial' => ['nullable', 'in:0,1'],
+            'posyandu_bkb' => ['nullable', 'in:0,1'],
+            'kie' => ['nullable', 'in:0,1'],
             'audit_user_id' => ['nullable', 'exists:users,id'],
             'audit_foto_dokumentasi' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'audit_pihak_pengaudit' => ['nullable', 'string', 'max:255'],
@@ -182,6 +195,7 @@ class DataMonitoringController extends Controller
             $validated['nama'] = $request->target === 'Ibu'
                 ? Ibu::findOrFail($request->ibu_id)->nama
                 : Balita::findOrFail($request->balita_id)->nama;
+            $validated['created_by'] = Auth::id();
 
             $dataMonitoring->update($validated);
 

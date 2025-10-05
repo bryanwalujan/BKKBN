@@ -10,7 +10,7 @@
     @include('perangkat_daerah.partials.sidebar')
     <div class="ml-64 p-6">
         <h2 class="text-2xl font-semibold mb-4">Tambah Data Monitoring</h2>
-        <a href="{{ route('perangkat_daerah.data_monitoring.index', ['tab' => 'pending']) }}" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-gray-600">Kembali</a>
+        <a href="{{ route('perangkat_daerah.data_monitoring.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-gray-600">Kembali</a>
         @if (session('error'))
             <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
                 {{ session('error') }}

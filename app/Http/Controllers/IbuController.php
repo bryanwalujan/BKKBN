@@ -11,6 +11,7 @@ use App\Models\KartuKeluarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
 
 class IbuController extends Controller
 {
@@ -18,11 +19,15 @@ class IbuController extends Controller
     {
         $search = $request->query('search');
         $category = $request->query('category');
-        $query = Ibu::with(['kecamatan', 'kelurahan', 'kartuKeluarga']);
+        $query = Ibu::with(['kecamatan', 'kelurahan', 'kartuKeluarga', 'createdBy']);
         
         if ($search) {
-            $query->where('nama', 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhereRaw('nik = ?', [Crypt::encryptString($search)])
+                  ->orWhere('tempat_lahir', 'like', '%' . $search . '%')
+                  ->orWhereRaw('nomor_telepon = ?', [Crypt::encryptString($search)]);
+            });
         }
 
         if ($category) {
@@ -51,8 +56,11 @@ class IbuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nik' => ['nullable', 'string', 'max:16', 'unique:ibus,nik'],
+            'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:ibus,nik'],
             'nama' => ['required', 'string', 'max:255'],
+            'tempat_lahir' => ['nullable', 'string', 'max:255'],
+            'nomor_telepon' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]+$/'],
+            'jumlah_anak' => ['nullable', 'integer', 'min:0'],
             'kecamatan_id' => ['required', 'exists:kecamatans,id'],
             'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
@@ -63,6 +71,7 @@ class IbuController extends Controller
 
         try {
             $data = $request->all();
+            $data['created_by'] = auth()->id();
             if ($request->hasFile('foto')) {
                 $data['foto'] = $request->file('foto')->store('ibu_fotos', 'public');
             }
@@ -119,8 +128,11 @@ class IbuController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nik' => ['nullable', 'string', 'max:16', 'unique:ibus,nik,' . $id],
+            'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:ibus,nik,' . $id],
             'nama' => ['required', 'string', 'max:255'],
+            'tempat_lahir' => ['nullable', 'string', 'max:255'],
+            'nomor_telepon' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]+$/'],
+            'jumlah_anak' => ['nullable', 'integer', 'min:0'],
             'kecamatan_id' => ['required', 'exists:kecamatans,id'],
             'kelurahan_id' => ['required', 'exists:kelurahans,id'],
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
@@ -132,6 +144,7 @@ class IbuController extends Controller
         try {
             $ibu = Ibu::findOrFail($id);
             $data = $request->all();
+            $data['created_by'] = auth()->id();
             if ($request->hasFile('foto')) {
                 if ($ibu->foto) {
                     Storage::disk('public')->delete($ibu->foto);

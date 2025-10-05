@@ -2,41 +2,11 @@
 <html>
 <head>
     <title>Tambah Data Ibu</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#kartu_keluarga_id').select2({
-                placeholder: '-- Pilih Kartu Keluarga --',
-                allowClear: true
-            });
-
-            // Load kartu keluarga
-            $.ajax({
-                url: '{{ route('kelurahan.ibu.getKartuKeluarga') }}',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>');
-                    if (data.length === 0) {
-                        $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga yang terverifikasi. <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
-                    }
-                    $.each(data, function (index, kk) {
-                        var selected = kk.id == '{{ old('kartu_keluarga_id') }}' ? 'selected' : '';
-                        $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
-                    });
-                    $('#kartu_keluarga_id').trigger('change');
-                },
-                error: function (xhr) {
-                    console.error('Gagal mengambil data kartu keluarga:', xhr);
-                    alert('Gagal memuat kartu keluarga. Silakan coba lagi.');
-                }
-            });
-        });
-    </script>
 </head>
 <body class="bg-gray-100">
     @include('kelurahan.partials.sidebar')
@@ -59,7 +29,7 @@
                 Silakan tambahkan data terlebih dahulu.
             </div>
         @else
-            <form action="{{ route('kelurahan.ibu.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+            <form id="createIbuForm" action="{{ route('kelurahan.ibu.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
                 @csrf
                 <div class="mb-4">
                     <label for="kecamatan_id" class="block text-sm font-medium text-gray-700">Kecamatan</label>
@@ -88,7 +58,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="nik" class="block text-sm font-medium text-gray-700">NIK</label>
-                    <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" maxlength="16">
+                   <input type="text" name="nik" id="nik" value="{{ old('nik') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" pattern="[0-9]{16}" inputmode="numeric" maxlength="16" placeholder="Masukkan 16 digit NIK">
                     @error('nik')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -129,10 +99,107 @@
                 </div>
                 <div class="flex space-x-4">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
-                    <a href="{{ route('kelurahan.ibu.index', ['tab' => 'pending']) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
+                    <a href="{{ route('kelurahan.ibu.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
                 </div>
             </form>
         @endif
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#kartu_keluarga_id').select2({
+                placeholder: '-- Pilih Kartu Keluarga --',
+                allowClear: true
+            });
+            $('#status').select2({
+                placeholder: '-- Pilih Status --',
+                allowClear: true
+            });
+
+            // Load kartu keluarga
+            $.ajax({
+                url: '{{ route('kelurahan.ibu.getKartuKeluarga') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#kartu_keluarga_id').empty().append('<option value="">-- Pilih Kartu Keluarga --</option>');
+                    if (data.length === 0) {
+                        $('#kartu_keluarga_id').after('<p class="text-red-600 text-sm mt-1">Tidak ada data Kartu Keluarga yang terverifikasi. <a href="{{ route('kelurahan.kartu_keluarga.create') }}" class="text-blue-600 hover:underline">Tambah Kartu Keluarga</a> terlebih dahulu.</p>');
+                    }
+                    $.each(data, function (index, kk) {
+                        var selected = kk.id == '{{ old('kartu_keluarga_id') }}' ? 'selected' : '';
+                        $('#kartu_keluarga_id').append('<option value="' + kk.id + '" ' + selected + '>' + kk.no_kk + ' - ' + kk.kepala_keluarga + '</option>');
+                    });
+                    $('#kartu_keluarga_id').trigger('change');
+                },
+                error: function (xhr) {
+                    console.error('Gagal mengambil data kartu keluarga:', xhr);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal memuat kartu keluarga. Silakan coba lagi.',
+                        confirmButtonColor: '#3b82f6',
+                    });
+                }
+            });
+
+            // SweetAlert2 confirmation for form submission
+            $('#createIbuForm').on('submit', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                Swal.fire({
+                    title: 'Simpan Data?',
+                    text: 'Apakah Anda yakin ingin menyimpan data ibu ini?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3b82f6',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Simpan!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: form.attr('action'),
+                            method: 'POST',
+                            data: new FormData(form[0]),
+                            contentType: false,
+                            processData: false,
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Data ibu berhasil ditambahkan.',
+                                    confirmButtonColor: '#3b82f6',
+                                }).then(() => {
+                                    window.location.href = '{{ route("kelurahan.ibu.index") }}';
+                                });
+                            },
+                            error: function(xhr) {
+                                let message = 'Gagal menambahkan data.';
+                                if (xhr.status === 419) {
+                                    message = 'Sesi Anda telah kedaluwarsa. Silakan muat ulang halaman.';
+                                } else if (xhr.status === 403) {
+                                    message = 'Anda tidak memiliki izin untuk menambahkan data ini.';
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    message = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: message,
+                                    confirmButtonColor: '#3b82f6',
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

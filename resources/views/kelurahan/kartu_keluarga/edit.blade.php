@@ -2,8 +2,10 @@
 <html>
 <head>
     <title>Edit Kartu Keluarga - Admin Kelurahan</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         #map { height: 400px; margin-bottom: 1rem; border-radius: 0.5rem; }
     </style>
@@ -17,12 +19,17 @@
                 {{ session('error') }}
             </div>
         @endif
+        @if (session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
         @if (!$kecamatan || !$kelurahan)
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 Data Kecamatan atau Kelurahan tidak tersedia. Silakan hubungi admin kecamatan.
             </div>
         @else
-            <form action="{{ route('kelurahan.kartu_keluarga.update', [$kartuKeluarga->id, $source]) }}" method="POST" class="bg-white p-6 rounded shadow">
+            <form action="{{ route('kelurahan.kartu_keluarga.update', $kartuKeluarga->id) }}" method="POST" class="bg-white p-6 rounded shadow" id="edit-form">
                 @csrf
                 @method('PUT')
                 <div class="mb-4">
@@ -100,7 +107,9 @@
         @endif
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         // Inisialisasi peta
         var map = L.map('map').setView([{{ old('latitude', $kartuKeluarga->latitude) }}, {{ old('longitude', $kartuKeluarga->longitude) }}], 15);
@@ -132,6 +141,24 @@
             map.setView([oldLat, oldLng], 15);
             updateCoordinates(oldLat, oldLng);
         }
+
+        // SweetAlert2 untuk feedback penyimpanan
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: '{{ session('success') }}',
+                confirmButtonColor: '#3b82f6',
+            });
+        @endif
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#3b82f6',
+            });
+        @endif
     </script>
 </body>
 </html>

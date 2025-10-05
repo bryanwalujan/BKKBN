@@ -69,9 +69,6 @@
                 <a href="{{ route('peta_geospasial.index') }}" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</a>
             </div>
         </form>
-        <div class="mb-4">
-            <a href="{{ route('kartu_keluarga.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Kelola Kartu Keluarga</a>
-        </div>
         <div id="map" class="w-full bg-white"></div>
     </div>
 
@@ -102,10 +99,10 @@
         legend.onAdd = function(map) {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML = `
-                <div><span style="background: #dc2626"></span>Merah (Bahaya/Anemia Berat)</div>
-                <div><span style="background: #f59e0b"></span>Oranye (Waspada/Anemia Sedang)</div>
-                <div><span style="background: #eab308"></span>Kuning (Anemia Ringan)</div>
-                <div><span style="background: #22c55e"></span>Hijau (Sehat/Tidak Anemia)</div>
+                <div><span style="background: #dc2626"></span>Merah (Bahaya)</div>
+                <div><span style="background: #f59e0b"></span>Oranye (Waspada)</div>
+                <div><span style="background: #eab308"></span>Kuning (Kurang Gizi)</div>
+                <div><span style="background: #22c55e"></span>Hijau (Sehat)</div>
                 <div><span style="background: #3b82f6"></span>Biru (Tidak Diketahui)</div>
             `;
             return div;
@@ -117,7 +114,6 @@
         kartuKeluargas.forEach(function(kk) {
             if (kk.latitude && kk.longitude && !isNaN(kk.latitude) && !isNaN(kk.longitude)) {
                 const balitas = kk.balitas || [];
-                const remajaPutris = kk.remaja_putris || [];
                 const ibus = kk.ibu || [];
 
                 // Buat tabel balita
@@ -130,14 +126,6 @@
                 });
                 balitaTable += balitas.length ? '</table>' : '<p>Tidak ada balita</p>';
 
-                // Buat tabel remaja putri
-                let remajaTable = '<table><tr><th>Nama</th><th>Umur</th><th>Status Anemia</th></tr>';
-                remajaPutris.forEach(r => {
-                    const statusColor = kk.marker_color;
-                    remajaTable += `<tr><td>${r.nama || '-'}</td><td>${r.umur || '-'}</td><td><span style="color: ${statusColor}">${r.status_anemia || '-'}</span></td></tr>`;
-                });
-                remajaTable += remajaPutris.length ? '</table>' : '<p>Tidak ada remaja putri</p>';
-
                 // Buat tabel ibu
                 let ibuTable = '<table><tr><th>Nama</th><th>Status</th></tr>';
                 ibus.forEach(i => {
@@ -149,13 +137,12 @@
                 });
                 ibuTable += ibus.length ? '</table>' : '<p>Tidak ada data ibu</p>';
 
-                // Buat popup content tanpa warna marker
+                // Buat popup content
                 const popupContent = `
                     <div class="popup-content">
                         <div class="tabs">
                             <div class="tab active" data-tab="info">Informasi</div>
                             <div class="tab" data-tab="balita">Balita</div>
-                            <div class="tab" data-tab="remaja">Remaja Putri</div>
                             <div class="tab" data-tab="ibu">Ibu</div>
                         </div>
                         <div class="tab-content active" id="tab-info">
@@ -165,14 +152,11 @@
                             <p><b>Kecamatan:</b> ${kk.kecamatan?.nama_kecamatan || '-'}</p>
                             <p><b>Kelurahan:</b> ${kk.kelurahan?.nama_kelurahan || '-'}</p>
                             <p><b>Jumlah Balita:</b> ${balitas.length}</p>
-                            <p><b>Jumlah Remaja Putri:</b> ${remajaPutris.length}</p>
                             <p><b>Jumlah Ibu:</b> ${ibus.length}</p>
                         </div>
                         <div class="tab-content" id="tab-balita">${balitaTable}</div>
-                        <div class="tab-content" id="tab-remaja">${remajaTable}</div>
                         <div class="tab-content" id="tab-ibu">${ibuTable}</div>
                         <div class="mt-2 flex gap-2">
-                            <a href="{{ url('kartu_keluarga') }}/${kk.id}/edit" class="text-blue-500 hover:underline">Edit Alamat</a>
                             <a href="${showKkBaseUrl.replace(':id', kk.id)}" class="text-blue-500 hover:underline">Lihat Keluarga</a>
                             <a href="https://www.google.com/maps?q=${kk.latitude},${kk.longitude}" target="_blank" class="text-blue-500 hover:underline">Buka di Google Maps</a>
                         </div>

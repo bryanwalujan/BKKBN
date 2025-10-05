@@ -8,6 +8,7 @@ use App\Models\Kelurahan;
 use App\Models\KartuKeluarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
 
 class IbuHamilController extends Controller
 {
@@ -20,16 +21,17 @@ class IbuHamilController extends Controller
         if ($search) {
             $query->whereHas('ibu', function ($q) use ($search) {
                 $q->where('nama', 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%');
-            });
+                  ->orWhereRaw('nik = ?', [Crypt::encryptString($search)]);
+            })->orWhere('riwayat_penyakit', 'like', '%' . $search . '%');
         }
 
         if ($category) {
             $query->where('trimester', $category);
         }
 
-        $ibuHamils = $query->paginate(10)->appends(['search' => $search, 'category' => $category]);
-        return view('master.ibu_hamil.index', compact('ibuHamils', 'search', 'category'));
+        $ibuHamils = $query->get(); // Mengambil semua data tanpa pagination
+        $totalData = $ibuHamils->count(); // Hitung total data untuk ditampilkan
+        return view('master.ibu_hamil.index', compact('ibuHamils', 'search', 'category', 'totalData'));
     }
 
     public function create()
@@ -47,6 +49,12 @@ class IbuHamilController extends Controller
             'status_gizi' => ['required', 'in:Normal,Kurang Gizi,Berisiko'],
             'warna_status_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
             'usia_kehamilan' => ['required', 'integer', 'min:0', 'max:40'],
+            'tinggi_fundus_uteri' => ['nullable', 'string', 'max:255'],
+            'imt' => ['nullable', 'string', 'max:255'],
+            'riwayat_penyakit' => ['nullable', 'string', 'max:255'],
+            'kadar_hb' => ['nullable', 'string', 'max:255'],
+            'lingkar_kepala' => ['nullable', 'string', 'max:255'],
+            'taksiran_berat_janin' => ['nullable', 'string', 'max:255'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
         ]);
@@ -84,6 +92,12 @@ class IbuHamilController extends Controller
             'status_gizi' => ['required', 'in:Normal,Kurang Gizi,Berisiko'],
             'warna_status_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
             'usia_kehamilan' => ['required', 'integer', 'min:0', 'max:40'],
+            'tinggi_fundus_uteri' => ['nullable', 'string', 'max:255'],
+            'imt' => ['nullable', 'string', 'max:255'],
+            'riwayat_penyakit' => ['nullable', 'string', 'max:255'],
+            'kadar_hb' => ['nullable', 'string', 'max:255'],
+            'lingkar_kepala' => ['nullable', 'string', 'max:255'],
+            'taksiran_berat_janin' => ['nullable', 'string', 'max:255'],
             'berat' => ['required', 'numeric', 'min:0'],
             'tinggi' => ['required', 'numeric', 'min:0'],
         ]);

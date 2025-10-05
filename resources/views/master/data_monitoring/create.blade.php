@@ -146,6 +146,66 @@
                 @enderror
             </div>
             <div class="mb-4">
+                <label for="terpapar_rokok" class="block text-sm font-medium text-gray-700">Terpapar Rokok</label>
+                <select name="terpapar_rokok" id="terpapar_rokok" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <option value="0" {{ old('terpapar_rokok') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <option value="1" {{ old('terpapar_rokok') == '1' ? 'selected' : '' }}>Ya</option>
+                </select>
+                @error('terpapar_rokok')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="suplemen_ttd" class="block text-sm font-medium text-gray-700">Suplemen TTD</label>
+                <select name="suplemen_ttd" id="suplemen_ttd" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <option value="0" {{ old('suplemen_ttd') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <option value="1" {{ old('suplemen_ttd') == '1' ? 'selected' : '' }}>Ya</option>
+                </select>
+                @error('suplemen_ttd')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="rujukan" class="block text-sm font-medium text-gray-700">Rujukan</label>
+                <select name="rujukan" id="rujukan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <option value="0" {{ old('rujukan') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <option value="1" {{ old('rujukan') == '1' ? 'selected' : '' }}>Ya</option>
+                </select>
+                @error('rujukan')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="bantuan_sosial" class="block text-sm font-medium text-gray-700">Bantuan Sosial</label>
+                <select name="bantuan_sosial" id="bantuan_sosial" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <option value="0" {{ old('bantuan_sosial') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <option value="1" {{ old('bantuan_sosial') == '1' ? 'selected' : '' }}>Ya</option>
+                </select>
+                @error('bantuan_sosial')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="posyandu_bkb" class="block text-sm font-medium text-gray-700">Posyandu/BKB</label>
+                <select name="posyandu_bkb" id="posyandu_bkb" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <option value="0" {{ old('posyandu_bkb') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <option value="1" {{ old('posyandu_bkb') == '1' ? 'selected' : '' }}>Ya</option>
+                </select>
+                @error('posyandu_bkb')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="kie" class="block text-sm font-medium text-gray-700">KIE</label>
+                <select name="kie" id="kie" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300">
+                    <option value="0" {{ old('kie') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <option value="1" {{ old('kie') == '1' ? 'selected' : '' }}>Ya</option>
+                </select>
+                @error('kie')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="mb-4">
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                 <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
                     <option value="">Pilih Status</option>
@@ -215,6 +275,12 @@
             $('#frekuensi_pmt').select2({ placeholder: 'Pilih Frekuensi', allowClear: true });
             $('#warna_badge').select2({ placeholder: 'Pilih Warna Badge', allowClear: true });
             $('#status_aktif').select2({ placeholder: 'Pilih Status Aktif', allowClear: true });
+            $('#terpapar_rokok').select2({ placeholder: 'Pilih Terpapar Rokok', allowClear: true });
+            $('#suplemen_ttd').select2({ placeholder: 'Pilih Suplemen TTD', allowClear: true });
+            $('#rujukan').select2({ placeholder: 'Pilih Rujukan', allowClear: true });
+            $('#bantuan_sosial').select2({ placeholder: 'Pilih Bantuan Sosial', allowClear: true });
+            $('#posyandu_bkb').select2({ placeholder: 'Pilih Posyandu/BKB', allowClear: true });
+            $('#kie').select2({ placeholder: 'Pilih KIE', allowClear: true });
 
             // Show/hide ibu_id and balita_id based on target
             $('#target').on('change', function() {
@@ -301,6 +367,7 @@
                     });
                 } else {
                     $('#kelurahan_id').empty().append('<option value="">Pilih Kelurahan</option>');
+                    $('#kartu_keluarga_id').empty().append('<option value="">Pilih Kartu Keluarga</option>');
                     $('#kelurahan_id').trigger('change');
                 }
                 updateKartuKeluarga();

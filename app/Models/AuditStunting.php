@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuditStunting extends Model
 {
+    protected $table = 'audit_stuntings';
     protected $fillable = [
         'data_monitoring_id',
         'user_id',
@@ -13,6 +14,7 @@ class AuditStunting extends Model
         'pihak_pengaudit',
         'laporan',
         'narasi',
+        'created_by',
     ];
 
     protected $casts = [
@@ -28,5 +30,10 @@ class AuditStunting extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

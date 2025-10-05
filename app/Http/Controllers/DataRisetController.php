@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DataRiset;
 use App\Models\Balita;
-use App\Models\IbuHamil;
+use App\Models\Ibu;
 use App\Models\Stunting;
 use App\Models\PendampingKeluarga;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class DataRisetController extends Controller
 {
     protected $realtimeJudul = [
         'Data Balita Terpantau',
-        'Ibu Hamil Mendapat Edukasi',
+        'Ibu Mendapat Edukasi',
         'Penyuluhan Cegah Stunting',
         'Keluarga Dampingan Aktif',
     ];
@@ -114,7 +114,7 @@ class DataRisetController extends Controller
     {
         return match ($judul) {
             'Data Balita Terpantau' => Balita::count(),
-            'Ibu Hamil Mendapat Edukasi' => IbuHamil::count(),
+            'Ibu Mendapat Edukasi' => Ibu::count(),
             'Penyuluhan Cegah Stunting' => Stunting::count(),
             'Keluarga Dampingan Aktif' => PendampingKeluarga::where('status', 'Aktif')->count(),
             default => 0,

@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class KartuKeluarga extends Model
 {
@@ -15,7 +16,25 @@ class KartuKeluarga extends Model
         'longitude',
         'status',
         'marker_color',
+        'created_by',
     ];
+
+    // Mutator untuk mengenkripsi no_kk saat disimpan
+    public function setNoKkAttribute($value)
+    {
+        $this->attributes['no_kk'] = Crypt::encryptString($value);
+    }
+
+    // Accessor untuk mendekripsi no_kk saat diambil
+    public function getNoKkAttribute($value)
+    {
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            \Log::error('Failed to decrypt no_kk: ' . $e->getMessage(), ['id' => $this->id]);
+            return $value; // Kembalikan nilai asli jika dekripsi gagal
+        }
+    }
 
     public function balitas()
     {
@@ -35,11 +54,6 @@ class KartuKeluarga extends Model
     public function kelurahan()
     {
         return $this->belongsTo(Kelurahan::class);
-    }
-
-    public function remajaPutris()
-    {
-        return $this->hasMany(RemajaPutri::class);
     }
 
     public function aksiKonvergensis()
@@ -66,5 +80,10 @@ class KartuKeluarga extends Model
     public function laporan()
     {
         return $this->hasMany(LaporanPendamping::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

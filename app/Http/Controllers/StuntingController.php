@@ -9,49 +9,29 @@ use App\Models\Kelurahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Crypt;
 
 class StuntingController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil parameter pencarian dan kategori umur
         $search = $request->query('search');
         $kategoriUmur = $request->query('kategori_umur');
 
-        // Ambil data dengan relasi
-        $query = Stunting::with(['kartuKeluarga', 'kecamatan', 'kelurahan']);
+        $query = Stunting::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy']);
 
-        // Terapkan filter pencarian berdasarkan nama atau NIK
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('nama',
-
- 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%');
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhereRaw('nik = ?', [Crypt::encryptString($search)]);
             });
         }
 
-        // Ambil data
-        $stuntings = $query->get();
-
-        // Filter berdasarkan kategori umur
         if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
-            $stuntings = $stuntings->filter(function ($stunting) use ($kategoriUmur) {
-                return $stunting->kategori_umur === $kategoriUmur;
-            });
+            $query->where('kategori_umur', $kategoriUmur);
         }
 
-        // Implementasi pagination manual untuk koleksi
-        $perPage = 10;
-        $currentPage = $request->query('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-        $total = $stuntings->count();
-        $paginatedStuntings = $stuntings->slice($offset, $perPage);
-        $stuntings = new LengthAwarePaginator($paginatedStuntings, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
+        $stuntings = $query->paginate(10)->appends($request->query());
 
         return view('master.stunting.index', compact('stuntings', 'kategoriUmur', 'search'));
     }
@@ -73,7 +53,7 @@ class StuntingController extends Controller
     {
         $request->validate([
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nik' => ['nullable', 'string', 'max:255', 'unique:stuntings,nik'],
+            'nik' => ['nullable', 'string', 'max:255', 'regex:/^[0-9]+$/', 'unique:stuntings,nik'],
             'nama' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
@@ -91,6 +71,7 @@ class StuntingController extends Controller
         try {
             $data = $request->all();
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
+            $data['created_by'] = auth()->id();
 
             if ($request->hasFile('foto')) {
                 $data['foto'] = $request->file('foto')->store('stunting_fotos', 'public');
@@ -98,9 +79,8 @@ class StuntingController extends Controller
 
             $stunting = Stunting::create($data);
 
-            // Perbarui status_gizi dan warna_label di tabel balitas jika NIK ada
             if ($data['nik']) {
-                $balita = Balita::where('nik', $data['nik'])->first();
+                $balita = Balita::where('nik', Crypt::encryptString($data['nik']))->first();
                 if ($balita) {
                     $balita->update([
                         'status_gizi' => $data['status_gizi'],
@@ -141,7 +121,7 @@ class StuntingController extends Controller
     {
         $request->validate([
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nik' => ['nullable', 'string', 'max:255', 'unique:stuntings,nik,' . $id],
+            'nik' => ['nullable', 'string', 'max:255', 'regex:/^[0-9]+$/', 'unique:stuntings,nik,' . $id],
             'nama' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
@@ -160,6 +140,7 @@ class StuntingController extends Controller
             $stunting = Stunting::findOrFail($id);
             $data = $request->all();
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
+            $data['created_by'] = auth()->id();
 
             if ($request->hasFile('foto')) {
                 if ($stunting->foto) {
@@ -170,9 +151,8 @@ class StuntingController extends Controller
 
             $stunting->update($data);
 
-            // Perbarui status_gizi dan warna_label di tabel balitas jika NIK ada
             if ($data['nik']) {
-                $balita = Balita::where('nik', $data['nik'])->first();
+                $balita = Balita::where('nik', Crypt::encryptString($data['nik']))->first();
                 if ($balita) {
                     $balita->update([
                         'status_gizi' => $data['status_gizi'],

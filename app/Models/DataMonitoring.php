@@ -26,6 +26,13 @@ class DataMonitoring extends Model
         'urutan',
         'status_aktif',
         'tanggal_update',
+        'terpapar_rokok',
+        'suplemen_ttd',
+        'rujukan',
+        'bantuan_sosial',
+        'posyandu_bkb',
+        'kie',
+        'created_by',
     ];
 
     protected $casts = [
@@ -34,6 +41,12 @@ class DataMonitoring extends Model
         'status_aktif' => 'boolean',
         'tanggal_monitoring' => 'date',
         'tanggal_update' => 'datetime',
+        'terpapar_rokok' => 'boolean',
+        'suplemen_ttd' => 'boolean',
+        'rujukan' => 'boolean',
+        'bantuan_sosial' => 'boolean',
+        'posyandu_bkb' => 'boolean',
+        'kie' => 'boolean',
     ];
 
     public function kartuKeluarga()
@@ -64,5 +77,10 @@ class DataMonitoring extends Model
     public function auditStunting()
     {
         return $this->hasOne(AuditStunting::class, 'data_monitoring_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

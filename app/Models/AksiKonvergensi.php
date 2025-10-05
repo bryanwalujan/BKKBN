@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class AksiKonvergensi extends Model
 {
+    protected $table = 'aksi_konvergensis';
+
     protected $fillable = [
         'kartu_keluarga_id',
         'kecamatan_id',
@@ -33,6 +36,7 @@ class AksiKonvergensi extends Model
         'narasi',
         'pelaku_aksi',
         'waktu_pelaksanaan',
+        'created_by',
     ];
 
     protected $casts = [
@@ -53,5 +57,10 @@ class AksiKonvergensi extends Model
     public function kelurahan()
     {
         return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

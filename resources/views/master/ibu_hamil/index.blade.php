@@ -11,7 +11,7 @@
         <h2 class="text-2xl font-semibold mb-4">Data Ibu Hamil</h2>
         <div class="mb-4 flex space-x-4">
             <form action="{{ route('ibu_hamil.index') }}" method="GET" class="flex items-center space-x-2">
-                <select name="category" class="border-gray-300 rounded-md shadow-sm p-2">
+                <select name="category" class="border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="" {{ $category == '' ? 'selected' : '' }}>Semua Trimester</option>
                     <option value="Trimester 1" {{ $category == 'Trimester 1' ? 'selected' : '' }}>Trimester 1</option>
                     <option value="Trimester 2" {{ $category == 'Trimester 2' ? 'selected' : '' }}>Trimester 2</option>
@@ -20,7 +20,7 @@
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
             </form>
             <form action="{{ route('ibu_hamil.index') }}" method="GET" class="flex items-center space-x-2">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama atau NIK" class="border-gray-300 rounded-md shadow-sm p-2">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama, NIK, atau riwayat penyakit" class="border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
                 @if ($search || $category)
                     <a href="{{ route('ibu_hamil.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</a>
@@ -37,65 +37,80 @@
                 @if ($search)
                     dengan pencarian: "{{ $search }}"
                 @endif
-                ({{ $ibuHamils->total() }} data)
+                ({{ $totalData }} data)
             </p>
         @else
-            <p class="mt-2 text-sm text-gray-600">Menampilkan semua data ibu hamil ({{ $ibuHamils->total() }} data)</p>
+            <p class="mt-2 text-sm text-gray-600">Menampilkan semua data ibu hamil ({{ $totalData }} data)</p>
         @endif
-        <table class="w-full bg-white shadow-md rounded">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-4 text-left">No</th>
-                    <th class="p-4 text-left">Foto</th>
-                    <th class="p-4 text-left">Nama</th>
-                    <th class="p-4 text-left">Kelurahan</th>
-                    <th class="p-4 text-left">Kecamatan</th>
-                    <th class="p-4 text-left">Trimester</th>
-                    <th class="p-4 text-left">Intervensi</th>
-                    <th class="p-4 text-left">Status Gizi</th>
-                    <th class="p-4 text-left">Warna Status Gizi</th>
-                    <th class="p-4 text-left">Usia Kehamilan (minggu)</th>
-                    <th class="p-4 text-left">Berat (kg)</th>
-                    <th class="p-4 text-left">Tinggi (cm)</th>
-                    <th class="p-4 text-left">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($ibuHamils as $index => $ibuHamil)
-                    <tr>
-                        <td class="p-4">{{ $ibuHamils->firstItem() + $index }}</td>
-                        <td class="p-4">
-                            @if ($ibuHamil->ibu->foto)
-                                <img src="{{ Storage::url($ibuHamil->ibu->foto) }}" alt="Foto Ibu Hamil" class="w-16 h-16 object-cover rounded">
-                            @else
-                                <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
-                            @endif
-                        </td>
-                        <td class="p-4">{{ $ibuHamil->ibu->nama }}</td>
-                        <td class="p-4">{{ $ibuHamil->ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
-                        <td class="p-4">{{ $ibuHamil->ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
-                        <td class="p-4">{{ $ibuHamil->trimester }}</td>
-                        <td class="p-4">{{ $ibuHamil->intervensi }}</td>
-                        <td class="p-4">{{ $ibuHamil->status_gizi }}</td>
-                        <td class="p-4">
-                            <span class="inline-block px-2 py-1 rounded text-white
-                                {{ $ibuHamil->warna_status_gizi == 'Sehat' ? 'bg-green-500' : ($ibuHamil->warna_status_gizi == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                {{ $ibuHamil->warna_status_gizi }}
-                            </span>
-                        </td>
-                        <td class="p-4">{{ $ibuHamil->usia_kehamilan }}</td>
-                        <td class="p-4">{{ $ibuHamil->berat }}</td>
-                        <td class="p-4">{{ $ibuHamil->tinggi }}</td>
-                        <td class="p-4">
-                            <a href="{{ route('ibu_hamil.edit', $ibuHamil->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                            <button type="button" class="text-red-500 hover:underline" onclick="showDeleteModal('{{ route('ibu_hamil.destroy', $ibuHamil->id) }}', '{{ $ibuHamil->ibu->nama }}')">Hapus</button>
-                        </td>
+        <div class="bg-white p-6 rounded shadow overflow-x-auto">
+            <table class="w-full bg-white shadow-md rounded border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-700">
+                        <th class="p-4 text-left">No</th>
+                        <th class="p-4 text-left">Foto</th>
+                        <th class="p-4 text-left">Nama</th>
+                        <th class="p-4 text-left">Kelurahan</th>
+                        <th class="p-4 text-left">Kecamatan</th>
+                        <th class="p-4 text-left">Trimester</th>
+                        <th class="p-4 text-left">Intervensi</th>
+                        <th class="p-4 text-left">Status Gizi</th>
+                        <th class="p-4 text-left">Warna Status Gizi</th>
+                        <th class="p-4 text-left">Usia Kehamilan (minggu)</th>
+                        <th class="p-4 text-left">Tinggi Fundus Uteri (cm)</th>
+                        <th class="p-4 text-left">IMT</th>
+                        <th class="p-4 text-left">Riwayat Penyakit</th>
+                        <th class="p-4 text-left">Kadar HB</th>
+                        <th class="p-4 text-left">Lingkar Kepala (cm)</th>
+                        <th class="p-4 text-left">Taksiran Berat Janin (gr)</th>
+                        <th class="p-4 text-left">Berat (kg)</th>
+                        <th class="p-4 text-left">Tinggi (cm)</th>
+                        <th class="p-4 text-left">Aksi</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div class="mt-4">
-            {{ $ibuHamils->links() }}
+                </thead>
+                <tbody>
+                    @forelse ($ibuHamils as $index => $ibuHamil)
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4">{{ $index + 1 }}</td>
+                            <td class="p-4">
+                                @if ($ibuHamil->ibu->foto)
+                                    <img src="{{ Storage::url($ibuHamil->ibu->foto) }}" alt="Foto Ibu Hamil" class="w-16 h-16 object-cover rounded">
+                                @else
+                                    <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
+                                @endif
+                            </td>
+                            <td class="p-4">{{ $ibuHamil->ibu->nama }}</td>
+                            <td class="p-4">{{ $ibuHamil->ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->trimester }}</td>
+                            <td class="p-4">{{ $ibuHamil->intervensi }}</td>
+                            <td class="p-4">{{ $ibuHamil->status_gizi }}</td>
+                            <td class="p-4">
+                                <span class="inline-block px-2 py-1 rounded text-white
+                                    {{ $ibuHamil->warna_status_gizi == 'Sehat' ? 'bg-green-500' : ($ibuHamil->warna_status_gizi == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
+                                    {{ $ibuHamil->warna_status_gizi }}
+                                </span>
+                            </td>
+                            <td class="p-4">{{ $ibuHamil->usia_kehamilan }}</td>
+                            <td class="p-4">{{ $ibuHamil->tinggi_fundus_uteri ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->imt ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->riwayat_penyakit ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->kadar_hb ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->lingkar_kepala ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->taksiran_berat_janin ?? '-' }}</td>
+                            <td class="p-4">{{ $ibuHamil->berat }}</td>
+                            <td class="p-4">{{ $ibuHamil->tinggi }}</td>
+                            <td class="p-4 flex space-x-2">
+                                <a href="{{ route('ibu_hamil.edit', $ibuHamil->id) }}" class="text-blue-500 hover:underline">Edit</a>
+                                <button type="button" class="text-red-500 hover:underline" onclick="showDeleteModal('{{ route('ibu_hamil.destroy', $ibuHamil->id) }}', '{{ $ibuHamil->ibu->nama }}')">Hapus</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="19" class="p-4 text-center text-gray-500">Tidak ada data ibu hamil ditemukan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 

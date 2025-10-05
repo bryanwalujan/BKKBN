@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -34,6 +35,7 @@ class Genting extends Model
         'tim_pendamping_keluarga_frekuensi',
         'tokoh_masyarakat',
         'tokoh_masyarakat_frekuensi',
+        'created_by',
     ];
 
     protected $dates = ['tanggal'];
@@ -41,5 +43,10 @@ class Genting extends Model
     public function kartuKeluarga()
     {
         return $this->belongsTo(KartuKeluarga::class, 'kartu_keluarga_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

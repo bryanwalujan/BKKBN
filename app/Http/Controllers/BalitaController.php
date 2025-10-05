@@ -8,6 +8,7 @@ use App\Models\Kelurahan;
 use App\Imports\BalitaImport;
 use App\Exports\BalitaTemplateExport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,12 +23,12 @@ class BalitaController extends Controller
         $kecamatan_id = $request->query('kecamatan_id');
         $kelurahan_id = $request->query('kelurahan_id');
 
-        $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan']);
+        $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%');
+                  ->orWhereRaw('CAST(AES_DECRYPT(nik, ?) AS CHAR) LIKE ?', [config('app.key'), '%' . $search . '%']);
             });
         }
 
@@ -39,24 +40,11 @@ class BalitaController extends Controller
             $query->where('kelurahan_id', $kelurahan_id);
         }
 
-        $balitas = $query->get();
-
         if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
-            $balitas = $balitas->filter(function ($balita) use ($kategoriUmur) {
-                return $balita->kategoriUmur === $kategoriUmur;
-            });
+            $query->where('kategori_umur', $kategoriUmur);
         }
 
-        $perPage = 10;
-        $currentPage = $request->query('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-        $total = $balitas->count();
-        $paginatedBalitas = $balitas->slice($offset, $perPage);
-        $balitas = new LengthAwarePaginator($paginatedBalitas, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
-
+        $balitas = $query->paginate(10)->appends($request->query());
         $kecamatans = Kecamatan::all();
 
         return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search', 'kecamatans', 'kecamatan_id', 'kelurahan_id'));
@@ -75,7 +63,7 @@ class BalitaController extends Controller
     {
         $request->validate([
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nik' => ['nullable', 'string', 'max:255', 'unique:balitas,nik'],
+            'nik' => ['nullable', 'numeric', 'digits:16', 'unique:balitas,nik'],
             'nama' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
@@ -95,6 +83,7 @@ class BalitaController extends Controller
         try {
             $data = $request->all();
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
+            $data['created_by'] = Auth::id();
 
             if ($request->hasFile('foto')) {
                 $data['foto'] = $request->file('foto')->store('balita_fotos', 'public');
@@ -112,7 +101,7 @@ class BalitaController extends Controller
 
     public function edit($id)
     {
-        $balita = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan'])->findOrFail($id);
+        $balita = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])->findOrFail($id);
         $kecamatans = Kecamatan::all();
         $kelurahans = $balita->kecamatan_id ? Kelurahan::where('kecamatan_id', $balita->kecamatan_id)->get() : collect([]);
         if ($kecamatans->isEmpty()) {
@@ -125,7 +114,7 @@ class BalitaController extends Controller
     {
         $request->validate([
             'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nik' => ['nullable', 'string', 'max:255', 'unique:balitas,nik,' . $id],
+            'nik' => ['nullable', 'numeric', 'digits:16', 'unique:balitas,nik,' . $id],
             'nama' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
@@ -146,6 +135,7 @@ class BalitaController extends Controller
             $balita = Balita::findOrFail($id);
             $data = $request->all();
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
+            $data['created_by'] = Auth::id();
 
             if ($request->hasFile('foto')) {
                 if ($balita->foto) {

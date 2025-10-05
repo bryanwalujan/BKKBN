@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
 
 class Stunting extends Model
 {
@@ -24,6 +25,7 @@ class Stunting extends Model
         'tindak_lanjut',
         'warna_tindak_lanjut',
         'foto',
+        'created_by',
     ];
 
     protected $dates = ['tanggal_lahir'];
@@ -35,6 +37,23 @@ class Stunting extends Model
         'warna_tindak_lanjut' => 'string',
         'tanggal_lahir' => 'date:Y-m-d',
     ];
+
+    // Accessor untuk mendekripsi NIK
+    public function getNikAttribute($value)
+    {
+        try {
+            return $value ? Crypt::decryptString($value) : null;
+        } catch (\Exception $e) {
+            \Log::error('Gagal mendekripsi NIK: ' . $e->getMessage(), ['nik' => $value]);
+            return null;
+        }
+    }
+
+    // Mutator untuk mengenkripsi NIK
+    public function setNikAttribute($value)
+    {
+        $this->attributes['nik'] = $value ? Crypt::encryptString($value) : null;
+    }
 
     // Accessor untuk menghitung usia
     public function getUsiaAttribute()
@@ -74,5 +93,10 @@ class Stunting extends Model
     public function kelurahan()
     {
         return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

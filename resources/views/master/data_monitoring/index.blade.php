@@ -62,7 +62,7 @@
             <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
             <a href="{{ route('data_monitoring.create') }}" class="mt-4 ml-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Tambah Data</a>
         </form>
-        <div class="bg-white p-6 rounded shadow">
+        <div class="bg-white p-6 rounded shadow overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
@@ -74,6 +74,13 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Warna Badge</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal Monitoring</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terpapar Rokok</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Suplemen TTD</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rujukan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bantuan Sosial</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posyandu/BKB</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">KIE</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Diunggah Oleh</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kartu Keluarga</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                     </tr>
@@ -108,6 +115,13 @@
                                     -
                                 @endif
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->terpapar_rokok ? 'Ya' : 'Tidak' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->suplemen_ttd ? 'Ya' : 'Tidak' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->rujukan ? 'Ya' : 'Tidak' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->bantuan_sosial ? 'Ya' : 'Tidak' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->posyandu_bkb ? 'Ya' : 'Tidak' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->kie ? 'Ya' : 'Tidak' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $dataMonitoring->user ? $dataMonitoring->user->name : '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($dataMonitoring->kartuKeluarga)
                                     <a href="{{ route('kartu_keluarga.show', $dataMonitoring->kartuKeluarga->id) }}" class="text-blue-600 hover:text-blue-900">Lihat Kartu Keluarga</a>

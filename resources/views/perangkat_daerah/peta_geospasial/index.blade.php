@@ -12,6 +12,11 @@
         .popup-content table { width: 100%; border-collapse: collapse; }
         .popup-content th, .popup-content td { padding: 6px; border-bottom: 1px solid #e5e7eb; }
         .popup-content th { text-align: left; font-weight: bold; }
+        .tabs { display: flex; border-bottom: 1px solid #e5e7eb; margin-bottom: 10px; }
+        .tab { padding: 8px 12px; cursor: pointer; font-weight: bold; color: #4b5563; }
+        .tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .legend { position: absolute; bottom: 30px; right: 10px; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 1000; }
         .legend div { display: flex; align-items: center; margin-bottom: 5px; }
         .legend span { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; }
@@ -90,10 +95,10 @@
         legend.onAdd = function(map) {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML = `
-                <div><span style="background: #dc2626"></span>Merah (Bahaya/Anemia Berat)</div>
-                <div><span style="background: #f59e0b"></span>Oranye (Waspada/Anemia Sedang)</div>
-                <div><span style="background: #eab308"></span>Kuning (Anemia Ringan)</div>
-                <div><span style="background: #22c55e"></span>Hijau (Sehat/Tidak Anemia)</div>
+                <div><span style="background: #dc2626"></span>Merah (Bahaya)</div>
+                <div><span style="background: #f59e0b"></span>Oranye (Waspada)</div>
+                <div><span style="background: #eab308"></span>Kuning (Kurang Gizi)</div>
+                <div><span style="background: #22c55e"></span>Hijau (Sehat)</div>
                 <div><span style="background: #3b82f6"></span>Biru (Tidak Diketahui)</div>
             `;
             return div;
@@ -104,13 +109,48 @@
         var markers = [];
         kartuKeluargas.forEach(function(kk) {
             if (kk.latitude && kk.longitude && !isNaN(kk.latitude) && !isNaN(kk.longitude)) {
-                // Buat popup content tanpa tab tambahan
+                const balitas = kk.balitas || [];
+                const ibus = kk.ibu || [];
+
+                // Buat tabel balita
+                let balitaTable = '<table><tr><th>Nama</th><th>Usia (bln)</th><th>Tanggal Lahir</th><th>Status Gizi</th></tr>';
+                balitas.forEach(b => {
+                    const statusColor = kk.marker_color;
+                    const usia = b.usia !== null ? b.usia : 'Tanggal Lahir Tidak Tersedia';
+                    const tanggalLahir = b.tanggal_lahir ? new Date(b.tanggal_lahir).toLocaleDateString('id-ID') : '-';
+                    balitaTable += `<tr><td>${b.nama || '-'}</td><td>${usia}</td><td>${tanggalLahir}</td><td><span style="color: ${statusColor}">${b.status_gizi || '-'}</span></td></tr>`;
+                });
+                balitaTable += balitas.length ? '</table>' : '<p>Tidak ada balita</p>';
+
+                // Buat tabel ibu
+                let ibuTable = '<table><tr><th>Nama</th><th>Status</th></tr>';
+                ibus.forEach(i => {
+                    let status = 'Tidak Diketahui';
+                    if (i.ibu_hamil) status = 'Hamil';
+                    else if (i.ibu_nifas) status = 'Nifas';
+                    else if (i.ibu_menyusui) status = 'Menyusui';
+                    ibuTable += `<tr><td>${i.nama || '-'}</td><td>${status}</td></tr>`;
+                });
+                ibuTable += ibus.length ? '</table>' : '<p>Tidak ada data ibu</p>';
+
+                // Buat popup content
                 const popupContent = `
                     <div class="popup-content">
-                        <p><b>No KK:</b> ${kk.no_kk || '-'}</p>
-                        <p><b>Kepala Keluarga:</b> ${kk.kepala_keluarga || '-'}</p>
-                        <p><b>Alamat:</b> ${kk.alamat || '-'}</p>
-                        <p><b>Kelurahan:</b> ${kk.kelurahan?.nama_kelurahan || '-'}</p>
+                        <div class="tabs">
+                            <div class="tab active" data-tab="info">Informasi</div>
+                            <div class="tab" data-tab="balita">Balita</div>
+                            <div class="tab" data-tab="ibu">Ibu</div>
+                        </div>
+                        <div class="tab-content active" id="tab-info">
+                            <p><b>No KK:</b> ${kk.no_kk || '-'}</p>
+                            <p><b>Kepala Keluarga:</b> ${kk.kepala_keluarga || '-'}</p>
+                            <p><b>Alamat:</b> ${kk.alamat || '-'}</p>
+                            <p><b>Kelurahan:</b> ${kk.kelurahan?.nama_kelurahan || '-'}</p>
+                            <p><b>Jumlah Balita:</b> ${balitas.length}</p>
+                            <p><b>Jumlah Ibu:</b> ${ibus.length}</p>
+                        </div>
+                        <div class="tab-content" id="tab-balita">${balitaTable}</div>
+                        <div class="tab-content" id="tab-ibu">${ibuTable}</div>
                         <div class="mt-2 flex gap-2">
                             <a href="${showKkBaseUrl.replace(':id', kk.id)}" class="text-blue-500 hover:underline">Lihat Keluarga</a>
                             <a href="https://www.google.com/maps?q=${kk.latitude},${kk.longitude}" target="_blank" class="text-blue-500 hover:underline">Buka di Google Maps</a>
@@ -133,6 +173,20 @@
                     .bindPopup(popupContent, { maxWidth: 350 })
                     .bindTooltip(kk.kepala_keluarga || 'Tidak Diketahui', { direction: 'top', offset: [0, -15] });
                 markers.push(marker);
+
+                // Tambahkan event listener untuk tab
+                marker.on('popupopen', function() {
+                    const tabs = document.querySelectorAll('.tab');
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabs.forEach(tab => {
+                        tab.addEventListener('click', function() {
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tabContents.forEach(c => c.classList.remove('active'));
+                            this.classList.add('active');
+                            document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
+                        });
+                    });
+                });
             } else {
                 console.warn(`Kartu Keluarga tidak memiliki koordinat valid: ID=${kk.id}, No KK=${kk.no_kk}`);
             }

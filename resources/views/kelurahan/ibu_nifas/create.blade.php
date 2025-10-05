@@ -2,8 +2,11 @@
 <html>
 <head>
     <title>Tambah Data Ibu Nifas</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body class="bg-gray-100">
     @include('kelurahan.partials.sidebar')
@@ -19,96 +22,213 @@
                 {{ session('warning') }}
             </div>
         @endif
-        <form action="{{ route('kelurahan.ibu_nifas.store') }}" method="POST" class="bg-white p-6 rounded shadow">
-            @csrf
-            <div class="mb-4">
-                <label for="ibu_id" class="block text-sm font-medium text-gray-700">Nama Ibu</label>
-                <select name="ibu_id" id="ibu_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="">-- Pilih Ibu --</option>
-                    @foreach ($ibus as $ibu)
-                        <option value="{{ $ibu->id }}" data-source="verified" {{ old('ibu_id') == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }}) - Terverifikasi</option>
-                    @endforeach
-                    @foreach ($pendingIbus as $ibu)
-                        <option value="{{ $ibu->id }}" data-source="pending" {{ old('ibu_id') == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }}) - Menunggu Verifikasi</option>
-                    @endforeach
-                </select>
-                <input type="hidden" name="ibu_source" id="ibu_source" value="{{ old('ibu_source') }}">
-                @error('ibu_id')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-                @error('ibu_source')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
+        @if ($ibus->isEmpty())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                Tidak ada data ibu dengan status Nifas. Silakan tambahkan <a href="{{ route('kelurahan.ibu.create') }}" class="text-blue-600 hover:underline">data ibu</a> terlebih dahulu.
             </div>
-            <div class="mb-4">
-                <label for="hari_nifas" class="block text-sm font-medium text-gray-700">Hari ke-Nifas</label>
-                <input type="number" name="hari_nifas" id="hari_nifas" value="{{ old('hari_nifas') }}" min="0" max="42" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                @error('hari_nifas')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="kondisi_kesehatan" class="block text-sm font-medium text-gray-700">Kondisi Kesehatan</label>
-                <select name="kondisi_kesehatan" id="kondisi_kesehatan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="" {{ old('kondisi_kesehatan') == '' ? 'selected' : '' }}>-- Pilih Kondisi --</option>
-                    <option value="Normal" {{ old('kondisi_kesehatan') == 'Normal' ? 'selected' : '' }}>Normal</option>
-                    <option value="Butuh Perhatian" {{ old('kondisi_kesehatan') == 'Butuh Perhatian' ? 'selected' : '' }}>Butuh Perhatian</option>
-                    <option value="Kritis" {{ old('kondisi_kesehatan') == 'Kritis' ? 'selected' : '' }}>Kritis</option>
-                </select>
-                @error('kondisi_kesehatan')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="warna_kondisi" class="block text-sm font-medium text-gray-700">Warna Kondisi</label>
-                <select name="warna_kondisi" id="warna_kondisi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                    <option value="" {{ old('warna_kondisi') == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
-                    <option value="Hijau (success)" {{ old('warna_kondisi') == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
-                    <option value="Kuning (warning)" {{ old('warna_kondisi') == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
-                    <option value="Merah (danger)" {{ old('warna_kondisi') == 'Merah (danger)' ? 'selected' : '' }}>Merah (danger)</option>
-                </select>
-                @error('warna_kondisi')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
-                <input type="number" name="berat" id="berat" value="{{ old('berat') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                @error('berat')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
-                <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" step="0.1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300" required>
-                @error('tinggi')
-                    <span class="text-red-600 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="flex space-x-4">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
-                <a href="{{ route('kelurahan.ibu_nifas.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
-            </div>
-        </form>
+        @else
+            <form id="createIbuNifasForm" action="{{ route('kelurahan.ibu_nifas.store') }}" method="POST" class="bg-white p-6 rounded shadow">
+                @csrf
+                <div class="mb-4">
+                    <label for="ibu_id" class="block text-sm font-medium text-gray-700">Nama Ibu</label>
+                    <select name="ibu_id" id="ibu_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="">-- Pilih Ibu --</option>
+                        @foreach ($ibus as $ibu)
+                            <option value="{{ $ibu->id }}" {{ old('ibu_id') == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }})</option>
+                        @endforeach
+                    </select>
+                    @error('ibu_id')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="hari_nifas" class="block text-sm font-medium text-gray-700">Hari ke-Nifas</label>
+                    <input type="number" name="hari_nifas" id="hari_nifas" value="{{ old('hari_nifas') }}" min="0" max="42" step="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    @error('hari_nifas')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="tanggal_melahirkan" class="block text-sm font-medium text-gray-700">Tanggal Melahirkan</label>
+                    <input type="date" name="tanggal_melahirkan" id="tanggal_melahirkan" value="{{ old('tanggal_melahirkan') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('tanggal_melahirkan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="tempat_persalinan" class="block text-sm font-medium text-gray-700">Tempat Persalinan</label>
+                    <input type="text" name="tempat_persalinan" id="tempat_persalinan" value="{{ old('tempat_persalinan') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('tempat_persalinan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="penolong_persalinan" class="block text-sm font-medium text-gray-700">Penolong Persalinan</label>
+                    <input type="text" name="penolong_persalinan" id="penolong_persalinan" value="{{ old('penolong_persalinan') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('penolong_persalinan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="cara_persalinan" class="block text-sm font-medium text-gray-700">Cara Persalinan</label>
+                    <input type="text" name="cara_persalinan" id="cara_persalinan" value="{{ old('cara_persalinan') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('cara_persalinan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="komplikasi" class="block text-sm font-medium text-gray-700">Komplikasi</label>
+                    <input type="text" name="komplikasi" id="komplikasi" value="{{ old('komplikasi') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('komplikasi')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="keadaan_bayi" class="block text-sm font-medium text-gray-700">Keadaan Bayi</label>
+                    <input type="text" name="keadaan_bayi" id="keadaan_bayi" value="{{ old('keadaan_bayi') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('keadaan_bayi')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="kb_pasca_salin" class="block text-sm font-medium text-gray-700">KB Pasca Salin</label>
+                    <input type="text" name="kb_pasca_salin" id="kb_pasca_salin" value="{{ old('kb_pasca_salin') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('kb_pasca_salin')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="kondisi_kesehatan" class="block text-sm font-medium text-gray-700">Kondisi Kesehatan</label>
+                    <select name="kondisi_kesehatan" id="kondisi_kesehatan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="" {{ old('kondisi_kesehatan') == '' ? 'selected' : '' }}>-- Pilih Kondisi --</option>
+                        <option value="Normal" {{ old('kondisi_kesehatan') == 'Normal' ? 'selected' : '' }}>Normal</option>
+                        <option value="Butuh Perhatian" {{ old('kondisi_kesehatan') == 'Butuh Perhatian' ? 'selected' : '' }}>Butuh Perhatian</option>
+                        <option value="Kritis" {{ old('kondisi_kesehatan') == 'Kritis' ? 'selected' : '' }}>Kritis</option>
+                    </select>
+                    @error('kondisi_kesehatan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="warna_kondisi" class="block text-sm font-medium text-gray-700">Warna Kondisi</label>
+                    <select name="warna_kondisi" id="warna_kondisi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="" {{ old('warna_kondisi') == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
+                        <option value="Hijau (success)" {{ old('warna_kondisi') == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
+                        <option value="Kuning (warning)" {{ old('warna_kondisi') == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
+                        <option value="Merah (danger)" {{ old('warna_kondisi') == 'Merah (danger)' ? 'selected' : '' }}>Merah (danger)</option>
+                    </select>
+                    @error('warna_kondisi')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="berat" class="block text-sm font-medium text-gray-700">Berat (kg)</label>
+                    <input type="number" name="berat" id="berat" value="{{ old('berat') }}" step="0.1" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    @error('berat')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="tinggi" class="block text-sm font-medium text-gray-700">Tinggi (cm)</label>
+                    <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" step="0.1" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    @error('tinggi')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <h3 class="text-lg font-semibold mt-6 mb-4">Data Bayi Baru Lahir</h3>
+                <div class="mb-4">
+                    <label for="bayi_umur_dalam_kandungan" class="block text-sm font-medium text-gray-700">Umur Dalam Kandungan</label>
+                    <input type="text" name="bayi[umur_dalam_kandungan]" id="bayi_umur_dalam_kandungan" value="{{ old('bayi.umur_dalam_kandungan') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('bayi.umur_dalam_kandungan')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="bayi_berat_badan_lahir" class="block text-sm font-medium text-gray-700">Berat Badan Lahir (kg)</label>
+                    <input type="text" name="bayi[berat_badan_lahir]" id="bayi_berat_badan_lahir" value="{{ old('bayi.berat_badan_lahir') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('bayi.berat_badan_lahir')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="bayi_panjang_badan_lahir" class="block text-sm font-medium text-gray-700">Panjang Badan Lahir (cm)</label>
+                    <input type="text" name="bayi[panjang_badan_lahir]" id="bayi_panjang_badan_lahir" value="{{ old('bayi.panjang_badan_lahir') }}" maxlength="255" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    @error('bayi.panjang_badan_lahir')
+                        <span class="text-red-600 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Simpan</button>
+                    <a href="{{ route('kelurahan.ibu_nifas.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Kembali</a>
+                </div>
+            </form>
+        @endif
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#ibu_id').select2({
-                placeholder: '-- Pilih Ibu --',
+            $('#ibu_id, #kondisi_kesehatan, #warna_kondisi').select2({
+                placeholder: function() {
+                    return $(this).attr('data-placeholder') || $(this).find('option:first').text();
+                },
                 allowClear: true
             });
 
-            $('#ibu_id').on('change', function() {
-                var source = $(this).find('option:selected').data('source');
-                $('#ibu_source').val(source);
+            $('#createIbuNifasForm').on('submit', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                Swal.fire({
+                    title: 'Simpan Data?',
+                    text: 'Apakah Anda yakin ingin menyimpan data ibu nifas ini?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3b82f6',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Simpan!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: form.attr('action'),
+                            method: 'POST',
+                            data: new FormData(form[0]),
+                            contentType: false,
+                            processData: false,
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Data ibu nifas berhasil ditambahkan.',
+                                    confirmButtonColor: '#3b82f6',
+                                }).then(() => {
+                                    window.location.href = '{{ route("kelurahan.ibu_nifas.index") }}';
+                                });
+                            },
+                            error: function(xhr) {
+                                let message = 'Gagal menambahkan data.';
+                                if (xhr.status === 419) {
+                                    message = 'Sesi Anda telah kedaluwarsa. Silakan muat ulang halaman.';
+                                } else if (xhr.status === 403) {
+                                    message = 'Anda tidak memiliki izin untuk menambahkan data ini.';
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    message = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: message,
+                                    confirmButtonColor: '#3b82f6',
+                                });
+                            }
+                        });
+                    }
+                });
             });
-
-            var initialSource = $('#ibu_id').find('option:selected').data('source');
-            if (initialSource) {
-                $('#ibu_source').val(initialSource);
-            }
         });
     </script>
 </body>

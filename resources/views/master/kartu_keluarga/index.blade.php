@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>Kelola Kartu Keluarga</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     @include('master.partials.sidebar')
@@ -69,6 +71,7 @@
                     <th class="p-4 text-left">Alamat</th>
                     <th class="p-4 text-left">Status</th>
                     <th class="p-4 text-left">Jumlah Balita</th>
+                    <th class="p-4 text-left">Nama Pengunggah</th>
                     <th class="p-4 text-left">Aksi</th>
                 </tr>
             </thead>
@@ -87,15 +90,20 @@
                         <td class="p-4">{{ $kartuKeluarga->alamat ?? '-' }}</td>
                         <td class="p-4">{{ $kartuKeluarga->status }}</td>
                         <td class="p-4">{{ $kartuKeluarga->balitas_count }}</td>
+                        <td class="p-4">{{ $kartuKeluarga->createdBy->name ?? '-' }}</td>
                         <td class="p-4">
                             <a href="{{ route('kartu_keluarga.show', $kartuKeluarga->id) }}" class="text-blue-500 hover:underline">Detail</a>
                             <a href="{{ route('kartu_keluarga.edit', $kartuKeluarga->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
-                            <button type="button" class="text-red-500 hover:underline ml-2" onclick="showDeleteModal('{{ route('kartu_keluarga.destroy', $kartuKeluarga->id) }}', '{{ $kartuKeluarga->no_kk }}')">Hapus</button>
+                            <form action="{{ route('kartu_keluarga.destroy', $kartuKeluarga->id) }}" method="POST" class="delete-form inline" data-name="{{ $kartuKeluarga->kepala_keluarga }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
+                            </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="p-4 text-center">Tidak ada data kartu keluarga yang sesuai dengan filter.</td>
+                        <td colspan="10" class="p-4 text-center">Tidak ada data kartu keluarga yang sesuai dengan filter.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -105,24 +113,9 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Hapus -->
-    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 class="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
-            <p class="mb-4">Apakah Anda yakin ingin menghapus kartu keluarga <span id="deleteName" class="font-bold"></span>?</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelDelete" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
-                <form id="deleteForm" method="POST" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Hapus</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
             // Initialize Select2
@@ -143,6 +136,9 @@
                     url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', initialKecamatanId),
                     type: 'GET',
                     dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(data) {
                         $('#kelurahan_id').empty();
                         $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
@@ -154,7 +150,12 @@
                     },
                     error: function(xhr) {
                         console.error('Error fetching kelurahans:', xhr);
-                        alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal memuat kelurahan. Silakan coba lagi.',
+                            confirmButtonColor: '#3b82f6',
+                        });
                     }
                 });
             }
@@ -167,6 +168,9 @@
                         url: '{{ route("kelurahans.by-kecamatan", ":kecamatan_id") }}'.replace(':kecamatan_id', kecamatanId),
                         type: 'GET',
                         dataType: 'json',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         success: function(data) {
                             $('#kelurahan_id').empty();
                             $('#kelurahan_id').append('<option value="">Pilih Kelurahan</option>');
@@ -177,7 +181,12 @@
                         },
                         error: function(xhr) {
                             console.error('Error fetching kelurahans:', xhr);
-                            alert('Gagal memuat kelurahan. Silakan coba lagi.');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Gagal memuat kelurahan. Silakan coba lagi.',
+                                confirmButtonColor: '#3b82f6',
+                            });
                         }
                     });
                 } else {
@@ -187,17 +196,60 @@
                 }
             });
 
-            // Delete modal
-            function showDeleteModal(url, name) {
-                document.getElementById('deleteModal').classList.remove('hidden');
-                document.getElementById('deleteName').textContent = name;
-                document.getElementById('deleteForm').action = url;
-            }
-
-            document.getElementById('cancelDelete').addEventListener('click', function() {
-                document.getElementById('deleteModal').classList.add('hidden');
+            // Delete confirmation with SweetAlert2
+            $('.delete-form').on('submit', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                const name = form.data('name');
+                Swal.fire({
+                    title: 'Hapus Kartu Keluarga?',
+                    text: `Apakah Anda yakin ingin menghapus kartu keluarga atas nama ${name}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: form.attr('action'),
+                            method: 'POST',
+                            data: form.serialize(),
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Data kartu keluarga berhasil dihapus.',
+                                    confirmButtonColor: '#3b82f6',
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let message = 'Gagal menghapus data kartu keluarga.';
+                                if (xhr.status === 419) {
+                                    message = 'Sesi Anda telah kedaluwarsa. Silakan muat ulang halaman.';
+                                } else if (xhr.status === 403) {
+                                    message = 'Anda tidak memiliki izin untuk menghapus data ini.';
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    message = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: message,
+                                    confirmButtonColor: '#3b82f6',
+                                });
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>
 </body>
-</html> 
+</html>
