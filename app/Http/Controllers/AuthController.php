@@ -138,7 +138,7 @@ class AuthController extends Controller
             }
 
             Log::info('User registered pending approval: ' . $request->email);
-            return redirect()->route('register')->with('success', 'Pendaftaran berhasil, menunggu verifikasi Master.');
+            return redirect()->route('register')->with('success', 'Pendaftaran berhasil, menunggu verifikasi Dinas PPKBD.');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {

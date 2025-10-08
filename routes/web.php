@@ -56,6 +56,8 @@ use App\Http\Controllers\PerangkatDaerahPetaGeospasialController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Models\DataRiset;
+use App\Models\PendingUser;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,6 +106,12 @@ Route::middleware('auth')->group(function () {
     */
     
     Route::middleware('role:master')->group(function () {
+
+        Route::get('/dashboard', function () {
+    $dataRisets = DataRiset::all();
+    $pendingCount = PendingUser::where('status', 'pending')->count();
+    return view('master.dashboard', compact('dataRisets', 'pendingCount'));
+})->name('dashboard');
         
         // User Verification
         Route::prefix('verifikasi-akun')->name('verifikasi.')->group(function () {

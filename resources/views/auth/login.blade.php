@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="icon" sizes="50x50" type="image/png" href="{{ asset('storage/images/logo1.png') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem Anda</title>
@@ -56,11 +57,8 @@
         <!-- Logo Area -->
         <div class="text-center mb-8">
             <!-- Template untuk logo - ganti dengan logo Anda -->
-            <div class="logo-placeholder">
-                Logo Anda<br>(80x80px)
-            </div>
+           <img src="{{ asset('storage/images/logo.png') }}" alt="Logo Perusahaan" class="mx-auto mb-4" style="width: 170px; height: auto;">
             <!-- <img src="/path/to/your/logo.png" alt="Logo" class="h-20 mx-auto mb-4"> -->
-            <h1 class="text-3xl font-bold text-gray-800">Nama Aplikasi</h1>
             <p class="text-gray-600 mt-2">Silakan masuk ke akun Anda</p>
         </div>
         

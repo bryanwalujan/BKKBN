@@ -1,171 +1,541 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Data Ibu Nifas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Ibu Nifas - Master Panel</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .bg-gradient-sidebar {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+        .kondisi-normal { background-color: #10b981; color: white; }
+        .kondisi-perhatian { background-color: #f59e0b; color: white; }
+        .kondisi-kritis { background-color: #ef4444; color: white; }
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 font-sans">
     @include('master.partials.sidebar')
-    <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Data Ibu Nifas</h2>
-        <div class="mb-4 flex space-x-4">
-            <form action="{{ route('ibu_nifas.index') }}" method="GET" class="flex items-center space-x-2">
-                <select name="category" class="border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="" {{ $category == '' ? 'selected' : '' }}>Semua Kondisi Kesehatan</option>
-                    <option value="Normal" {{ $category == 'Normal' ? 'selected' : '' }}>Normal</option>
-                    <option value="Butuh Perhatian" {{ $category == 'Butuh Perhatian' ? 'selected' : '' }}>Butuh Perhatian</option>
-                    <option value="Kritis" {{ $category == 'Kritis' ? 'selected' : '' }}>Kritis</option>
-                </select>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
-            </form>
-            <form action="{{ route('ibu_nifas.index') }}" method="GET" class="flex items-center space-x-2">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama, NIK, atau tempat persalinan" class="border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
-                @if ($search || $category)
-                    <a href="{{ route('ibu_nifas.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</a>
-                @endif
-            </form>
-            <a href="{{ route('ibu_nifas.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Ibu Nifas</a>
-            <a href="{{ route('bayi_baru_lahir.index') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Data Bayi Baru Lahir</a>
+    
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-female text-pink-600 mr-3"></i>
+                            Data Ibu Nifas
+                        </h1>
+                        <p class="text-gray-600 mt-1">Manajemen data ibu nifas dan kondisi kesehatan</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                            <i class="fas fa-database mr-1"></i>
+                            Total: {{ $ibuNifas->total() }} Data
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
-        @if ($category || $search)
-            <p class="mt-2 text-sm text-gray-600">
-                Menampilkan data
-                @if ($category)
-                    untuk kondisi kesehatan: {{ $category }}
-                @endif
-                @if ($search)
-                    dengan pencarian: "{{ $search }}"
-                @endif
-                ({{ $ibuNifas->total() }} data)
-            </p>
-        @else
-            <p class="mt-2 text-sm text-gray-600">Menampilkan semua data ibu nifas ({{ $ibuNifas->total() }} data)</p>
-        @endif
-        <div class="bg-white p-6 rounded shadow overflow-x-auto">
-            <table class="w-full bg-white shadow-md rounded border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-200 text-gray-700">
-                        <th class="p-4 text-left">No</th>
-                        <th class="p-4 text-left">Foto</th>
-                        <th class="p-4 text-left">Nama</th>
-                        <th class="p-4 text-left">Kelurahan</th>
-                        <th class="p-4 text-left">Kecamatan</th>
-                        <th class="p-4 text-left">Hari ke-Nifas</th>
-                        <th class="p-4 text-left">Tanggal Melahirkan</th>
-                        <th class="p-4 text-left">Tempat Persalinan</th>
-                        <th class="p-4 text-left">Penolong Persalinan</th>
-                        <th class="p-4 text-left">Cara Persalinan</th>
-                        <th class="p-4 text-left">Komplikasi</th>
-                        <th class="p-4 text-left">Keadaan Bayi</th>
-                        <th class="p-4 text-left">KB Pasca Salin</th>
-                        <th class="p-4 text-left">Kondisi Kesehatan</th>
-                        <th class="p-4 text-left">Warna Kondisi</th>
-                        <th class="p-4 text-left">Berat (kg)</th>
-                        <th class="p-4 text-left">Tinggi (cm)</th>
-                        <th class="p-4 text-left">Umur Dalam Kandungan</th>
-                        <th class="p-4 text-left">Berat Bayi (kg)</th>
-                        <th class="p-4 text-left">Panjang Bayi (cm)</th>
-                        <th class="p-4 text-left">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($ibuNifas as $index => $ibu)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-4">{{ $ibuNifas->firstItem() + $index }}</td>
-                            <td class="p-4">
-                                @if ($ibu->ibu->foto)
-                                    <img src="{{ Storage::url($ibu->ibu->foto) }}" alt="Foto Ibu Nifas" class="w-16 h-16 object-cover rounded">
-                                @else
-                                    <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
-                                @endif
-                            </td>
-                            <td class="p-4">{{ $ibu->ibu->nama }}</td>
-                            <td class="p-4">{{ $ibu->ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->hari_nifas }}</td>
-                            <td class="p-4">{{ $ibu->tanggal_melahirkan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->tempat_persalinan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->penolong_persalinan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->cara_persalinan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->komplikasi ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->keadaan_bayi ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->kb_pasca_salin ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->kondisi_kesehatan }}</td>
-                            <td class="p-4">
-                                <span class="inline-block px-2 py-1 rounded text-white
-                                    {{ $ibu->warna_kondisi == 'Hijau (success)' ? 'bg-green-500' : ($ibu->warna_kondisi == 'Kuning (warning)' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                    {{ $ibu->warna_kondisi }}
+
+        <!-- Content -->
+        <div class="p-8">
+            <!-- Alert Messages -->
+            @if (session('success'))
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center">
+                    <i class="fas fa-check-circle text-green-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="text-green-800 font-medium">{{ session('success') }}</p>
+                    </div>
+                    <button class="ml-auto text-green-600 hover:text-green-800" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center">
+                    <i class="fas fa-exclamation-circle text-red-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="text-red-800 font-medium">{{ session('error') }}</p>
+                    </div>
+                    <button class="ml-auto text-red-600 hover:text-red-800" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            @endif
+
+            <!-- Action Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Ibu Nifas</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $ibuNifas->total() }}</p>
+                        </div>
+                        <div class="p-3 bg-pink-50 rounded-lg">
+                            <i class="fas fa-female text-pink-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Kondisi Normal</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $ibuNifas->where('kondisi_kesehatan', 'Normal')->count() }}</p>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <i class="fas fa-heart text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Butuh Perhatian</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $ibuNifas->where('kondisi_kesehatan', 'Butuh Perhatian')->count() }}</p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('ibu_nifas.create') }}" class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
+                    <div class="flex items-center justify-between text-white">
+                        <div>
+                            <p class="text-sm font-medium opacity-90">Tambah Baru</p>
+                            <p class="text-lg font-bold mt-1 group-hover:translate-x-1 transition-transform">Data Ibu Nifas</p>
+                        </div>
+                        <div class="p-3 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-plus text-xl"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+                    Aksi Cepat
+                </h3>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ route('bayi_baru_lahir.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center">
+                        <i class="fas fa-baby mr-2"></i>
+                        Data Bayi Baru Lahir
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-filter text-blue-500 mr-2"></i>
+                        Filter Data
+                    </h3>
+                    @if ($category || $search)
+                        <a href="{{ route('ibu_nifas.index') }}" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
+                            <i class="fas fa-refresh mr-1"></i>
+                            Reset Filter
+                        </a>
+                    @endif
+                </div>
+
+                <form action="{{ route('ibu_nifas.index') }}" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-heartbeat mr-1 text-red-500"></i>
+                            Kondisi Kesehatan
+                        </label>
+                        <select name="category" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3">
+                            <option value="" {{ $category == '' ? 'selected' : '' }}>Semua Kondisi Kesehatan</option>
+                            <option value="Normal" {{ $category == 'Normal' ? 'selected' : '' }}>Normal</option>
+                            <option value="Butuh Perhatian" {{ $category == 'Butuh Perhatian' ? 'selected' : '' }}>Butuh Perhatian</option>
+                            <option value="Kritis" {{ $category == 'Kritis' ? 'selected' : '' }}>Kritis</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-search mr-1 text-purple-500"></i>
+                            Pencarian
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" name="search" value="{{ $search ?? '' }}" 
+                                   placeholder="Cari berdasarkan nama, NIK, atau tempat persalinan..." 
+                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center">
+                                <i class="fas fa-filter mr-2"></i>
+                                Terapkan
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Filter Info -->
+                @if ($category || $search)
+                    <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-center text-blue-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <span class="font-medium">Filter Aktif:</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            @if ($category)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Kondisi: {{ $category }}
+                                    <button onclick="removeFilter('category')" class="ml-1 hover:text-blue-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </span>
-                            </td>
-                            <td class="p-4">{{ $ibu->berat }}</td>
-                            <td class="p-4">{{ $ibu->tinggi }}</td>
-                            <td class="p-4">{{ $ibu->bayiBaruLahir->umur_dalam_kandungan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->bayiBaruLahir->berat_badan_lahir ?? '-' }}</td>
-                            <td class="p-4">{{ $ibu->bayiBaruLahir->panjang_badan_lahir ?? '-' }}</td>
-                            <td class="p-4 flex space-x-2">
-                                <a href="{{ route('ibu_nifas.edit', $ibu->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                <button type="button" class="text-red-500 hover:underline" onclick="showDeleteModal('{{ route('ibu_nifas.destroy', $ibu->id) }}', '{{ $ibu->ibu->nama }}')">Hapus</button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="21" class="p-4 text-center text-gray-500">Tidak ada data ibu nifas ditemukan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-4">
-            {{ $ibuNifas->links() }}
+                            @endif
+                            @if ($search)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    Pencarian: "{{ $search }}"
+                                    <button onclick="removeFilter('search')" class="ml-1 hover:text-purple-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div class="px-6 py-4 border-b bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-table mr-2 text-blue-500"></i>
+                            Data Ibu Nifas
+                        </h3>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Menampilkan {{ $ibuNifas->count() }} dari {{ $ibuNifas->total() }} data
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto table-responsive">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-hashtag mr-2"></i>
+                                        No
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-image mr-2"></i>
+                                        Foto
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user mr-2"></i>
+                                        Identitas
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-map-marked-alt mr-2"></i>
+                                        Lokasi
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        Persalinan
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-heartbeat mr-2"></i>
+                                        Kesehatan
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-baby mr-2"></i>
+                                        Data Bayi
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-cogs mr-2"></i>
+                                        Aksi
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($ibuNifas as $index => $ibu)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        {{ $ibuNifas->firstItem() + $index }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if ($ibu->ibu->foto)
+                                            <img src="{{ Storage::url($ibu->ibu->foto) }}" 
+                                                 alt="Foto {{ $ibu->ibu->nama }}" 
+                                                 class="w-16 h-16 object-cover rounded-lg shadow-sm cursor-pointer" 
+                                                 onclick="showImageModal('{{ Storage::url($ibu->ibu->foto) }}', '{{ $ibu->ibu->nama }}')">
+                                        @else
+                                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                                                <i class="fas fa-user-circle text-2xl"></i>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-female text-pink-600"></i>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $ibu->ibu->nama }}</div>
+                                                <div class="text-sm text-gray-500">{{ $ibu->ibu->nik ?? '-' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900">{{ $ibu->ibu->kecamatan->nama_kecamatan ?? '-' }}</div>
+                                        <div class="text-sm text-gray-500">{{ $ibu->ibu->kelurahan->nama_kelurahan ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm">
+                                            <div class="flex items-center text-gray-600 mb-1">
+                                                <i class="fas fa-calendar-day text-blue-500 mr-2 text-xs"></i>
+                                                Hari ke-{{ $ibu->hari_nifas }} Nifas
+                                            </div>
+                                            <div class="flex items-center text-gray-600 mb-1">
+                                                <i class="fas fa-baby text-green-500 mr-2 text-xs"></i>
+                                                {{ $ibu->tanggal_melahirkan ?? '-' }}
+                                            </div>
+                                            <div class="flex items-center text-gray-600">
+                                                <i class="fas fa-map-marker-alt text-purple-500 mr-2 text-xs"></i>
+                                                {{ $ibu->tempat_persalinan ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ $ibu->kondisi_kesehatan }}</div>
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                {{ $ibu->kondisi_kesehatan === 'Normal' ? 'kondisi-normal' : 
+                                                   ($ibu->kondisi_kesehatan === 'Butuh Perhatian' ? 'kondisi-perhatian' : 'kondisi-kritis') }}">
+                                                <i class="fas fa-heart mr-1 text-xs"></i>
+                                                {{ $ibu->warna_kondisi }}
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-500">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-weight mr-1"></i>
+                                                {{ $ibu->berat }} kg
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-ruler-vertical mr-1"></i>
+                                                {{ $ibu->tinggi }} cm
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if ($ibu->bayiBaruLahir)
+                                            <div class="text-sm">
+                                                <div class="flex items-center text-gray-600 mb-1">
+                                                    <i class="fas fa-weight text-blue-500 mr-2 text-xs"></i>
+                                                    {{ $ibu->bayiBaruLahir->berat_badan_lahir ?? '-' }} kg
+                                                </div>
+                                                <div class="flex items-center text-gray-600 mb-1">
+                                                    <i class="fas fa-ruler text-green-500 mr-2 text-xs"></i>
+                                                    {{ $ibu->bayiBaruLahir->panjang_badan_lahir ?? '-' }} cm
+                                                </div>
+                                                <div class="flex items-center text-gray-600">
+                                                    <i class="fas fa-clock text-purple-500 mr-2 text-xs"></i>
+                                                    {{ $ibu->bayiBaruLahir->umur_dalam_kandungan ?? '-' }} minggu
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-xs text-gray-400">Tidak ada data bayi</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('ibu_nifas.edit', $ibu->id) }}" 
+                                               class="text-blue-600 hover:text-blue-900 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50 delete-btn"
+                                                    data-id="{{ $ibu->id }}" 
+                                                    data-name="{{ $ibu->ibu->nama }}"
+                                                    title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="px-6 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center text-gray-400">
+                                            <i class="fas fa-inbox text-4xl mb-3"></i>
+                                            <p class="text-lg font-medium">Tidak ada data ditemukan</p>
+                                            <p class="text-sm mt-1">Coba ubah filter pencarian atau tambahkan data baru</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if ($ibuNifas->hasPages())
+                    <div class="px-6 py-4 border-t bg-gray-50">
+                        {{ $ibuNifas->links() }}
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Hapus -->
-    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 class="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
-            <p class="mb-4">Apakah Anda yakin ingin menghapus data ibu nifas <span id="deleteName" class="font-bold"></span>?</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelDelete" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
-                <button id="confirmDelete" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Ya, Lanjutkan</button>
-            </div>
-            <div id="secondConfirm" class="hidden mt-4">
-                <p class="mb-4 text-red-600">Konfirmasi sekali lagi: Data akan dihapus permanen. Lanjutkan?</p>
-                <div class="flex justify-end space-x-4">
-                    <button id="cancelSecondConfirm" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
-                    <form id="deleteForm" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Hapus Sekarang</button>
-                    </form>
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="max-w-4xl max-h-full p-4">
+            <div class="bg-white rounded-lg overflow-hidden">
+                <div class="p-4 bg-gray-100 flex justify-between items-center">
+                    <h3 id="modalTitle" class="text-lg font-semibold"></h3>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-4 flex justify-center">
+                    <img id="modalImage" src="" alt="" class="max-w-full max-h-96 object-contain">
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
-        function showDeleteModal(url, name) {
-            document.getElementById('deleteModal').classList.remove('hidden');
-            document.getElementById('deleteName').textContent = name;
-            document.getElementById('deleteForm').action = url;
-            document.getElementById('secondConfirm').classList.add('hidden');
-            document.getElementById('confirmDelete').classList.remove('hidden');
+        $(document).ready(function() {
+            // Delete confirmation dengan SweetAlert2 yang lebih modern
+            $('.delete-btn').on('click', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                const url = '{{ route("ibu_nifas.destroy", ":id") }}'.replace(':id', id);
+                
+                Swal.fire({
+                    title: 'Hapus Data Ibu Nifas?',
+                    html: `<div class="text-center">
+                             <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                             <p class="text-lg font-semibold text-gray-800">Apakah Anda yakin ingin menghapus?</p>
+                             <p class="text-gray-600 mt-2">Ibu Nifas: <strong>${name}</strong></p>
+                             <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan!</p>
+                           </div>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'px-4 py-2 rounded-lg',
+                        cancelButton: 'px-4 py-2 rounded-lg'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                _method: 'DELETE'
+                            },
+                            success: function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil Dihapus!',
+                                    text: 'Data ibu nifas berhasil dihapus.',
+                                    confirmButtonColor: '#10b981',
+                                    confirmButtonText: '<i class="fas fa-check mr-2"></i>Oke',
+                                    timer: 2000
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let message = 'Gagal menghapus data ibu nifas.';
+                                if (xhr.status === 419) {
+                                    message = 'Sesi Anda telah kedaluwarsa. Silakan muat ulang halaman.';
+                                } else if (xhr.status === 403) {
+                                    message = 'Anda tidak memiliki izin untuk menghapus data ini.';
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    message = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: message,
+                                    confirmButtonColor: '#3b82f6',
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Image modal functionality
+            window.showImageModal = function(src, name) {
+                document.getElementById('modalImage').src = src;
+                document.getElementById('modalTitle').textContent = 'Foto: ' + name;
+                document.getElementById('imageModal').classList.remove('hidden');
+            };
+
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('imageModal').classList.add('hidden');
+            });
+
+            document.getElementById('imageModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+        });
+
+        // Fungsi untuk menghapus filter individual
+        function removeFilter(filterName) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(filterName);
+            window.location.href = url.toString();
         }
-
-        document.getElementById('cancelDelete').addEventListener('click', function() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        });
-
-        document.getElementById('cancelSecondConfirm').addEventListener('click', function() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        });
-
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            document.getElementById('secondConfirm').classList.remove('hidden');
-            document.getElementById('confirmDelete').classList.add('hidden');
-        });
     </script>
 </body>
 </html>

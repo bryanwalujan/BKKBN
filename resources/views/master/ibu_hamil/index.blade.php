@@ -1,163 +1,495 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Data Ibu Hamil</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Ibu Hamil - Master Panel</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .bg-gradient-sidebar {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+        .status-sehat { background-color: #10b981; color: white; }
+        .status-waspada { background-color: #f59e0b; color: white; }
+        .status-berisiko { background-color: #ef4444; color: white; }
+        .trimester-1 { background-color: #3b82f6; color: white; }
+        .trimester-2 { background-color: #8b5cf6; color: white; }
+        .trimester-3 { background-color: #ec4899; color: white; }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 font-sans">
     @include('master.partials.sidebar')
-    <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Data Ibu Hamil</h2>
-        <div class="mb-4 flex space-x-4">
-            <form action="{{ route('ibu_hamil.index') }}" method="GET" class="flex items-center space-x-2">
-                <select name="category" class="border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="" {{ $category == '' ? 'selected' : '' }}>Semua Trimester</option>
-                    <option value="Trimester 1" {{ $category == 'Trimester 1' ? 'selected' : '' }}>Trimester 1</option>
-                    <option value="Trimester 2" {{ $category == 'Trimester 2' ? 'selected' : '' }}>Trimester 2</option>
-                    <option value="Trimester 3" {{ $category == 'Trimester 3' ? 'selected' : '' }}>Trimester 3</option>
-                </select>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
-            </form>
-            <form action="{{ route('ibu_hamil.index') }}" method="GET" class="flex items-center space-x-2">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama, NIK, atau riwayat penyakit" class="border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cari</button>
-                @if ($search || $category)
-                    <a href="{{ route('ibu_hamil.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Reset</a>
-                @endif
-            </form>
-            <a href="{{ route('ibu_hamil.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Ibu Hamil</a>
-        </div>
-        @if ($category || $search)
-            <p class="mt-2 text-sm text-gray-600">
-                Menampilkan data
-                @if ($category)
-                    untuk trimester: {{ $category }}
-                @endif
-                @if ($search)
-                    dengan pencarian: "{{ $search }}"
-                @endif
-                ({{ $totalData }} data)
-            </p>
-        @else
-            <p class="mt-2 text-sm text-gray-600">Menampilkan semua data ibu hamil ({{ $totalData }} data)</p>
-        @endif
-        <div class="bg-white p-6 rounded shadow overflow-x-auto">
-            <table class="w-full bg-white shadow-md rounded border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-200 text-gray-700">
-                        <th class="p-4 text-left">No</th>
-                        <th class="p-4 text-left">Foto</th>
-                        <th class="p-4 text-left">Nama</th>
-                        <th class="p-4 text-left">Kelurahan</th>
-                        <th class="p-4 text-left">Kecamatan</th>
-                        <th class="p-4 text-left">Trimester</th>
-                        <th class="p-4 text-left">Intervensi</th>
-                        <th class="p-4 text-left">Status Gizi</th>
-                        <th class="p-4 text-left">Warna Status Gizi</th>
-                        <th class="p-4 text-left">Usia Kehamilan (minggu)</th>
-                        <th class="p-4 text-left">Tinggi Fundus Uteri (cm)</th>
-                        <th class="p-4 text-left">IMT</th>
-                        <th class="p-4 text-left">Riwayat Penyakit</th>
-                        <th class="p-4 text-left">Kadar HB</th>
-                        <th class="p-4 text-left">Lingkar Kepala (cm)</th>
-                        <th class="p-4 text-left">Taksiran Berat Janin (gr)</th>
-                        <th class="p-4 text-left">Berat (kg)</th>
-                        <th class="p-4 text-left">Tinggi (cm)</th>
-                        <th class="p-4 text-left">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($ibuHamils as $index => $ibuHamil)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-4">{{ $index + 1 }}</td>
-                            <td class="p-4">
-                                @if ($ibuHamil->ibu->foto)
-                                    <img src="{{ Storage::url($ibuHamil->ibu->foto) }}" alt="Foto Ibu Hamil" class="w-16 h-16 object-cover rounded">
-                                @else
-                                    <i class="fas fa-user-circle text-gray-400 text-4xl"></i>
-                                @endif
-                            </td>
-                            <td class="p-4">{{ $ibuHamil->ibu->nama }}</td>
-                            <td class="p-4">{{ $ibuHamil->ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->trimester }}</td>
-                            <td class="p-4">{{ $ibuHamil->intervensi }}</td>
-                            <td class="p-4">{{ $ibuHamil->status_gizi }}</td>
-                            <td class="p-4">
-                                <span class="inline-block px-2 py-1 rounded text-white
-                                    {{ $ibuHamil->warna_status_gizi == 'Sehat' ? 'bg-green-500' : ($ibuHamil->warna_status_gizi == 'Waspada' ? 'bg-yellow-500' : 'bg-red-500') }}">
-                                    {{ $ibuHamil->warna_status_gizi }}
-                                </span>
-                            </td>
-                            <td class="p-4">{{ $ibuHamil->usia_kehamilan }}</td>
-                            <td class="p-4">{{ $ibuHamil->tinggi_fundus_uteri ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->imt ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->riwayat_penyakit ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->kadar_hb ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->lingkar_kepala ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->taksiran_berat_janin ?? '-' }}</td>
-                            <td class="p-4">{{ $ibuHamil->berat }}</td>
-                            <td class="p-4">{{ $ibuHamil->tinggi }}</td>
-                            <td class="p-4 flex space-x-2">
-                                <a href="{{ route('ibu_hamil.edit', $ibuHamil->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                <button type="button" class="text-red-500 hover:underline" onclick="showDeleteModal('{{ route('ibu_hamil.destroy', $ibuHamil->id) }}', '{{ $ibuHamil->ibu->nama }}')">Hapus</button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="19" class="p-4 text-center text-gray-500">Tidak ada data ibu hamil ditemukan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Modal Konfirmasi Hapus -->
-    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 class="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
-            <p class="mb-4">Apakah Anda yakin ingin menghapus data ibu hamil <span id="deleteName" class="font-bold"></span>?</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelDelete" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
-                <button id="confirmDelete" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Ya, Lanjutkan</button>
+    
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-person-pregnant text-pink-600 mr-3"></i>
+                            Data Ibu Hamil
+                        </h1>
+                        <p class="text-gray-600 mt-1">Manajemen data ibu hamil dan status kehamilan</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                            <i class="fas fa-database mr-1"></i>
+                            Total: {{ $totalData }} Data
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div id="secondConfirm" class="hidden mt-4">
-                <p class="mb-4 text-red-600">Konfirmasi sekali lagi: Data akan dihapus permanen. Lanjutkan?</p>
-                <div class="flex justify-end space-x-4">
-                    <button id="cancelSecondConfirm" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
-                    <form id="deleteForm" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Hapus Sekarang</button>
-                    </form>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            <!-- Alert Messages -->
+            @if (session('success'))
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center">
+                    <i class="fas fa-check-circle text-green-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="text-green-800 font-medium">{{ session('success') }}</p>
+                    </div>
+                    <button class="ml-auto text-green-600 hover:text-green-800" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center">
+                    <i class="fas fa-exclamation-circle text-red-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="text-red-800 font-medium">{{ session('error') }}</p>
+                    </div>
+                    <button class="ml-auto text-red-600 hover:text-red-800" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            @endif
+
+            <!-- Action Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Ibu Hamil</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalData }}</p>
+                        </div>
+                        <div class="p-3 bg-pink-50 rounded-lg">
+                            <i class="fas fa-person-pregnant text-pink-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Trimester 1</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $ibuHamils->where('trimester', 'Trimester 1')->count() }}</p>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-lg">
+                            <i class="fas fa-baby text-blue-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Trimester 2</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $ibuHamils->where('trimester', 'Trimester 2')->count() }}</p>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded-lg">
+                            <i class="fas fa-baby text-purple-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('ibu_hamil.create') }}" class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
+                    <div class="flex items-center justify-between text-white">
+                        <div>
+                            <p class="text-sm font-medium opacity-90">Tambah Baru</p>
+                            <p class="text-lg font-bold mt-1 group-hover:translate-x-1 transition-transform">Data Ibu Hamil</p>
+                        </div>
+                        <div class="p-3 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-plus text-xl"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-filter text-pink-500 mr-2"></i>
+                        Filter Data
+                    </h3>
+                    @if ($category || $search)
+                        <a href="{{ route('ibu_hamil.index') }}" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
+                            <i class="fas fa-refresh mr-1"></i>
+                            Reset Filter
+                        </a>
+                    @endif
+                </div>
+
+                <form action="{{ route('ibu_hamil.index') }}" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-1 text-blue-500"></i>
+                            Trimester
+                        </label>
+                        <select name="category" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-3">
+                            <option value="">Semua Trimester</option>
+                            <option value="Trimester 1" {{ $category == 'Trimester 1' ? 'selected' : '' }}>Trimester 1</option>
+                            <option value="Trimester 2" {{ $category == 'Trimester 2' ? 'selected' : '' }}>Trimester 2</option>
+                            <option value="Trimester 3" {{ $category == 'Trimester 3' ? 'selected' : '' }}>Trimester 3</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-search mr-1 text-purple-500"></i>
+                            Pencarian
+                        </label>
+                        <input type="text" name="search" value="{{ $search ?? '' }}" 
+                               placeholder="Cari Nama, NIK, atau riwayat penyakit..." 
+                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-3">
+                    </div>
+
+                    <div class="flex items-end">
+                        <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center w-full">
+                            <i class="fas fa-filter mr-2"></i>
+                            Terapkan Filter
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Filter Info -->
+                @if ($category || $search)
+                    <div class="mt-4 p-4 bg-pink-50 rounded-lg border border-pink-200">
+                        <div class="flex items-center text-pink-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <span class="font-medium">Filter Aktif:</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            @if ($category)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                                    Trimester: {{ $category }}
+                                    <button onclick="removeFilter('category')" class="ml-1 hover:text-pink-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </span>
+                            @endif
+                            @if ($search)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    Pencarian: "{{ $search }}"
+                                    <button onclick="removeFilter('search')" class="ml-1 hover:text-purple-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div class="px-6 py-4 border-b bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-table mr-2 text-pink-500"></i>
+                            Data Ibu Hamil
+                        </h3>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-list mr-1"></i>
+                            Menampilkan {{ $ibuHamils->count() }} dari {{ $totalData }} data
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-hashtag mr-2"></i>
+                                        No
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user mr-2"></i>
+                                        Identitas
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-map-marked-alt mr-2"></i>
+                                        Lokasi
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        Kehamilan
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-heartbeat mr-2"></i>
+                                        Status & Intervensi
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-2"></i>
+                                        Pengukuran
+                                    </div>
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-cogs mr-2"></i>
+                                        Aksi
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($ibuHamils as $index => $ibuHamil)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        {{ $index + 1 }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-12 w-12 bg-pink-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                                @if ($ibuHamil->ibu->foto)
+                                                    <img src="{{ Storage::url($ibuHamil->ibu->foto) }}" 
+                                                         alt="Foto {{ $ibuHamil->ibu->nama }}" 
+                                                         class="w-full h-full object-cover cursor-pointer"
+                                                         onclick="showImageModal('{{ Storage::url($ibuHamil->ibu->foto) }}', '{{ $ibuHamil->ibu->nama }}')">
+                                                @else
+                                                    <i class="fas fa-user-circle text-pink-500 text-xl"></i>
+                                                @endif
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $ibuHamil->ibu->nama }}</div>
+                                                <div class="text-sm text-gray-500">{{ $ibuHamil->ibu->nik ?? '-' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900">{{ $ibuHamil->ibu->kecamatan->nama_kecamatan ?? '-' }}</div>
+                                        <div class="text-sm text-gray-500">{{ $ibuHamil->ibu->kelurahan->nama_kelurahan ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $ibuHamil->usia_kehamilan }} minggu
+                                        </div>
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                {{ $ibuHamil->trimester === 'Trimester 1' ? 'trimester-1' : 
+                                                   ($ibuHamil->trimester === 'Trimester 2' ? 'trimester-2' : 'trimester-3') }}">
+                                                <i class="fas fa-baby mr-1 text-xs"></i>
+                                                {{ $ibuHamil->trimester }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="mb-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                {{ $ibuHamil->warna_status_gizi == 'Sehat' ? 'status-sehat' : 
+                                                   ($ibuHamil->warna_status_gizi == 'Waspada' ? 'status-waspada' : 'status-berisiko') }}">
+                                                <i class="fas fa-heartbeat mr-1 text-xs"></i>
+                                                {{ $ibuHamil->status_gizi }}
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            <i class="fas fa-stethoscope mr-1 text-xs"></i>
+                                            {{ $ibuHamil->intervensi }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm">
+                                            <div class="flex items-center text-gray-600 mb-1">
+                                                <i class="fas fa-weight text-blue-500 mr-2 text-xs"></i>
+                                                {{ $ibuHamil->berat }} kg
+                                            </div>
+                                            <div class="flex items-center text-gray-600 mb-1">
+                                                <i class="fas fa-ruler text-green-500 mr-2 text-xs"></i>
+                                                {{ $ibuHamil->tinggi }} cm
+                                            </div>
+                                            <div class="flex items-center text-gray-600">
+                                                <i class="fas fa-calculator text-purple-500 mr-2 text-xs"></i>
+                                                IMT: {{ $ibuHamil->imt ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('ibu_hamil.edit', $ibuHamil->id) }}" 
+                                               class="text-blue-600 hover:text-blue-900 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50 delete-btn"
+                                                    data-id="{{ $ibuHamil->id }}" 
+                                                    data-name="{{ $ibuHamil->ibu->nama }}"
+                                                    title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center text-gray-400">
+                                            <i class="fas fa-inbox text-4xl mb-3"></i>
+                                            <p class="text-lg font-medium">Tidak ada data ditemukan</p>
+                                            <p class="text-sm mt-1">Coba ubah filter pencarian atau tambahkan data baru</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="max-w-4xl max-h-full p-4">
+            <div class="bg-white rounded-lg overflow-hidden">
+                <div class="p-4 bg-gray-100 flex justify-between items-center">
+                    <h3 id="modalTitle" class="text-lg font-semibold"></h3>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-4 flex justify-center">
+                    <img id="modalImage" src="" alt="" class="max-w-full max-h-96 object-contain">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
-        function showDeleteModal(url, name) {
-            document.getElementById('deleteModal').classList.remove('hidden');
-            document.getElementById('deleteName').textContent = name;
-            document.getElementById('deleteForm').action = url;
-            document.getElementById('secondConfirm').classList.add('hidden');
-            document.getElementById('confirmDelete').classList.remove('hidden');
+        $(document).ready(function() {
+            // Delete confirmation dengan SweetAlert2 yang lebih modern
+            $('.delete-btn').on('click', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                const url = '{{ route("ibu_hamil.destroy", ":id") }}'.replace(':id', id);
+                
+                Swal.fire({
+                    title: 'Hapus Data Ibu Hamil?',
+                    html: `<div class="text-center">
+                             <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                             <p class="text-lg font-semibold text-gray-800">Apakah Anda yakin ingin menghapus?</p>
+                             <p class="text-gray-600 mt-2">Ibu Hamil: <strong>${name}</strong></p>
+                             <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan!</p>
+                           </div>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'px-4 py-2 rounded-lg',
+                        cancelButton: 'px-4 py-2 rounded-lg'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                _method: 'DELETE'
+                            },
+                            success: function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil Dihapus!',
+                                    text: 'Data ibu hamil berhasil dihapus.',
+                                    confirmButtonColor: '#10b981',
+                                    confirmButtonText: '<i class="fas fa-check mr-2"></i>Oke',
+                                    timer: 2000
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let message = 'Gagal menghapus data ibu hamil.';
+                                if (xhr.status === 419) {
+                                    message = 'Sesi Anda telah kedaluwarsa. Silakan muat ulang halaman.';
+                                } else if (xhr.status === 403) {
+                                    message = 'Anda tidak memiliki izin untuk menghapus data ini.';
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    message = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: message,
+                                    confirmButtonColor: '#3b82f6',
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Image modal functionality
+            window.showImageModal = function(src, name) {
+                document.getElementById('modalImage').src = src;
+                document.getElementById('modalTitle').textContent = 'Foto: ' + name;
+                document.getElementById('imageModal').classList.remove('hidden');
+            };
+
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('imageModal').classList.add('hidden');
+            });
+
+            document.getElementById('imageModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+        });
+
+        // Fungsi untuk menghapus filter individual
+        function removeFilter(filterName) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(filterName);
+            window.location.href = url.toString();
         }
-
-        document.getElementById('cancelDelete').addEventListener('click', function() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        });
-
-        document.getElementById('cancelSecondConfirm').addEventListener('click', function() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        });
-
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            document.getElementById('secondConfirm').classList.remove('hidden');
-            document.getElementById('confirmDelete').classList.add('hidden');
-        });
     </script>
 </body>
 </html>
