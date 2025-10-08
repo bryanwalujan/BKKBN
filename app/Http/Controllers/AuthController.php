@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kelurahan;
 use App\Models\PendingUser;
+use App\Models\DataRiset;
 use App\Models\User;
 use App\Models\Template;
 use Illuminate\Http\Request;
@@ -138,7 +139,7 @@ class AuthController extends Controller
             }
 
             Log::info('User registered pending approval: ' . $request->email);
-            return redirect()->route('register')->with('success', 'Pendaftaran berhasil, menunggu verifikasi Dinas PPKBD.');
+            return redirect()->route('register')->with('success', 'Pendaftaran berhasil, menunggu verifikasi Master.');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
@@ -160,13 +161,15 @@ class AuthController extends Controller
         return redirect()->back()->with('error', 'Template tidak ditemukan.');
     }
 
-    public function dashboard()
+     public function dashboard()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if ($user->isMaster()) {
-            return view('master.dashboard');
-        } elseif ($user->isAdminKecamatan()) {
-            return view('kecamatan.dashboard');
+            // Ambil data riset untuk master
+           $dataRisets = DataRiset::where('is_realtime', true)->get();
+        $pendingCount = PendingUser::where('status', 'pending')->count();
+
+            return view('master.dashboard', compact('dataRisets','pendingCount'));
         } elseif ($user->isAdminKelurahan()) {
             return view('kelurahan.dashboard');
         } else {

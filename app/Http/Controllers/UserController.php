@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $roles = ['master', 'admin_kecamatan', 'admin_kelurahan', 'perangkat_daerah'];
+        $roles = ['master', 'admin_kelurahan', 'perangkat_daerah'];
         $role = $request->query('role', '');
         $kecamatan_id = $request->query('kecamatan_id', '');
         $kelurahan_id = $request->query('kelurahan_id', '');
@@ -53,7 +53,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', 'in:master,admin_kecamatan,admin_kelurahan,perangkat_daerah'],
+            'role' => ['required', 'in:master,admin_kelurahan,perangkat_daerah'],
             'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
             'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
             'penanggung_jawab' => ['nullable', 'string', 'max:255'],
@@ -77,7 +77,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $roles = ['master', 'admin_kecamatan', 'admin_kelurahan', 'perangkat_daerah'];
+        $roles = ['master', 'admin_kelurahan', 'perangkat_daerah'];
         $kecamatans = Kecamatan::all();
         $kelurahans = Kelurahan::all();
 
@@ -92,7 +92,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'string', 'min:8'],
-            'role' => ['required', 'in:master,admin_kecamatan,admin_kelurahan,perangkat_daerah'],
+            'role' => ['required', 'in:master,admin_kelurahan,perangkat_daerah'],
             'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
             'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
             'penanggung_jawab' => ['nullable', 'string', 'max:255'],

@@ -11,10 +11,6 @@
         <h2 class="text-2xl font-semibold mb-4">Data Penduduk</h2>
         <div class="flex space-x-4 mb-4">
             <a href="{{ route('data_penduduk.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Penduduk</a>
-            <form action="{{ route('data_penduduk.refresh') }}" method="POST">
-                @csrf
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Refresh Data Realtime</button>
-            </form>
             <form action="{{ route('data_penduduk.index') }}" method="GET" class="flex space-x-2">
                 <input type="text" name="tahun" placeholder="Cari Tahun" value="{{ $tahun }}" class="border-gray-300 rounded-md shadow-sm">
                 <button type="submit" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Tampilkan</button>
@@ -47,13 +43,6 @@
                         <td class="p-4">{{ $dataPenduduks->firstItem() + $index }}</td>
                         <td class="p-4">{{ $dataPenduduk->tahun }}</td>
                         <td class="p-4">{{ $dataPenduduk->jumlah_penduduk }}</td>
-                        <td class="p-4">
-                            @if (isset($dataRiset['Jumlah Penduduk']) && $dataRiset['Jumlah Penduduk'] == $dataPenduduk->jumlah_penduduk)
-                                {{ $dataRiset['Jumlah Penduduk'] }} (Realtime)
-                            @else
-                                Manual
-                            @endif
-                        </td>
                         <td class="p-4">{{ $dataPenduduk->urutan }}</td>
                         <td class="p-4">{{ $dataPenduduk->status_aktif ? 'Aktif' : 'Non-Aktif' }}</td>
                         <td class="p-4">{{ $dataPenduduk->tanggal_update->format('d/m/Y H:i') }}</td>

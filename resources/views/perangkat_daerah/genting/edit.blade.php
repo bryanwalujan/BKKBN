@@ -1,192 +1,497 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Kegiatan Genting - Perangkat Daerah</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .form-section-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
+        }
+        .form-section-body {
+            padding: 1.5rem;
+        }
+        .pihak-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .pihak-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+        .pihak-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .pihak-card-header i {
+            margin-right: 0.5rem;
+            color: #3b82f6;
+        }
+        .pihak-card-title {
+            font-weight: 600;
+            color: #374151;
+        }
+        .error-alert {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 font-sans">
     @include('perangkat_daerah.partials.sidebar')
-    <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Edit Kegiatan Genting - Kecamatan {{ $kecamatan->nama_kecamatan }}</h2>
-        @if (session('error'))
-            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
-                {{ session('error') }}
-            </div>
-        @endif
-        @if ($errors->any())
-            <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        <form action="{{ route('perangkat_daerah.genting.update', $genting->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-            @csrf
-            @method('PUT')
-            <div>
-                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700">Kartu Keluarga</label>
-                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                    <option value="">Pilih Kartu Keluarga</option>
-                    @foreach ($kartuKeluargas as $kk)
-                        <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $genting->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
-                    @endforeach
-                </select>
-                @error('kartu_keluarga_id')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="nama_kegiatan" class="block text-sm font-medium text-gray-700">Nama Kegiatan</label>
-                <input type="text" name="nama_kegiatan" id="nama_kegiatan" value="{{ old('nama_kegiatan', $genting->nama_kegiatan) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                @error('nama_kegiatan')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
-                <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal', $genting->tanggal ? $genting->tanggal->format('Y-m-d') : '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                @error('tanggal')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="lokasi" class="block text-sm font-medium text-gray-700">Lokasi</label>
-                <input type="text" name="lokasi" id="lokasi" value="{{ old('lokasi', $genting->lokasi) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                @error('lokasi')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="sasaran" class="block text-sm font-medium text-gray-700">Sasaran</label>
-                <input type="text" name="sasaran" id="sasaran" value="{{ old('sasaran', $genting->sasaran) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                @error('sasaran')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="jenis_intervensi" class="block text-sm font-medium text-gray-700">Jenis Intervensi</label>
-                <input type="text" name="jenis_intervensi" id="jenis_intervensi" value="{{ old('jenis_intervensi', $genting->jenis_intervensi) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                @error('jenis_intervensi')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="narasi" class="block text-sm font-medium text-gray-700">Narasi</label>
-                <textarea name="narasi" id="narasi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" rows="4">{{ old('narasi', $genting->narasi) }}</textarea>
-                @error('narasi')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div>
-                <label for="dokumentasi" class="block text-sm font-medium text-gray-700">Dokumentasi (Maks. 7MB)</label>
-                <input type="file" name="dokumentasi" id="dokumentasi" accept="image/*" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                @if ($genting->dokumentasi)
-                    <p class="mt-2 text-sm text-gray-600">Dokumentasi saat ini: <a href="{{ Storage::url($genting->dokumentasi) }}" target="_blank" class="text-blue-500 hover:underline">Lihat file</a></p>
-                @endif
-                @error('dokumentasi')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Dunia Usaha</label>
-                    <select name="dunia_usaha" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('dunia_usaha', $genting->dunia_usaha) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('dunia_usaha', $genting->dunia_usaha) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="dunia_usaha_frekuensi" value="{{ old('dunia_usaha_frekuensi', $genting->dunia_usaha_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Pemerintah</label>
-                    <select name="pemerintah" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('pemerintah', $genting->pemerintah) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('pemerintah', $genting->pemerintah) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="pemerintah_frekuensi" value="{{ old('pemerintah_frekuensi', $genting->pemerintah_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">BUMN dan BUMD</label>
-                    <select name="bumn_bumd" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('bumn_bumd', $genting->bumn_bumd) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('bumn_bumd', $genting->bumn_bumd) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="bumn_bumd_frekuensi" value="{{ old('bumn_bumd_frekuensi', $genting->bumn_bumd_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Individu dan Perseorangan</label>
-                    <select name="individu_perseorangan" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('individu_perseorangan', $genting->individu_perseorangan) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('individu_perseorangan', $genting->individu_perseorangan) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="individu_perseorangan_frekuensi" value="{{ old('individu_perseorangan_frekuensi', $genting->individu_perseorangan_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">LSM dan Komunitas</label>
-                    <select name="lsm_komunitas" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('lsm_komunitas', $genting->lsm_komunitas) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('lsm_komunitas', $genting->lsm_komunitas) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="lsm_komunitas_frekuensi" value="{{ old('lsm_komunitas_frekuensi', $genting->lsm_komunitas_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Swasta</label>
-                    <select name="swasta" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('swasta', $genting->swasta) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('swasta', $genting->swasta) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="swasta_frekuensi" value="{{ old('swasta_frekuensi', $genting->swasta_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Perguruan Tinggi dan Akademisi</label>
-                    <select name="perguruan_tinggi_akademisi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('perguruan_tinggi_akademisi', $genting->perguruan_tinggi_akademisi) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('perguruan_tinggi_akademisi', $genting->perguruan_tinggi_akademisi) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="perguruan_tinggi_akademisi_frekuensi" value="{{ old('perguruan_tinggi_akademisi_frekuensi', $genting->perguruan_tinggi_akademisi_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Media</label>
-                    <select name="media" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('media', $genting->media) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('media', $genting->media) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="media_frekuensi" value="{{ old('media_frekuensi', $genting->media_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Tim Pendamping Keluarga</label>
-                    <select name="tim_pendamping_keluarga" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('tim_pendamping_keluarga', $genting->tim_pendamping_keluarga) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('tim_pendamping_keluarga', $genting->tim_pendamping_keluarga) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="tim_pendamping_keluarga_frekuensi" value="{{ old('tim_pendamping_keluarga_frekuensi', $genting->tim_pendamping_keluarga_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Tokoh Masyarakat</label>
-                    <select name="tokoh_masyarakat" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Tidak</option>
-                        <option value="ada" {{ old('tokoh_masyarakat', $genting->tokoh_masyarakat) == 'ada' ? 'selected' : '' }}>Ada</option>
-                        <option value="tidak" {{ old('tokoh_masyarakat', $genting->tokoh_masyarakat) == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                    </select>
-                    <input type="text" name="tokoh_masyarakat_frekuensi" value="{{ old('tokoh_masyarakat_frekuensi', $genting->tokoh_masyarakat_frekuensi) }}" placeholder="Frekuensi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+    
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-edit text-blue-600 mr-3"></i>
+                            Edit Kegiatan Genting
+                        </h1>
+                        <p class="text-gray-600 mt-1">Kecamatan {{ $kecamatan->nama_kecamatan }}</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <a href="{{ route('perangkat_daerah.genting.index') }}" 
+                           class="text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors flex items-center">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Kembali ke Daftar
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="flex space-x-4">
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Simpan</button>
-                <a href="{{ route('perangkat_daerah.genting.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</a>
-            </div>
-        </form>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            @if (session('error'))
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center error-alert">
+                    <i class="fas fa-exclamation-circle text-red-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="text-red-800 font-medium">{{ session('error') }}</p>
+                    </div>
+                    <button class="ml-auto text-red-600 hover:text-red-800" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center error-alert">
+                    <i class="fas fa-exclamation-circle text-red-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="text-red-800 font-medium">Terdapat kesalahan dalam pengisian form:</p>
+                        <ul class="mt-1 list-disc list-inside text-red-700">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <button class="ml-auto text-red-600 hover:text-red-800" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            @endif
+
+            <form action="{{ route('perangkat_daerah.genting.update', $genting->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                
+                <!-- Informasi Dasar Kegiatan -->
+                <div class="form-section card-hover">
+                    <div class="form-section-header">
+                        <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            Informasi Dasar Kegiatan
+                        </h2>
+                        <p class="text-sm text-gray-600 mt-1">Perbarui informasi dasar tentang kegiatan genting</p>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="kartu_keluarga_id" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-id-card text-purple-500 mr-2 text-xs"></i>
+                                    Kartu Keluarga
+                                </label>
+                                <div class="relative">
+                                    <select name="kartu_keluarga_id" id="kartu_keluarga_id" 
+                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
+                                            required>
+                                        <option value="">-- Pilih Kartu Keluarga --</option>
+                                        @foreach ($kartuKeluargas as $kk)
+                                            <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $genting->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>
+                                                {{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('kartu_keluarga_id')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="nama_kegiatan" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-tasks text-green-500 mr-2 text-xs"></i>
+                                    Nama Kegiatan
+                                </label>
+                                <div class="relative">
+                                    <input type="text" name="nama_kegiatan" id="nama_kegiatan" 
+                                           value="{{ old('nama_kegiatan', $genting->nama_kegiatan) }}" 
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
+                                           placeholder="Masukkan nama kegiatan" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-pen text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('nama_kegiatan')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-calendar-alt text-red-500 mr-2 text-xs"></i>
+                                    Tanggal
+                                </label>
+                                <div class="relative">
+                                    <input type="date" name="tanggal" id="tanggal" 
+                                           value="{{ old('tanggal', $genting->tanggal ? $genting->tanggal->format('Y-m-d') : '') }}" 
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
+                                           required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('tanggal')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-map-marker-alt text-yellow-500 mr-2 text-xs"></i>
+                                    Lokasi
+                                </label>
+                                <div class="relative">
+                                    <input type="text" name="lokasi" id="lokasi" value="{{ old('lokasi', $genting->lokasi) }}" 
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
+                                           placeholder="Masukkan lokasi kegiatan" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-location-dot text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('lokasi')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="sasaran" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-bullseye text-indigo-500 mr-2 text-xs"></i>
+                                    Sasaran
+                                </label>
+                                <div class="relative">
+                                    <input type="text" name="sasaran" id="sasaran" value="{{ old('sasaran', $genting->sasaran) }}" 
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
+                                           placeholder="Masukkan sasaran kegiatan" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-users text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('sasaran')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="jenis_intervensi" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-hand-holding-heart text-pink-500 mr-2 text-xs"></i>
+                                    Jenis Intervensi
+                                </label>
+                                <div class="relative">
+                                    <input type="text" name="jenis_intervensi" id="jenis_intervensi" 
+                                           value="{{ old('jenis_intervensi', $genting->jenis_intervensi) }}" 
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
+                                           placeholder="Masukkan jenis intervensi" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-hands-helping text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('jenis_intervensi')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deskripsi Kegiatan -->
+                <div class="form-section card-hover">
+                    <div class="form-section-header">
+                        <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-align-left text-green-500 mr-2"></i>
+                            Deskripsi Kegiatan
+                        </h2>
+                        <p class="text-sm text-gray-600 mt-1">Perbarui narasi dan dokumentasi kegiatan</p>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="narasi" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-file-text text-blue-500 mr-2 text-xs"></i>
+                                    Narasi Kegiatan
+                                </label>
+                                <textarea name="narasi" id="narasi" rows="5"
+                                          class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
+                                          placeholder="Masukkan narasi lengkap tentang kegiatan">{{ old('narasi', $genting->narasi) }}</textarea>
+                                @error('narasi')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="dokumentasi" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-camera text-purple-500 mr-2 text-xs"></i>
+                                    Dokumentasi (Maks. 7MB)
+                                </label>
+                                <div class="relative">
+                                    <input type="file" name="dokumentasi" id="dokumentasi" 
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
+                                           accept="image/*">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-image text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @if ($genting->dokumentasi)
+                                    <p class="mt-2 text-sm text-gray-600 flex items-center">
+                                        <i class="fas fa-file-image text-green-500 mr-2"></i>
+                                        Dokumentasi saat ini: 
+                                        <a href="{{ Storage::url($genting->dokumentasi) }}" target="_blank" 
+                                           class="text-blue-500 hover:underline ml-1 flex items-center">
+                                            <i class="fas fa-external-link-alt mr-1"></i>
+                                            Lihat file
+                                        </a>
+                                    </p>
+                                @endif
+                                <p class="mt-1 text-sm text-gray-500">Format yang didukung: JPG, PNG, GIF. Maksimal 7MB.</p>
+                                @error('dokumentasi')
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pihak Terlibat -->
+                <div class="form-section card-hover">
+                    <div class="form-section-header">
+                        <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-users text-orange-500 mr-2"></i>
+                            Pihak Terlibat
+                        </h2>
+                        <p class="text-sm text-gray-600 mt-1">Perbarui pihak-pihak yang terlibat dalam kegiatan</p>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="pihak-grid">
+                            @php
+                                $pihakIcons = [
+                                    'dunia_usaha' => 'fas fa-building',
+                                    'pemerintah' => 'fas fa-landmark',
+                                    'bumn_bumd' => 'fas fa-industry',
+                                    'individu_perseorangan' => 'fas fa-user',
+                                    'lsm_komunitas' => 'fas fa-hands-helping',
+                                    'swasta' => 'fas fa-briefcase',
+                                    'perguruan_tinggi_akademisi' => 'fas fa-graduation-cap',
+                                    'media' => 'fas fa-newspaper',
+                                    'tim_pendamping_keluarga' => 'fas fa-user-friends',
+                                    'tokoh_masyarakat' => 'fas fa-user-tie'
+                                ];
+
+                                $pihakData = [
+                                    'dunia_usaha' => [
+                                        'value' => old('dunia_usaha', $genting->dunia_usaha),
+                                        'frekuensi' => old('dunia_usaha_frekuensi', $genting->dunia_usaha_frekuensi)
+                                    ],
+                                    'pemerintah' => [
+                                        'value' => old('pemerintah', $genting->pemerintah),
+                                        'frekuensi' => old('pemerintah_frekuensi', $genting->pemerintah_frekuensi)
+                                    ],
+                                    'bumn_bumd' => [
+                                        'value' => old('bumn_bumd', $genting->bumn_bumd),
+                                        'frekuensi' => old('bumn_bumd_frekuensi', $genting->bumn_bumd_frekuensi)
+                                    ],
+                                    'individu_perseorangan' => [
+                                        'value' => old('individu_perseorangan', $genting->individu_perseorangan),
+                                        'frekuensi' => old('individu_perseorangan_frekuensi', $genting->individu_perseorangan_frekuensi)
+                                    ],
+                                    'lsm_komunitas' => [
+                                        'value' => old('lsm_komunitas', $genting->lsm_komunitas),
+                                        'frekuensi' => old('lsm_komunitas_frekuensi', $genting->lsm_komunitas_frekuensi)
+                                    ],
+                                    'swasta' => [
+                                        'value' => old('swasta', $genting->swasta),
+                                        'frekuensi' => old('swasta_frekuensi', $genting->swasta_frekuensi)
+                                    ],
+                                    'perguruan_tinggi_akademisi' => [
+                                        'value' => old('perguruan_tinggi_akademisi', $genting->perguruan_tinggi_akademisi),
+                                        'frekuensi' => old('perguruan_tinggi_akademisi_frekuensi', $genting->perguruan_tinggi_akademisi_frekuensi)
+                                    ],
+                                    'media' => [
+                                        'value' => old('media', $genting->media),
+                                        'frekuensi' => old('media_frekuensi', $genting->media_frekuensi)
+                                    ],
+                                    'tim_pendamping_keluarga' => [
+                                        'value' => old('tim_pendamping_keluarga', $genting->tim_pendamping_keluarga),
+                                        'frekuensi' => old('tim_pendamping_keluarga_frekuensi', $genting->tim_pendamping_keluarga_frekuensi)
+                                    ],
+                                    'tokoh_masyarakat' => [
+                                        'value' => old('tokoh_masyarakat', $genting->tokoh_masyarakat),
+                                        'frekuensi' => old('tokoh_masyarakat_frekuensi', $genting->tokoh_masyarakat_frekuensi)
+                                    ]
+                                ];
+                            @endphp
+                            @foreach (['dunia_usaha', 'pemerintah', 'bumn_bumd', 'individu_perseorangan', 'lsm_komunitas', 'swasta', 'perguruan_tinggi_akademisi', 'media', 'tim_pendamping_keluarga', 'tokoh_masyarakat'] as $pihak)
+                                <div class="pihak-card">
+                                    <div class="pihak-card-header">
+                                        <i class="{{ $pihakIcons[$pihak] }}"></i>
+                                        <span class="pihak-card-title">{{ ucwords(str_replace('_', ' ', $pihak)) }}</span>
+                                    </div>
+                                    <div>
+                                        <select name="{{ $pihak }}" id="{{ $pihak }}" 
+                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 pihak-select">
+                                            <option value="">-- Pilih Status --</option>
+                                            <option value="ada" {{ $pihakData[$pihak]['value'] == 'ada' ? 'selected' : '' }}>Ada</option>
+                                            <option value="tidak" {{ $pihakData[$pihak]['value'] == 'tidak' ? 'selected' : '' }}>Tidak</option>
+                                        </select>
+                                        @error($pihak)
+                                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                        <div class="mt-2 {{ $pihakData[$pihak]['value'] == 'ada' ? '' : 'hidden' }}" id="{{ $pihak }}_frekuensi_container">
+                                            <label for="{{ $pihak }}_frekuensi" class="block text-sm font-medium text-gray-700 mb-1">Frekuensi</label>
+                                            <input type="text" name="{{ $pihak }}_frekuensi" id="{{ $pihak }}_frekuensi" 
+                                                   value="{{ $pihakData[$pihak]['frekuensi'] }}" 
+                                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                                                   placeholder="kali per minggu/bulan">
+                                            @error($pihak . '_frekuensi')
+                                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                                    {{ $message }}
+                                                </p>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-6">
+                    <a href="{{ route('perangkat_daerah.genting.index') }}" 
+                       class="flex items-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Kembali ke Daftar
+                    </a>
+                    <div class="flex space-x-3">
+                        <button type="reset" 
+                                class="flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors card-hover">
+                            <i class="fas fa-undo mr-2"></i>
+                            Reset Form
+                        </button>
+                        <button type="submit" 
+                                class="flex items-center px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors card-hover">
+                            <i class="fas fa-save mr-2"></i>
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle frekuensi input berdasarkan pilihan pihak
+            document.querySelectorAll('.pihak-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const container = document.getElementById(this.id + '_frekuensi_container');
+                    if (this.value === 'ada') {
+                        container.classList.remove('hidden');
+                    } else {
+                        container.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Inisialisasi status frekuensi berdasarkan data lama
+            document.querySelectorAll('.pihak-select').forEach(select => {
+                const container = document.getElementById(select.id + '_frekuensi_container');
+                if (select.value === 'ada') {
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

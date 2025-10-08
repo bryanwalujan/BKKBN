@@ -1,523 +1,1087 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Detail Kartu Keluarga</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Kartu Keluarga - Admin Kelurahan</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .status-active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .status-inactive {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 500;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            color: #111827;
+            font-weight: 500;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-pink {
+            background-color: #fce7f3;
+            color: #be185d;
+        }
+        .badge-purple {
+            background-color: #f3e8ff;
+            color: #7c3aed;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+        .table-header {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .table-row {
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s;
+        }
+        .table-row:hover {
+            background-color: #f9fafb;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .action-btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .action-btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .action-btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .action-btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .action-btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .action-btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            margin-right: 8px;
+        }
+        .section-content {
+            padding: 24px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+        }
+        .avatar-pink {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+        .avatar-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .avatar-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        .avatar-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        .avatar-yellow {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .avatar-indigo {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+        .intervention-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        .intervention-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+        .intervention-item.sensitive {
+            border-left-color: #10b981;
+        }
+        .intervention-item.specific {
+            border-left-color: #8b5cf6;
+        }
+        .intervention-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .intervention-value {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 font-sans">
     @include('kelurahan.partials.sidebar')
-    <div class="ml-64 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Detail Kartu Keluarga</h2>
-        <a href="{{ route('kartu_keluarga.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-gray-600">Kembali</a>
-
-        <!-- Informasi Kartu Keluarga -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Informasi Kartu Keluarga</h3>
-            <table class="w-full">
-                <tr class="border-b">
-                    <td class="p-2 font-medium">No KK</td>
-                    <td class="p-2">{{ $kartuKeluarga->no_kk }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Kepala Keluarga</td>
-                    <td class="p-2">{{ $kartuKeluarga->kepala_keluarga }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Kecamatan</td>
-                    <td class="p-2">{{ $kartuKeluarga->kecamatan->nama_kecamatan ?? '-' }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Kelurahan</td>
-                    <td class="p-2">{{ $kartuKeluarga->kelurahan->nama_kelurahan ?? '-' }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Alamat</td>
-                    <td class="p-2">{{ $kartuKeluarga->alamat ?? '-' }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Latitude</td>
-                    <td class="p-2">{{ $kartuKeluarga->latitude ?? '-' }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Longitude</td>
-                    <td class="p-2">{{ $kartuKeluarga->longitude ?? '-' }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Status</td>
-                    <td class="p-2">{{ $kartuKeluarga->status }}</td>
-                </tr>
-                <tr class="border-b">
-                    <td class="p-2 font-medium">Nama Pengunggah</td>
-                    <td class="p-2">{{ $kartuKeluarga->createdBy->name ?? '-' }}</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Detail Pendamping Keluarga -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Detail Pendamping Keluarga</h3>
-            @if ($kartuKeluarga->pendampingKeluargas->isEmpty())
-                <p class="text-gray-500">Tidak ada data pendamping keluarga terkait.</p>
-            @else
-                @foreach ($kartuKeluarga->pendampingKeluargas as $index => $pendamping)
-                    <div class="mb-6 p-4 bg-gray-50 rounded">
-                        <h4 class="text-lg font-medium mb-2">Pendamping {{ $index + 1 }}: {{ $pendamping->nama }}</h4>
-                        <table class="w-full">
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Nama</td>
-                                <td class="p-2">{{ $pendamping->nama }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Peran</td>
-                                <td class="p-2">{{ $pendamping->peran }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Kecamatan</td>
-                                <td class="p-2">{{ $pendamping->kecamatan->nama_kecamatan ?? '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Kelurahan</td>
-                                <td class="p-2">{{ $pendamping->kelurahan->nama_kelurahan ?? '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Status</td>
-                                <td class="p-2">{{ $pendamping->status }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Tahun Bergabung</td>
-                                <td class="p-2">{{ $pendamping->tahun_bergabung }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Penyuluhan dan Edukasi</td>
-                                <td class="p-2">{{ $pendamping->penyuluhan ? ($pendamping->penyuluhan_frekuensi ?? '-') : '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Memfasilitasi Pelayanan Rujukan</td>
-                                <td class="p-2">{{ $pendamping->rujukan ? ($pendamping->rujukan_frekuensi ?? '-') : '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Kunjungan Keluarga Berisiko Stunting (KRS)</td>
-                                <td class="p-2">{{ $pendamping->kunjungan_krs ? ($pendamping->kunjungan_krs_frekuensi ?? '-') : '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Pendataan dan Rekomendasi Bantuan Sosial</td>
-                                <td class="p-2">{{ $pendamping->pendataan_bansos ? ($pendamping->pendataan_bansos_frekuensi ?? '-') : '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Pemantauan Kesehatan dan Perkembangan Keluarga</td>
-                                <td class="p-2">{{ $pendamping->pemantauan_kesehatan ? ($pendamping->pemantauan_kesehatan_frekuensi ?? '-') : '-' }}</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-medium">Foto</td>
-                                <td class="p-2">
-                                    @if ($pendamping->foto)
-                                        <img src="{{ Storage::url($pendamping->foto) }}" alt="Foto Pendamping" class="w-24 h-24 object-cover rounded">
-                                    @else
-                                        Tidak ada foto
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 font-medium">Aksi</td>
-                                <td class="p-2">
-                                    <a href="{{ route('pendamping_keluarga.edit', $pendamping->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('pendamping_keluarga.destroy', $pendamping->id) }}" method="POST" class="delete-form inline" data-id="{{ $pendamping->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </table>
+    
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Header -->
+        <div class="sticky-header">
+            <div class="px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-address-card text-blue-600 mr-3"></i>
+                            Detail Kartu Keluarga
+                        </h1>
+                        <p class="text-gray-600 mt-1">Informasi lengkap kartu keluarga dan data terkait</p>
                     </div>
-                @endforeach
-            @endif
-        </div>
-
-        <!-- Daftar Ibu -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Daftar Ibu</h3>
-            @if ($kartuKeluarga->ibu->isEmpty())
-                <p class="text-gray-500">Tidak ada data ibu terkait.</p>
-            @else
-                <table class="w-full bg-white border border-gray-200">
-                    <thead>
-                        <tr class="bg-gray-200 text-gray-700">
-                            <th class="p-4 text-left font-medium">No</th>
-                            <th class="p-4 text-left font-medium">Nama</th>
-                            <th class="p-4 text-left font-medium">NIK</th>
-                            <th class="p-4 text-left font-medium">Kecamatan</th>
-                            <th class="p-4 text-left font-medium">Kelurahan</th>
-                            <th class="p-4 text-left font-medium">Alamat</th>
-                            <th class="p-4 text-left font-medium">Status</th>
-                            <th class="p-4 text-left font-medium">Status Kehamilan</th>
-                            <th class="p-4 text-left font-medium">Status Nifas</th>
-                            <th class="p-4 text-left font-medium">Status Menyusui</th>
-                            <th class="p-4 text-left font-medium">Foto</th>
-                            <th class="p-4 text-left font-medium">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kartuKeluarga->ibu as $index => $ibu)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-4">{{ $index + 1 }}</td>
-                                <td class="p-4">{{ $ibu->nama }}</td>
-                                <td class="p-4">{{ $ibu->nik ?? '-' }}</td>
-                                <td class="p-4">{{ $ibu->kecamatan->nama_kecamatan ?? '-' }}</td>
-                                <td class="p-4">{{ $ibu->kelurahan->nama_kelurahan ?? '-' }}</td>
-                                <td class="p-4">{{ $ibu->alamat ?? '-' }}</td>
-                                <td class="p-4">{{ $ibu->status }}</td>
-                                <td class="p-4">{{ $ibu->ibuHamil ? 'Hamil' : '-' }}</td>
-                                <td class="p-4">{{ $ibu->ibuNifas ? 'Nifas' : '-' }}</td>
-                                <td class="p-4">{{ $ibu->ibuMenyusui ? 'Menyusui' : '-' }}</td>
-                                <td class="p-4">
-                                    @if ($ibu->foto)
-                                        <img src="{{ Storage::url($ibu->foto) }}" alt="Foto Ibu" class="w-16 h-16 object-cover rounded">
-                                    @else
-                                        Tidak ada foto
-                                    @endif
-                                </td>
-                                <td class="p-4">
-                                    <a href="{{ route('ibu.edit', $ibu->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('ibu.destroy', $ibu->id) }}" method="POST" class="delete-form inline" data-id="{{ $ibu->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-
-        <!-- Daftar Balita -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Daftar Balita</h3>
-            @if ($kartuKeluarga->balitas->isEmpty())
-                <p class="text-gray-500">Tidak ada data balita terkait.</p>
-            @else
-                <table class="w-full bg-white border border-gray-200">
-                    <thead>
-                        <tr class="bg-gray-200 text-gray-700">
-                            <th class="p-4 text-left font-medium">No</th>
-                            <th class="p-4 text-left font-medium">Nama</th>
-                            <th class="p-4 text-left font-medium">NIK</th>
-                            <th class="p-4 text-left font-medium">Jenis Kelamin</th>
-                            <th class="p-4 text-left font-medium">Tanggal Lahir</th>
-                            <th class="p-4 text-left font-medium">Usia</th>
-                            <th class="p-4 text-left font-medium">Kategori Umur</th>
-                            <th class="p-4 text-left font-medium">Kecamatan</th>
-                            <th class="p-4 text-left font-medium">Kelurahan</th>
-                            <th class="p-4 text-left font-medium">Berat/Tinggi</th>
-                            <th class="p-4 text-left font-medium">Lingkar Kepala</th>
-                            <th class="p-4 text-left font-medium">Lingkar Lengan</th>
-                            <th class="p-4 text-left font-medium">Alamat</th>
-                            <th class="p-4 text-left font-medium">Status Gizi</th>
-                            <th class="p-4 text-left font-medium">Warna Label</th>
-                            <th class="p-4 text-left font-medium">Status Pemantauan</th>
-                            <th class="p-4 text-left font-medium">Foto</th>
-                            <th class="p-4 text-left font-medium">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kartuKeluarga->balitas as $index => $balita)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-4">{{ $index + 1 }}</td>
-                                <td class="p-4">{{ $balita->nama }}</td>
-                                <td class="p-4">{{ $balita->nik ?? '-' }}</td>
-                                <td class="p-4">{{ $balita->jenis_kelamin }}</td>
-                                <td class="p-4">{{ $balita->tanggal_lahir ? $balita->tanggal_lahir->format('d-m-Y') : '-' }}</td>
-                                <td class="p-4">{{ $balita->usia !== null ? $balita->usia . ' bulan' : '-' }}</td>
-                                <td class="p-4">{{ $balita->kategoriUmur }}</td>
-                                <td class="p-4">{{ $balita->kecamatan->nama_kecamatan ?? '-' }}</td>
-                                <td class="p-4">{{ $balita->kelurahan->nama_kelurahan ?? '-' }}</td>
-                                <td class="p-4">{{ $balita->berat_tinggi ?? '-' }}</td>
-                                <td class="p-4">{{ $balita->lingkar_kepala ? $balita->lingkar_kepala . ' cm' : '-' }}</td>
-                                <td class="p-4">{{ $balita->lingkar_lengan ? $balita->lingkar_lengan . ' cm' : '-' }}</td>
-                                <td class="p-4">{{ $balita->alamat ?? '-' }}</td>
-                                <td class="p-4">{{ $balita->status_gizi }}</td>
-                                <td class="p-4">{{ $balita->warna_label }}</td>
-                                <td class="p-4">{{ $balita->status_pemantauan ?? '-' }}</td>
-                                <td class="p-4">
-                                    @if ($balita->foto)
-                                        <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-16 h-16 object-cover rounded">
-                                    @else
-                                        Tidak ada foto
-                                    @endif
-                                </td>
-                                <td class="p-4">
-                                    <a href="{{ route('balita.edit', $balita->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('balita.destroy', $balita->id) }}" method="POST" class="delete-form inline" data-id="{{ $balita->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-
-        <!-- Daftar Aksi Konvergensi -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Daftar Aksi Konvergensi</h3>
-            <a href="{{ route('aksi_konvergensi.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Aksi Konvergensi</a>
-            @if ($kartuKeluarga->aksiKonvergensis->isEmpty())
-                <p class="text-gray-500">Tidak ada data aksi konvergensi terkait.</p>
-            @else
-                <table class="w-full bg-white border border-gray-200">
-                    <thead>
-                        <tr class="bg-gray-200 text-gray-700">
-                            <th class="p-4 text-left font-medium">No</th>
-                            <th class="p-4 text-left font-medium">Nama Aksi</th>
-                            <th class="p-4 text-left font-medium">Selesai</th>
-                            <th class="p-4 text-left font-medium">Tahun</th>
-                            <th class="p-4 text-left font-medium">Intervensi Sensitif</th>
-                            <th class="p-4 text-left font-medium">Intervensi Spesifik</th>
-                            <th class="p-4 text-left font-medium">Narasi</th>
-                            <th class="p-4 text-left font-medium">Pelaku</th>
-                            <th class="p-4 text-left font-medium">Waktu</th>
-                            <th class="p-4 text-left font-medium">Foto</th>
-                            <th class="p-4 text-left font-medium">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kartuKeluarga->aksiKonvergensis as $index => $aksi)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-4">{{ $index + 1 }}</td>
-                                <td class="p-4">{{ $aksi->nama_aksi }}</td>
-                                <td class="p-4">
-                                    <span class="inline-block px-2 py-1 rounded text-white {{ $aksi->selesai ? 'bg-green-500' : 'bg-red-500' }}">
-                                        {{ $aksi->selesai ? 'Selesai' : 'Belum Selesai' }}
-                                    </span>
-                                </td>
-                                <td class="p-4">{{ $aksi->tahun }}</td>
-                                <td class="p-4">
-                                    <ul class="list-disc">
-                                        <li>Ketersediaan Air Bersih dan Sanitasi: {{ $aksi->air_bersih_sanitasi ?? '-' }}</li>
-                                        <li>Ketersediaan Akses ke Layanan Kesehatan dan KB: {{ $aksi->akses_layanan_kesehatan_kb ?? '-' }}</li>
-                                        <li>Pendidikan Pengasuhan pada Orang Tua: {{ $aksi->pendidikan_pengasuhan_ortu ?? '-' }}</li>
-                                        <li>Edukasi Kesehatan Seksual dan Reproduksi serta Gizi pada Remaja: {{ $aksi->edukasi_kesehatan_remaja ?? '-' }}</li>
-                                        <li>Peningkatan Kesadaran Pengasuhan dan Gizi: {{ $aksi->kesadaran_pengasuhan_gizi ?? '-' }}</li>
-                                        <li>Peningkatan Akses Pangan Bergizi: {{ $aksi->akses_pangan_bergizi ?? '-' }}</li>
-                                    </ul>
-                                </td>
-                                <td class="p-4">
-                                    <ul class="list-disc">
-                                        <li>Pemberian Makanan pada Ibu Hamil: {{ $aksi->makanan_ibu_hamil ?? '-' }}</li>
-                                        <li>Konsumsi Tablet Tambah Darah bagi Ibu Hamil dan Remaja Putri: {{ $aksi->tablet_tambah_darah ?? '-' }}</li>
-                                        <li>Inisiasi Menyusui Dini (IMD): {{ $aksi->inisiasi_menyusui_dini ?? '-' }}</li>
-                                        <li>Pemberian ASI Eksklusif: {{ $aksi->asi_eksklusif ?? '-' }}</li>
-                                        <li>Pemberian ASI Didampingi oleh MPASI pada Usia 6-24 Bulan: {{ $aksi->asi_mpasi ?? '-' }}</li>
-                                        <li>Pemberian Imunisasi Lengkap pada Anak: {{ $aksi->imunisasi_lengkap ?? '-' }}</li>
-                                        <li>Pencegahan Infeksi: {{ $aksi->pencegahan_infeksi ?? '-' }}</li>
-                                        <li>Status Gizi Ibu: {{ $aksi->status_gizi_ibu ?? '-' }}</li>
-                                        <li>Penyakit Menular: {{ $aksi->penyakit_menular == 'ada' ? 'Ada ('.$aksi->jenis_penyakit.')' : ($aksi->penyakit_menular ?? '-') }}</li>
-                                        <li>Kesehatan Lingkungan: {{ $aksi->kesehatan_lingkungan ?? '-' }}</li>
-                                    </ul>
-                                </td>
-                                <td class="p-4">{{ Str::limit($aksi->narasi, 50) }}</td>
-                                <td class="p-4">{{ $aksi->pelaku_aksi ?? '-' }}</td>
-                                <td class="p-4">{{ $aksi->waktu_pelaksanaan ? $aksi->waktu_pelaksanaan->format('d-m-Y H:i') : '-' }}</td>
-                                <td class="p-4">
-                                    @if ($aksi->foto)
-                                        <img src="{{ Storage::url($aksi->foto) }}" alt="Foto Aksi Konvergensi" class="w-16 h-16 object-cover rounded">
-                                    @else
-                                        Tidak ada foto
-                                    @endif
-                                </td>
-                                <td class="p-4">
-                                    <a href="{{ route('aksi_konvergensi.edit', $aksi->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('aksi_konvergensi.destroy', $aksi->id) }}" method="POST" class="delete-form inline" data-id="{{ $aksi->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-
-        <!-- Daftar Kegiatan Genting -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Daftar Kegiatan Genting</h3>
-            <a href="{{ route('genting.create') }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Kegiatan Genting</a>
-            @if ($kartuKeluarga->gentings->isEmpty())
-                <p class="text-gray-500">Tidak ada data kegiatan Genting terkait.</p>
-            @else
-                <table class="w-full bg-white border border-gray-200">
-                    <thead>
-                        <tr class="bg-gray-200 text-gray-700">
-                            <th class="p-4 text-left font-medium">No</th>
-                            <th class="p-4 text-left font-medium">Nama Kegiatan</th>
-                            <th class="p-4 text-left font-medium">Tanggal</th>
-                            <th class="p-4 text-left font-medium">Lokasi</th>
-                            <th class="p-4 text-left font-medium">Sasaran</th>
-                            <th class="p-4 text-left font-medium">Jenis Intervensi</th>
-                            <th class="p-4 text-left font-medium">Narasi</th>
-                            <th class="p-4 text-left font-medium">Pihak Ketiga</th>
-                            <th class="p-4 text-left font-medium">Dokumentasi</th>
-                            <th class="p-4 text-left font-medium">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kartuKeluarga->gentings as $index => $genting)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-4">{{ $index + 1 }}</td>
-                                <td class="p-4">{{ $genting->nama_kegiatan }}</td>
-                                <td class="p-4">{{ \Carbon\Carbon::parse($genting->tanggal)->format('d-m-Y') }}</td>
-                                <td class="p-4">{{ $genting->lokasi }}</td>
-                                <td class="p-4">{{ $genting->sasaran }}</td>
-                                <td class="p-4">{{ $genting->jenis_intervensi }}</td>
-                                <td class="p-4">{{ $genting->narasi ? Str::limit($genting->narasi, 50) : '-' }}</td>
-                                <td class="p-4">
-                                    <ul class="list-disc">
-                                        @if ($genting->dunia_usaha == 'ada')
-                                            <li>Dunia Usaha: {{ $genting->dunia_usaha_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->pemerintah == 'ada')
-                                            <li>Pemerintah: {{ $genting->pemerintah_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->bumn_bumd == 'ada')
-                                            <li>BUMN dan BUMD: {{ $genting->bumn_bumd_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->individu_perseorangan == 'ada')
-                                            <li>Individu dan Perseorangan: {{ $genting->individu_perseorangan_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->lsm_komunitas == 'ada')
-                                            <li>LSM dan Komunitas: {{ $genting->lsm_komunitas_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->swasta == 'ada')
-                                            <li>Swasta: {{ $genting->swasta_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->perguruan_tinggi_akademisi == 'ada')
-                                            <li>Perguruan Tinggi dan Akademisi: {{ $genting->perguruan_tinggi_akademisi_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->media == 'ada')
-                                            <li>Media: {{ $genting->media_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->tim_pendamping_keluarga == 'ada')
-                                            <li>Tim Pendamping Keluarga: {{ $genting->tim_pendamping_keluarga_frekuensi }}</li>
-                                        @endif
-                                        @if ($genting->tokoh_masyarakat == 'ada')
-                                            <li>Tokoh Masyarakat: {{ $genting->tokoh_masyarakat_frekuensi }}</li>
-                                        @endif
-                                        @if (!$genting->dunia_usaha && !$genting->pemerintah && !$genting->bumn_bumd && !$genting->individu_perseorangan && !$genting->lsm_komunitas && !$genting->swasta && !$genting->perguruan_tinggi_akademisi && !$genting->media && !$genting->tim_pendamping_keluarga && !$genting->tokoh_masyarakat)
-                                            <li>Tidak ada pihak ketiga</li>
-                                        @endif
-                                    </ul>
-                                </td>
-                                <td class="p-4">
-                                    @if ($genting->dokumentasi)
-                                        <img src="{{ Storage::url($genting->dokumentasi) }}" alt="Dokumentasi Kegiatan" class="w-16 h-16 object-cover rounded">
-                                    @else
-                                        Tidak ada dokumentasi
-                                    @endif
-                                </td>
-                                <td class="p-4">
-                                    <a href="{{ route('genting.edit', $genting->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                    <form action="{{ route('genting.destroy', $genting->id) }}" method="POST" class="delete-form inline" data-id="{{ $genting->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-
-        <!-- Riwayat Monitoring -->
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <h3 class="text-xl font-semibold mb-4">Riwayat Monitoring</h3>
-            <a href="{{ route('data_monitoring.create') }}?kartu_keluarga_id={{ $kartuKeluarga->id }}" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah Data Monitoring</a>
-            @if ($kartuKeluarga->dataMonitorings->isEmpty())
-                <p class="text-gray-500">Tidak ada data monitoring terkait.</p>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="w-full bg-white border border-gray-200">
-                        <thead>
-                            <tr class="bg-gray-200 text-gray-700">
-                                <th class="p-4 text-left font-medium">No</th>
-                                <th class="p-4 text-left font-medium">Tanggal Monitoring</th>
-                                <th class="p-4 text-left font-medium">Nama</th>
-                                <th class="p-4 text-left font-medium">Target</th>
-                                <th class="p-4 text-left font-medium">Kategori</th>
-                                <th class="p-4 text-left font-medium">Berat Badan</th>
-                                <th class="p-4 text-left font-medium">Tinggi Badan</th>
-                                <th class="p-4 text-left font-medium">Lingkar Kepala</th>
-                                <th class="p-4 text-left font-medium">Lingkar Lengan</th>
-                                <th class="p-4 text-left font-medium">Status Gizi</th>
-                                <th class="p-4 text-left font-medium">Warna Badge</th>
-                                <th class="p-4 text-left font-medium">Kunjungan Rumah</th>
-                                <th class="p-4 text-left font-medium">Frekuensi Kunjungan</th>
-                                <th class="p-4 text-left font-medium">Pemberian PMT</th>
-                                <th class="p-4 text-left font-medium">Frekuensi PMT</th>
-                                <th class="p-4 text-left font-medium">Terpapar Rokok</th>
-                                <th class="p-4 text-left font-medium">Suplemen TTD</th>
-                                <th class="p-4 text-left font-medium">Rujukan</th>
-                                <th class="p-4 text-left font-medium">Bantuan Sosial</th>
-                                <th class="p-4 text-left font-medium">Posyandu/BKB</th>
-                                <th class="p-4 text-left font-medium">KIE</th>
-                                <th class="p-4 text-left font-medium">Diunggah Oleh</th>
-                                <th class="p-4 text-left font-medium">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($kartuKeluarga->dataMonitorings as $index => $monitoring)
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="p-4">{{ $index + 1 }}</td>
-                                    <td class="p-4">{{ $monitoring->tanggal_monitoring ? \Carbon\Carbon::parse($monitoring->tanggal_monitoring)->format('d-m-Y') : '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->target == 'Ibu' ? ($monitoring->ibu->nama ?? '-') : ($monitoring->balita->nama ?? '-') }}</td>
-                                    <td class="p-4">{{ $monitoring->target ?? '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->kategori ?? '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->berat_badan ? $monitoring->berat_badan . ' kg' : '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->tinggi_badan ? $monitoring->tinggi_badan . ' cm' : '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->lingkar_kepala ? $monitoring->lingkar_kepala . ' cm' : '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->lingkar_lengan ? $monitoring->lingkar_lengan . ' cm' : '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->status_gizi ?? '-' }}</td>
-                                    <td class="p-4">
-                                        <span class="inline-block px-2 py-1 rounded text-white {{ $monitoring->warna_badge == 'Hijau' ? 'bg-green-500' : ($monitoring->warna_badge == 'Kuning' ? 'bg-yellow-500' : ($monitoring->warna_badge == 'Merah' ? 'bg-red-500' : 'bg-blue-500')) }}">
-                                            {{ $monitoring->warna_badge ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="p-4">{{ $monitoring->kunjungan_rumah ? 'Ada' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->frekuensi_kunjungan ?? '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->pemberian_pmt ? 'Ada' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->frekuensi_pmt ?? '-' }}</td>
-                                    <td class="p-4">{{ $monitoring->terpapar_rokok ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->suplemen_ttd ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->rujukan ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->bantuan_sosial ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->posyandu_bkb ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->kie ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="p-4">{{ $monitoring->user->name ?? '-' }}</td>
-                                    <td class="p-4">
-                                        <a href="{{ route('data_monitoring.edit', $monitoring->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                        <form action="{{ route('data_monitoring.destroy', $monitoring->id) }}" method="POST" class="delete-form inline" data-id="{{ $monitoring->id }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:underline ml-2">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="flex items-center space-x-3">
+                        <a href="{{ route('kartu_keluarga.index') }}" class="action-btn action-btn-secondary">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Kembali ke Daftar
+                        </a>
+                    </div>
                 </div>
-            @endif
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            <!-- Informasi Kartu Keluarga -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                        Informasi Kartu Keluarga
+                    </h2>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-id-card mr-1 text-blue-500"></i>
+                                No. Kartu Keluarga
+                            </span>
+                            <span class="info-value">{{ $kartuKeluarga->no_kk }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-user mr-1 text-green-500"></i>
+                                Kepala Keluarga
+                            </span>
+                            <span class="info-value">{{ $kartuKeluarga->kepala_keluarga }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-map-marker-alt mr-1 text-red-500"></i>
+                                Kecamatan
+                            </span>
+                            <span class="info-value">{{ $kartuKeluarga->kecamatan->nama_kecamatan ?? '-' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-map-pin mr-1 text-purple-500"></i>
+                                Kelurahan
+                            </span>
+                            <span class="info-value">{{ $kartuKeluarga->kelurahan->nama_kelurahan ?? '-' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-home mr-1 text-yellow-500"></i>
+                                Alamat
+                            </span>
+                            <span class="info-value">{{ $kartuKeluarga->alamat ?? '-' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-globe-americas mr-1 text-indigo-500"></i>
+                                Koordinat
+                            </span>
+                            <span class="info-value">
+                                {{ $kartuKeluarga->latitude ?? '-' }}, {{ $kartuKeluarga->longitude ?? '-' }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-check-circle mr-1 text-emerald-500"></i>
+                                Status
+                            </span>
+                            <span class="info-value">
+                                <span class="badge {{ $kartuKeluarga->status === 'Aktif' ? 'badge-success' : 'badge-danger' }}">
+                                    <i class="fas fa-circle mr-1 text-xs"></i>
+                                    {{ $kartuKeluarga->status }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-user-plus mr-1 text-cyan-500"></i>
+                                Pengunggah
+                            </span>
+                            <span class="info-value">{{ $kartuKeluarga->createdBy->name ?? '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Pendamping Keluarga -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-hands-helping text-green-500"></i>
+                        Detail Pendamping Keluarga
+                    </h2>
+                    <a href="{{ route('pendamping_keluarga.create') }}" class="action-btn action-btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Pendamping
+                    </a>
+                </div>
+                <div class="section-content">
+                    @if ($kartuKeluarga->pendampingKeluargas->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-hands-helping empty-state-icon"></i>
+                            <p class="text-lg font-medium">Tidak ada data pendamping keluarga</p>
+                            <p class="text-sm mt-1">Tambahkan data pendamping keluarga untuk melengkapi informasi</p>
+                        </div>
+                    @else
+                        <div class="space-y-6">
+                            @foreach ($kartuKeluarga->pendampingKeluargas as $index => $pendamping)
+                                <div class="bg-gray-50 rounded-lg p-6 card-hover">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center">
+                                            <div class="avatar avatar-blue mr-4">
+                                                <i class="fas fa-user-tie"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-lg font-semibold text-gray-800">
+                                                    Pendamping {{ $index + 1 }}: {{ $pendamping->nama }}
+                                                </h4>
+                                                <div class="flex items-center mt-1">
+                                                    <span class="badge {{ $pendamping->status === 'Aktif' ? 'badge-success' : 'badge-danger' }} mr-2">
+                                                        {{ $pendamping->status }}
+                                                    </span>
+                                                    <span class="text-sm text-gray-600">
+                                                        <i class="far fa-calendar mr-1"></i>
+                                                        Tahun Bergabung: {{ $pendamping->tahun_bergabung }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('pendamping_keluarga.edit', $pendamping->id) }}" 
+                                               class="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('pendamping_keluarga.destroy', $pendamping->id) }}" method="POST" class="delete-form inline" data-name="{{ $pendamping->nama }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                                        title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <span class="info-label">Nama</span>
+                                            <span class="info-value">{{ $pendamping->nama }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Peran</span>
+                                            <span class="info-value">{{ $pendamping->peran }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Kecamatan</span>
+                                            <span class="info-value">{{ $pendamping->kecamatan->nama_kecamatan ?? '-' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Kelurahan</span>
+                                            <span class="info-value">{{ $pendamping->kelurahan->nama_kelurahan ?? '-' }}</span>
+                                        </div>
+                                        @if($pendamping->foto)
+                                        <div class="info-item">
+                                            <span class="info-label">Foto</span>
+                                            <div class="info-value">
+                                                <img src="{{ Storage::url($pendamping->foto) }}" alt="Foto Pendamping" class="w-24 h-24 object-cover rounded-lg shadow-sm">
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Aktivitas Pendamping -->
+                                    <div class="mt-6 pt-4 border-t border-gray-200">
+                                        <h5 class="text-md font-medium text-gray-700 mb-3 flex items-center">
+                                            <i class="fas fa-tasks mr-2 text-purple-500"></i>
+                                            Aktivitas Pendamping
+                                        </h5>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            @if($pendamping->penyuluhan)
+                                            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-chalkboard-teacher text-green-500 mr-2"></i>
+                                                    <span class="font-medium text-sm">Penyuluhan & Edukasi</span>
+                                                </div>
+                                                <p class="text-xs text-gray-600 mt-1">Frekuensi: {{ $pendamping->penyuluhan_frekuensi ?? '-' }}</p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($pendamping->rujukan)
+                                            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-ambulance text-red-500 mr-2"></i>
+                                                    <span class="font-medium text-sm">Fasilitasi Rujukan</span>
+                                                </div>
+                                                <p class="text-xs text-gray-600 mt-1">Frekuensi: {{ $pendamping->rujukan_frekuensi ?? '-' }}</p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($pendamping->kunjungan_krs)
+                                            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-home text-blue-500 mr-2"></i>
+                                                    <span class="font-medium text-sm">Kunjungan KRS</span>
+                                                </div>
+                                                <p class="text-xs text-gray-600 mt-1">Frekuensi: {{ $pendamping->kunjungan_krs_frekuensi ?? '-' }}</p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($pendamping->pendataan_bansos)
+                                            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-clipboard-list text-yellow-500 mr-2"></i>
+                                                    <span class="font-medium text-sm">Pendataan Bansos</span>
+                                                </div>
+                                                <p class="text-xs text-gray-600 mt-1">Frekuensi: {{ $pendamping->pendataan_bansos_frekuensi ?? '-' }}</p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($pendamping->pemantauan_kesehatan)
+                                            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-heartbeat text-pink-500 mr-2"></i>
+                                                    <span class="font-medium text-sm">Pemantauan Kesehatan</span>
+                                                </div>
+                                                <p class="text-xs text-gray-600 mt-1">Frekuensi: {{ $pendamping->pemantauan_kesehatan_frekuensi ?? '-' }}</p>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Daftar Ibu -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-female text-pink-500"></i>
+                        Daftar Ibu
+                    </h2>
+                    <a href="{{ route('ibu.create') }}" class="action-btn action-btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Ibu
+                    </a>
+                </div>
+                <div class="section-content">
+                    @if ($kartuKeluarga->ibu->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-female empty-state-icon"></i>
+                            <p class="text-lg font-medium">Tidak ada data ibu</p>
+                            <p class="text-sm mt-1">Tambahkan data ibu untuk melengkapi informasi</p>
+                        </div>
+                    @else
+                        <div class="table-container">
+                            <table class="w-full">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kondisi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($kartuKeluarga->ibu as $index => $ibu)
+                                        <tr class="table-row">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $index + 1 }}</td>
+                                            <td class="px-4 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="avatar avatar-pink mr-3">
+                                                        <i class="fas fa-female"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">{{ $ibu->nama }}</div>
+                                                        <div class="text-sm text-gray-500">{{ $ibu->alamat ?? '-' }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $ibu->nik ?? '-' }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {{ $ibu->kecamatan->nama_kecamatan ?? '-' }}, {{ $ibu->kelurahan->nama_kelurahan ?? '-' }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <span class="badge {{ $ibu->status === 'Aktif' ? 'badge-success' : 'badge-danger' }}">
+                                                    {{ $ibu->status }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <div class="flex flex-wrap gap-1">
+                                                    @if($ibu->ibuHamil)
+                                                        <span class="badge badge-warning">Hamil</span>
+                                                    @endif
+                                                    @if($ibu->ibuNifas)
+                                                        <span class="badge badge-info">Nifas</span>
+                                                    @endif
+                                                    @if($ibu->ibuMenyusui)
+                                                        <span class="badge badge-success">Menyusui</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                @if ($ibu->foto)
+                                                    <img src="{{ Storage::url($ibu->foto) }}" alt="Foto Ibu" class="w-12 h-12 object-cover rounded-lg">
+                                                @else
+                                                    <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                        <i class="fas fa-camera text-gray-400"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    <a href="{{ route('ibu.edit', $ibu->id) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                                                       title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('ibu.destroy', $ibu->id) }}" method="POST" class="delete-form inline" data-name="{{ $ibu->nama }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" 
+                                                                class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50"
+                                                                title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Daftar Balita -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-baby text-green-500"></i>
+                        Daftar Balita
+                    </h2>
+                    <a href="{{ route('balita.create') }}" class="action-btn action-btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Balita
+                    </a>
+                </div>
+                <div class="section-content">
+                    @if ($kartuKeluarga->balitas->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-baby empty-state-icon"></i>
+                            <p class="text-lg font-medium">Tidak ada data balita</p>
+                            <p class="text-sm mt-1">Tambahkan data balita untuk melengkapi informasi</p>
+                        </div>
+                    @else
+                        <div class="table-container">
+                            <table class="w-full">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usia</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Gizi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($kartuKeluarga->balitas as $index => $balita)
+                                        <tr class="table-row">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $index + 1 }}</td>
+                                            <td class="px-4 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="avatar avatar-green mr-3">
+                                                        <i class="fas fa-baby"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">{{ $balita->nama }}</div>
+                                                        <div class="text-sm text-gray-500">{{ $balita->nik ?? '-' }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <div class="flex items-center">
+                                                    @if($balita->jenis_kelamin == 'Laki-laki')
+                                                        <i class="fas fa-mars text-blue-500 mr-1"></i>
+                                                    @else
+                                                        <i class="fas fa-venus text-pink-500 mr-1"></i>
+                                                    @endif
+                                                    {{ $balita->jenis_kelamin }}
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <div>
+                                                    <div>{{ $balita->usia !== null ? $balita->usia . ' bulan' : '-' }}</div>
+                                                    <div class="text-xs text-gray-500">{{ $balita->kategoriUmur }}</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <span class="badge 
+                                                    {{ $balita->status_gizi === 'Gizi Baik' ? 'badge-success' : 
+                                                       ($balita->status_gizi === 'Gizi Kurang' ? 'badge-warning' : 
+                                                       ($balita->status_gizi === 'Gizi Buruk' ? 'badge-danger' : 'badge-info')) }}">
+                                                    {{ $balita->status_gizi }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                    {{ $balita->warna_label === 'Hijau' ? 'bg-green-100 text-green-800' : 
+                                                       ($balita->warna_label === 'Kuning' ? 'bg-yellow-100 text-yellow-800' : 
+                                                       ($balita->warna_label === 'Merah' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')) }}">
+                                                    <i class="fas fa-tag mr-1 text-xs"></i>
+                                                    {{ $balita->warna_label }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                @if ($balita->foto)
+                                                    <img src="{{ Storage::url($balita->foto) }}" alt="Foto Balita" class="w-12 h-12 object-cover rounded-lg">
+                                                @else
+                                                    <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                        <i class="fas fa-camera text-gray-400"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    <a href="{{ route('balita.edit', $balita->id) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                                                       title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('balita.destroy', $balita->id) }}" method="POST" class="delete-form inline" data-name="{{ $balita->nama }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" 
+                                                                class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50"
+                                                                title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Daftar Aksi Konvergensi -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-handshake text-purple-500"></i>
+                        Daftar Aksi Konvergensi
+                    </h2>
+                    <a href="{{ route('aksi_konvergensi.create') }}" class="action-btn action-btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Aksi
+                    </a>
+                </div>
+                <div class="section-content">
+                    @if ($kartuKeluarga->aksiKonvergensis->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-handshake empty-state-icon"></i>
+                            <p class="text-lg font-medium">Tidak ada data aksi konvergensi</p>
+                            <p class="text-sm mt-1">Tambahkan data aksi konvergensi untuk melengkapi informasi</p>
+                        </div>
+                    @else
+                        <div class="space-y-6">
+                            @foreach ($kartuKeluarga->aksiKonvergensis as $index => $aksi)
+                                <div class="bg-gray-50 rounded-lg p-6 card-hover">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-800 flex items-center">
+                                                <i class="fas fa-tasks mr-2 text-purple-500"></i>
+                                                {{ $aksi->nama_aksi }}
+                                            </h4>
+                                            <div class="flex items-center mt-1 space-x-4">
+                                                <span class="text-sm text-gray-600">
+                                                    <i class="far fa-calendar mr-1"></i>
+                                                    Tahun: {{ $aksi->tahun }}
+                                                </span>
+                                                <span class="text-sm text-gray-600">
+                                                    <i class="far fa-clock mr-1"></i>
+                                                    Waktu: {{ $aksi->waktu_pelaksanaan ? $aksi->waktu_pelaksanaan->format('d/m/Y H:i') : '-' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="badge {{ $aksi->selesai ? 'badge-success' : 'badge-warning' }}">
+                                                <i class="fas fa-{{ $aksi->selesai ? 'check' : 'clock' }} mr-1"></i>
+                                                {{ $aksi->selesai ? 'Selesai' : 'Belum Selesai' }}
+                                            </span>
+                                            <a href="{{ route('aksi_konvergensi.edit', $aksi->id) }}" 
+                                               class="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('aksi_konvergensi.destroy', $aksi->id) }}" method="POST" class="delete-form inline" data-name="{{ $aksi->nama_aksi }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                                        title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <!-- Intervensi Sensitif -->
+                                        <div>
+                                            <h5 class="text-md font-medium text-gray-700 mb-3 flex items-center">
+                                                <i class="fas fa-heart text-red-500 mr-2"></i>
+                                                Intervensi Sensitif
+                                            </h5>
+                                            <div class="intervention-grid">
+                                                @if($aksi->air_bersih_sanitasi)
+                                                <div class="intervention-item sensitive">
+                                                    <div class="intervention-label">Air Bersih & Sanitasi</div>
+                                                    <div class="intervention-value">{{ $aksi->air_bersih_sanitasi }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->akses_layanan_kesehatan_kb)
+                                                <div class="intervention-item sensitive">
+                                                    <div class="intervention-label">Akses Layanan Kesehatan & KB</div>
+                                                    <div class="intervention-value">{{ $aksi->akses_layanan_kesehatan_kb }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->pendidikan_pengasuhan_ortu)
+                                                <div class="intervention-item sensitive">
+                                                    <div class="intervention-label">Pendidikan Pengasuhan</div>
+                                                    <div class="intervention-value">{{ $aksi->pendidikan_pengasuhan_ortu }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->edukasi_kesehatan_remaja)
+                                                <div class="intervention-item sensitive">
+                                                    <div class="intervention-label">Edukasi Kesehatan Remaja</div>
+                                                    <div class="intervention-value">{{ $aksi->edukasi_kesehatan_remaja }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->kesadaran_pengasuhan_gizi)
+                                                <div class="intervention-item sensitive">
+                                                    <div class="intervention-label">Kesadaran Pengasuhan & Gizi</div>
+                                                    <div class="intervention-value">{{ $aksi->kesadaran_pengasuhan_gizi }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->akses_pangan_bergizi)
+                                                <div class="intervention-item sensitive">
+                                                    <div class="intervention-label">Akses Pangan Bergizi</div>
+                                                    <div class="intervention-value">{{ $aksi->akses_pangan_bergizi }}</div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Intervensi Spesifik -->
+                                        <div>
+                                            <h5 class="text-md font-medium text-gray-700 mb-3 flex items-center">
+                                                <i class="fas fa-stethoscope text-blue-500 mr-2"></i>
+                                                Intervensi Spesifik
+                                            </h5>
+                                            <div class="intervention-grid">
+                                                @if($aksi->makanan_ibu_hamil)
+                                                <div class="intervention-item specific">
+                                                    <div class="intervention-label">Makanan Ibu Hamil</div>
+                                                    <div class="intervention-value">{{ $aksi->makanan_ibu_hamil }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->tablet_tambah_darah)
+                                                <div class="intervention-item specific">
+                                                    <div class="intervention-label">Tablet Tambah Darah</div>
+                                                    <div class="intervention-value">{{ $aksi->tablet_tambah_darah }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->inisiasi_menyusui_dini)
+                                                <div class="intervention-item specific">
+                                                    <div class="intervention-label">Inisiasi Menyusui Dini</div>
+                                                    <div class="intervention-value">{{ $aksi->inisiasi_menyusui_dini }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->asi_eksklusif)
+                                                <div class="intervention-item specific">
+                                                    <div class="intervention-label">ASI Eksklusif</div>
+                                                    <div class="intervention-value">{{ $aksi->asi_eksklusif }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->asi_mpasi)
+                                                <div class="intervention-item specific">
+                                                    <div class="intervention-label">ASI & MPASI</div>
+                                                    <div class="intervention-value">{{ $aksi->asi_mpasi }}</div>
+                                                </div>
+                                                @endif
+                                                @if($aksi->imunisasi_lengkap)
+                                                <div class="intervention-item specific">
+                                                    <div class="intervention-label">Imunisasi Lengkap</div>
+                                                    <div class="intervention-value">{{ $aksi->imunisasi_lengkap }}</div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($aksi->narasi)
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <h5 class="text-md font-medium text-gray-700 mb-2 flex items-center">
+                                            <i class="fas fa-file-alt text-gray-500 mr-2"></i>
+                                            Narasi
+                                        </h5>
+                                        <p class="text-sm text-gray-600">{{ $aksi->narasi }}</p>
+                                    </div>
+                                    @endif
+                                    
+                                    @if($aksi->foto)
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <h5 class="text-md font-medium text-gray-700 mb-2 flex items-center">
+                                            <i class="fas fa-camera text-gray-500 mr-2"></i>
+                                            Dokumentasi
+                                        </h5>
+                                        <img src="{{ Storage::url($aksi->foto) }}" alt="Foto Aksi Konvergensi" class="w-32 h-32 object-cover rounded-lg shadow-sm">
+                                    </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Daftar Kegiatan Genting -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        Daftar Kegiatan Genting
+                    </h2>
+                    <a href="{{ route('genting.create') }}" class="action-btn action-btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Kegiatan
+                    </a>
+                </div>
+                <div class="section-content">
+                    @if ($kartuKeluarga->gentings->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle empty-state-icon"></i>
+                            <p class="text-lg font-medium">Tidak ada data kegiatan genting</p>
+                            <p class="text-sm mt-1">Tambahkan data kegiatan genting untuk melengkapi informasi</p>
+                        </div>
+                    @else
+                        <div class="table-container">
+                            <table class="w-full">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Kegiatan</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sasaran</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intervensi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokumentasi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($kartuKeluarga->gentings as $index => $genting)
+                                        <tr class="table-row">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $index + 1 }}</td>
+                                            <td class="px-4 py-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $genting->nama_kegiatan }}</div>
+                                                @if($genting->narasi)
+                                                <div class="text-xs text-gray-500 mt-1">{{ Str::limit($genting->narasi, 50) }}</div>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {{ \Carbon\Carbon::parse($genting->tanggal)->format('d/m/Y') }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $genting->lokasi }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $genting->sasaran }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $genting->jenis_intervensi }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                @if ($genting->dokumentasi)
+                                                    <img src="{{ Storage::url($genting->dokumentasi) }}" alt="Dokumentasi Kegiatan" class="w-12 h-12 object-cover rounded-lg">
+                                                @else
+                                                    <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                        <i class="fas fa-camera text-gray-400"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    <a href="{{ route('genting.edit', $genting->id) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                                                       title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('genting.destroy', $genting->id) }}" method="POST" class="delete-form inline" data-name="{{ $genting->nama_kegiatan }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" 
+                                                                class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50"
+                                                                title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Riwayat Monitoring -->
+            <div class="section-card mb-8">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line text-indigo-500"></i>
+                        Riwayat Monitoring
+                    </h2>
+                    <a href="{{ route('data_monitoring.create') }}?kartu_keluarga_id={{ $kartuKeluarga->id }}" class="action-btn action-btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Monitoring
+                    </a>
+                </div>
+                <div class="section-content">
+                    @if ($kartuKeluarga->dataMonitorings->isEmpty())
+                        <div class="empty-state">
+                            <i class="fas fa-chart-line empty-state-icon"></i>
+                            <p class="text-lg font-medium">Tidak ada data monitoring</p>
+                            <p class="text-sm mt-1">Tambahkan data monitoring untuk melengkapi informasi</p>
+                        </div>
+                    @else
+                        <div class="table-container">
+                            <table class="w-full">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Gizi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Badge</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intervensi</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($kartuKeluarga->dataMonitorings as $index => $monitoring)
+                                        <tr class="table-row">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $index + 1 }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {{ $monitoring->tanggal_monitoring ? \Carbon\Carbon::parse($monitoring->tanggal_monitoring)->format('d/m/Y') : '-' }}
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $monitoring->target == 'Ibu' ? ($monitoring->ibu->nama ?? '-') : ($monitoring->balita->nama ?? '-') }}
+                                                </div>
+                                                <div class="text-xs text-gray-500">{{ $monitoring->target ?? '-' }}</div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{{ $monitoring->kategori ?? '-' }}</td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <span class="badge 
+                                                    {{ $monitoring->status_gizi === 'Gizi Baik' ? 'badge-success' : 
+                                                       ($monitoring->status_gizi === 'Gizi Kurang' ? 'badge-warning' : 
+                                                       ($monitoring->status_gizi === 'Gizi Buruk' ? 'badge-danger' : 'badge-info')) }}">
+                                                    {{ $monitoring->status_gizi ?? '-' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                    {{ $monitoring->warna_badge == 'Hijau' ? 'bg-green-100 text-green-800' : 
+                                                       ($monitoring->warna_badge == 'Kuning' ? 'bg-yellow-100 text-yellow-800' : 
+                                                       ($monitoring->warna_badge == 'Merah' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')) }}">
+                                                    <i class="fas fa-tag mr-1 text-xs"></i>
+                                                    {{ $monitoring->warna_badge ?? '-' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap">
+                                                <div class="flex flex-wrap gap-1">
+                                                    @if($monitoring->kunjungan_rumah)
+                                                        <span class="badge badge-success text-xs">Kunjungan</span>
+                                                    @endif
+                                                    @if($monitoring->pemberian_pmt)
+                                                        <span class="badge badge-warning text-xs">PMT</span>
+                                                    @endif
+                                                    @if($monitoring->suplemen_ttd)
+                                                        <span class="badge badge-info text-xs">TTD</span>
+                                                    @endif
+                                                    @if($monitoring->rujukan)
+                                                        <span class="badge badge-danger text-xs">Rujukan</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    <a href="{{ route('data_monitoring.edit', $monitoring->id) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                                                       title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('data_monitoring.destroy', $monitoring->id) }}" method="POST" class="delete-form inline" data-name="Data Monitoring">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" 
+                                                                class="text-red-600 hover:text-red-900 transition-colors p-2 rounded-lg hover:bg-red-50"
+                                                                title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 
@@ -525,20 +1089,31 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Delete confirmation with SweetAlert2
+            // Delete confirmation dengan SweetAlert2 yang lebih modern
             $('.delete-form').on('submit', function(e) {
                 e.preventDefault();
                 const form = $(this);
-                const id = form.data('id');
+                const name = form.data('name');
+                
                 Swal.fire({
                     title: 'Hapus Data?',
-                    text: 'Data ini akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.',
+                    html: `<div class="text-center">
+                             <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                             <p class="text-lg font-semibold text-gray-800">Apakah Anda yakin ingin menghapus?</p>
+                             <p class="text-gray-600 mt-2">Data: <strong>${name}</strong></p>
+                             <p class="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan!</p>
+                           </div>`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'px-4 py-2 rounded-lg',
+                        cancelButton: 'px-4 py-2 rounded-lg'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -551,9 +1126,11 @@
                             success: function() {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Berhasil',
+                                    title: 'Berhasil Dihapus!',
                                     text: 'Data berhasil dihapus.',
-                                    confirmButtonColor: '#3b82f6',
+                                    confirmButtonColor: '#10b981',
+                                    confirmButtonText: '<i class="fas fa-check mr-2"></i>Oke',
+                                    timer: 2000
                                 }).then(() => {
                                     window.location.reload();
                                 });

@@ -106,12 +106,6 @@ Route::middleware('auth')->group(function () {
     */
     
     Route::middleware('role:master')->group(function () {
-
-        Route::get('/dashboard', function () {
-    $dataRisets = DataRiset::all();
-    $pendingCount = PendingUser::where('status', 'pending')->count();
-    return view('master.dashboard', compact('dataRisets', 'pendingCount'));
-})->name('dashboard');
         
         // User Verification
         Route::prefix('verifikasi-akun')->name('verifikasi.')->group(function () {
