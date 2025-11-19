@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Edit Referensi</title>
+    <link rel="icon" sizes="50x50" type="image/png" href="{{ asset('storage/images/logo1.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
         function previewImage(input, previewId) {

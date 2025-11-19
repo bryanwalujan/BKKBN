@@ -17,38 +17,45 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class BalitaController extends Controller
 {
     public function index(Request $request)
-    {
-        $search = $request->query('search');
-        $kategoriUmur = $request->query('kategori_umur');
-        $kecamatan_id = $request->query('kecamatan_id');
-        $kelurahan_id = $request->query('kelurahan_id');
+{
+    $search = $request->query('search');
+    $kategoriUmur = $request->query('kategori_umur');
+    $kecamatan_id = $request->query('kecamatan_id');
+    $kelurahan_id = $request->query('kelurahan_id');
 
-        $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy']);
+    $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy']);
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', '%' . $search . '%')
-                  ->orWhereRaw('CAST(AES_DECRYPT(nik, ?) AS CHAR) LIKE ?', [config('app.key'), '%' . $search . '%']);
-            });
-        }
-
-        if ($kecamatan_id) {
-            $query->where('kecamatan_id', $kecamatan_id);
-        }
-
-        if ($kelurahan_id) {
-            $query->where('kelurahan_id', $kelurahan_id);
-        }
-
-        if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
-            $query->where('kategori_umur', $kategoriUmur);
-        }
-
-        $balitas = $query->paginate(10)->appends($request->query());
-        $kecamatans = Kecamatan::all();
-
-        return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search', 'kecamatans', 'kecamatan_id', 'kelurahan_id'));
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('nama', 'like', '%' . $search . '%')
+              ->orWhereRaw('CAST(AES_DECRYPT(nik, ?) AS CHAR) LIKE ?', [config('app.key'), '%' . $search . '%']);
+        });
     }
+
+    if ($kecamatan_id) {
+        $query->where('kecamatan_id', $kecamatan_id);
+    }
+
+    if ($kelurahan_id) {
+        $query->where('kelurahan_id', $kelurahan_id);
+    }
+
+    // Jika kategori umur dihitung dari tanggal lahir
+    if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
+        if ($kategoriUmur === 'Baduata') {
+            // Baduata: 0-2 tahun (0-23 bulan)
+            $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) <= 23');
+        } else {
+            // Balita: 2-5 tahun (24-59 bulan)
+            $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) BETWEEN 24 AND 59');
+        }
+    }
+
+    $balitas = $query->paginate(10)->appends($request->query());
+    $kecamatans = Kecamatan::all();
+
+    return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search', 'kecamatans', 'kecamatan_id', 'kelurahan_id'));
+}
 
     public function create()
     {
