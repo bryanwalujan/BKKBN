@@ -1,48 +1,62 @@
 <?php
-
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'role', 'kecamatan_id', 'kelurahan_id', 'penanggung_jawab', 'no_telepon', 'pas_foto', 'email_verified_at'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token', 'penanggung_jawab', 'no_telepon'
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    public function kecamatan()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
+    }
+
+    public function kelurahan()
+    {
+        return $this->belongsTo(Kelurahan::class, 'kelurahan_id');
+    }
+
+    public function getKecamatanNamaAttribute()
+    {
+        return $this->kecamatan ? $this->kecamatan->nama_kecamatan : null;
+    }
+
+    public function getKelurahanNamaAttribute()
+    {
+        return $this->kelurahan ? $this->kelurahan->nama_kelurahan : null;
+    }
+
+    public function isMaster()
+    {
+        return $this->role === 'master';
+    }
+
+    public function isAdminKecamatan()
+    {
+        return $this->role === 'admin_kecamatan';
+    }
+
+    public function isAdminKelurahan()
+    {
+        return $this->role === 'admin_kelurahan';
+    }
+
+    public function isPerangkatDaerah()
+    {
+        return $this->role === 'perangkat_daerah';
     }
 }
