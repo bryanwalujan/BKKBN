@@ -141,8 +141,8 @@
                     </div>
                 </div>
 
-                <a href="{{ route('kelurahan.ibu.create') }}" class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
-                    <div class="flex items-center justify-between text-white">
+                <a href="{{ route('kelurahan.ibu.create') }}" class="bg-gradient-to-r from-red-500 to-pink-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
+                    <div class="flex items-center justify-between text-black">
                         <div>
                             <p class="text-sm font-medium opacity-90">Tambah Baru</p>
                             <p class="text-lg font-bold mt-1 group-hover:translate-x-1 transition-transform">Data Ibu</p>

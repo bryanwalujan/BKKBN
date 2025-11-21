@@ -21,6 +21,7 @@ class KelurahanBayiBaruLahirController extends Controller
     {
         $search = $request->query('search');
         $kelurahan_id = Auth::user()->kelurahan_id;
+        
         $query = BayiBaruLahir::with(['ibuNifas.ibu.kartuKeluarga', 'ibuNifas.ibu.kecamatan', 'ibuNifas.ibu.kelurahan'])
             ->whereHas('ibuNifas.ibu', function ($q) use ($kelurahan_id) {
                 $q->where('kelurahan_id', $kelurahan_id);
@@ -34,7 +35,64 @@ class KelurahanBayiBaruLahirController extends Controller
         }
 
         $bayiBaruLahirs = $query->paginate(10)->appends(['search' => $search]);
-        return view('kelurahan.bayi_baru_lahir.index', compact('bayiBaruLahirs', 'search'));
+        
+        // Hitung rata-rata dari semua data di kelurahan ini (bukan hanya dari halaman pagination)
+        $allBayi = BayiBaruLahir::with('ibuNifas.ibu')
+            ->whereHas('ibuNifas.ibu', function ($q) use ($kelurahan_id) {
+                $q->where('kelurahan_id', $kelurahan_id);
+            })->get();
+        
+        $avgBeratBadan = $this->calculateAverage($allBayi, 'berat_badan_lahir');
+        $avgPanjangBadan = $this->calculateAverage($allBayi, 'panjang_badan_lahir');
+        
+        return view('kelurahan.bayi_baru_lahir.index', compact('bayiBaruLahirs', 'search', 'avgBeratBadan', 'avgPanjangBadan'));
+    }
+
+    /**
+     * Helper untuk menghitung rata-rata dengan normalisasi koma ke titik
+     */
+    private function calculateAverage($collection, $field)
+    {
+        $values = [];
+        
+        foreach ($collection as $item) {
+            $value = $item->$field;
+            
+            // Skip jika nilai kosong atau null
+            if (empty($value)) {
+                continue;
+            }
+            
+            // Konversi koma ke titik untuk format Indonesia
+            $normalized = str_replace(',', '.', trim($value));
+            
+            // Validasi apakah hasilnya numerik
+            if (is_numeric($normalized)) {
+                $values[] = (float)$normalized;
+            }
+        }
+        
+        // Hitung rata-rata jika ada data valid
+        if (count($values) > 0) {
+            return array_sum($values) / count($values);
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Helper untuk normalisasi input angka
+     * Tidak mengubah format, hanya memastikan format konsisten
+     */
+    private function normalizeNumericInput($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+        
+        // Biarkan format asli (dengan koma) karena tipe data varchar
+        // Hanya bersihkan spasi berlebih
+        return trim($value);
     }
 
     public function create()
@@ -58,13 +116,19 @@ class KelurahanBayiBaruLahirController extends Controller
         try {
             $kelurahan_id = Auth::user()->kelurahan_id;
             $ibuNifas = IbuNifas::findOrFail($request->ibu_nifas_id);
+            
+            // Validasi kelurahan
             if ($ibuNifas->ibu->kelurahan_id != $kelurahan_id) {
                 return redirect()->back()->withInput()->with('error', 'Anda tidak memiliki izin untuk menambahkan data bayi untuk ibu nifas ini.');
             }
 
-            BayiBaruLahir::create(array_merge($request->all(), [
-                'created_by' => Auth::id(),
-            ]));
+            $data = $request->all();
+            
+            // Normalisasi input (bersihkan spasi)
+            $data['berat_badan_lahir'] = $this->normalizeNumericInput($request->berat_badan_lahir);
+            $data['panjang_badan_lahir'] = $this->normalizeNumericInput($request->panjang_badan_lahir);
+
+            BayiBaruLahir::create($data);
             return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('success', 'Data bayi baru lahir berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data bayi baru lahir: ' . $e->getMessage(), ['data' => $request->all()]);
@@ -76,12 +140,16 @@ class KelurahanBayiBaruLahirController extends Controller
     {
         $kelurahan_id = Auth::user()->kelurahan_id;
         $bayiBaruLahir = BayiBaruLahir::with('ibuNifas.ibu')->findOrFail($id);
+        
+        // Validasi kelurahan
         if ($bayiBaruLahir->ibuNifas->ibu->kelurahan_id != $kelurahan_id) {
             return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('error', 'Anda tidak memiliki izin untuk mengedit data ini.');
         }
+        
         $ibuNifas = IbuNifas::with('ibu')->whereHas('ibu', function ($q) use ($kelurahan_id) {
             $q->where('kelurahan_id', $kelurahan_id);
         })->get();
+        
         return view('kelurahan.bayi_baru_lahir.edit', compact('bayiBaruLahir', 'ibuNifas'));
     }
 
@@ -96,18 +164,27 @@ class KelurahanBayiBaruLahirController extends Controller
 
         try {
             $kelurahan_id = Auth::user()->kelurahan_id;
-            $bayiBaruLahir = BayiBaruLahir::findOrFail($id);
+            $bayiBaruLahir = BayiBaruLahir::with('ibuNifas.ibu')->findOrFail($id);
+            
+            // Validasi kelurahan untuk data yang akan diupdate
             if ($bayiBaruLahir->ibuNifas->ibu->kelurahan_id != $kelurahan_id) {
                 return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('error', 'Anda tidak memiliki izin untuk memperbarui data ini.');
             }
+            
             $ibuNifas = IbuNifas::findOrFail($request->ibu_nifas_id);
+            
+            // Validasi kelurahan untuk ibu nifas baru
             if ($ibuNifas->ibu->kelurahan_id != $kelurahan_id) {
                 return redirect()->back()->withInput()->with('error', 'Anda tidak memiliki izin untuk memperbarui data dengan ibu nifas ini.');
             }
 
-            $bayiBaruLahir->update(array_merge($request->all(), [
-                'created_by' => Auth::id(),
-            ]));
+            $data = $request->all();
+            
+            // Normalisasi input (bersihkan spasi)
+            $data['berat_badan_lahir'] = $this->normalizeNumericInput($request->berat_badan_lahir);
+            $data['panjang_badan_lahir'] = $this->normalizeNumericInput($request->panjang_badan_lahir);
+
+            $bayiBaruLahir->update($data);
             return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('success', 'Data bayi baru lahir berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data bayi baru lahir: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
@@ -119,10 +196,13 @@ class KelurahanBayiBaruLahirController extends Controller
     {
         try {
             $kelurahan_id = Auth::user()->kelurahan_id;
-            $bayiBaruLahir = BayiBaruLahir::findOrFail($id);
+            $bayiBaruLahir = BayiBaruLahir::with('ibuNifas.ibu')->findOrFail($id);
+            
+            // Validasi kelurahan
             if ($bayiBaruLahir->ibuNifas->ibu->kelurahan_id != $kelurahan_id) {
                 return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('error', 'Anda tidak memiliki izin untuk menghapus data ini.');
             }
+            
             $bayiBaruLahir->delete();
             return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('success', 'Data bayi baru lahir berhasil dihapus.');
         } catch (\Exception $e) {
@@ -136,18 +216,26 @@ class KelurahanBayiBaruLahirController extends Controller
         try {
             $kelurahan_id = Auth::user()->kelurahan_id;
             $bayiBaruLahir = BayiBaruLahir::with('ibuNifas.ibu')->findOrFail($id);
+            
+            // Validasi kelurahan
             if ($bayiBaruLahir->ibuNifas->ibu->kelurahan_id != $kelurahan_id) {
                 return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('error', 'Anda tidak memiliki izin untuk memindahkan data ini.');
             }
+            
             $ibuNifas = $bayiBaruLahir->ibuNifas;
 
+            // Ambil data berat dan panjang badan langsung dari database
+            $beratBadan = $bayiBaruLahir->berat_badan_lahir;
+            $panjangBadan = $bayiBaruLahir->panjang_badan_lahir;
+
+            // Buat data balita
             Balita::create([
                 'created_by' => Auth::id(),
                 'nik' => null,
                 'nama' => 'Bayi ' . ($ibuNifas->ibu->nama ?? 'Tanpa Nama'),
                 'tanggal_lahir' => $ibuNifas->tanggal_melahirkan,
-                'berat_tinggi' => ($bayiBaruLahir->berat_badan_lahir ? $bayiBaruLahir->berat_badan_lahir . ' kg' : '') . 
-                                 ($bayiBaruLahir->panjang_badan_lahir ? ' / ' . $bayiBaruLahir->panjang_badan_lahir . ' cm' : ''),
+                'berat_tinggi' => ($beratBadan ? $beratBadan . ' kg' : '') . 
+                                 ($panjangBadan ? ' / ' . $panjangBadan . ' cm' : ''),
                 'kelurahan_id' => $ibuNifas->ibu->kelurahan_id,
                 'kecamatan_id' => $ibuNifas->ibu->kecamatan_id,
                 'kartu_keluarga_id' => $ibuNifas->ibu->kartu_keluarga_id,
@@ -161,7 +249,9 @@ class KelurahanBayiBaruLahirController extends Controller
                 'foto' => null,
             ]);
 
+            // Hapus data dari bayi_baru_lahir
             $bayiBaruLahir->delete();
+
             return redirect()->route('kelurahan.bayi_baru_lahir.index')->with('success', 'Data bayi berhasil dipindahkan ke tabel balita.');
         } catch (\Exception $e) {
             Log::error('Gagal memindahkan data bayi ke balita: ' . $e->getMessage(), ['id' => $id]);

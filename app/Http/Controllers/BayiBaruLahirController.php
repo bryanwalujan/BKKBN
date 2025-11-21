@@ -23,7 +23,60 @@ class BayiBaruLahirController extends Controller
         }
 
         $bayiBaruLahirs = $query->paginate(10)->appends(['search' => $search]);
-        return view('master.bayi_baru_lahir.index', compact('bayiBaruLahirs', 'search'));
+        
+        // Hitung rata-rata dari semua data (bukan hanya dari halaman pagination)
+        $allBayi = BayiBaruLahir::all();
+        $avgBeratBadan = $this->calculateAverage($allBayi, 'berat_badan_lahir');
+        $avgPanjangBadan = $this->calculateAverage($allBayi, 'panjang_badan_lahir');
+        
+        return view('master.bayi_baru_lahir.index', compact('bayiBaruLahirs', 'search', 'avgBeratBadan', 'avgPanjangBadan'));
+    }
+
+    /**
+     * Helper untuk menghitung rata-rata dengan normalisasi koma ke titik
+     */
+    private function calculateAverage($collection, $field)
+    {
+        $values = [];
+        
+        foreach ($collection as $item) {
+            $value = $item->$field;
+            
+            // Skip jika nilai kosong atau null
+            if (empty($value)) {
+                continue;
+            }
+            
+            // Konversi koma ke titik untuk format Indonesia
+            $normalized = str_replace(',', '.', trim($value));
+            
+            // Validasi apakah hasilnya numerik
+            if (is_numeric($normalized)) {
+                $values[] = (float)$normalized;
+            }
+        }
+        
+        // Hitung rata-rata jika ada data valid
+        if (count($values) > 0) {
+            return array_sum($values) / count($values);
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Helper untuk normalisasi input angka (koma ke titik)
+     * Tidak mengubah format, hanya memastikan format konsisten
+     */
+    private function normalizeNumericInput($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+        
+        // Biarkan format asli (dengan koma) karena tipe data varchar
+        // Hanya bersihkan spasi berlebih
+        return trim($value);
     }
 
     public function create()
@@ -42,7 +95,13 @@ class BayiBaruLahirController extends Controller
         ]);
 
         try {
-            BayiBaruLahir::create($request->all());
+            $data = $request->all();
+            
+            // Normalisasi input (bersihkan spasi)
+            $data['berat_badan_lahir'] = $this->normalizeNumericInput($request->berat_badan_lahir);
+            $data['panjang_badan_lahir'] = $this->normalizeNumericInput($request->panjang_badan_lahir);
+            
+            BayiBaruLahir::create($data);
             return redirect()->route('bayi_baru_lahir.index')->with('success', 'Data bayi baru lahir berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data bayi baru lahir: ' . $e->getMessage(), ['data' => $request->all()]);
@@ -68,7 +127,14 @@ class BayiBaruLahirController extends Controller
 
         try {
             $bayiBaruLahir = BayiBaruLahir::findOrFail($id);
-            $bayiBaruLahir->update($request->all());
+            
+            $data = $request->all();
+            
+            // Normalisasi input (bersihkan spasi)
+            $data['berat_badan_lahir'] = $this->normalizeNumericInput($request->berat_badan_lahir);
+            $data['panjang_badan_lahir'] = $this->normalizeNumericInput($request->panjang_badan_lahir);
+            
+            $bayiBaruLahir->update($data);
             return redirect()->route('bayi_baru_lahir.index')->with('success', 'Data bayi baru lahir berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data bayi baru lahir: ' . $e->getMessage(), ['id' => $id, 'data' => $request->all()]);
@@ -94,25 +160,29 @@ class BayiBaruLahirController extends Controller
             $bayiBaruLahir = BayiBaruLahir::with('ibuNifas.ibu')->findOrFail($id);
             $ibuNifas = $bayiBaruLahir->ibuNifas;
 
+            // Ambil data berat dan panjang badan langsung dari database
+            $beratBadan = $bayiBaruLahir->berat_badan_lahir;
+            $panjangBadan = $bayiBaruLahir->panjang_badan_lahir;
+
             // Buat data balita
             Balita::create([
                 'created_by' => auth()->id(),
-                'nik' => null, // Nullable, sesuai permintaan
+                'nik' => null,
                 'nama' => 'Bayi ' . ($ibuNifas->ibu->nama ?? 'Tanpa Nama'),
                 'tanggal_lahir' => $ibuNifas->tanggal_melahirkan,
-                'berat_tinggi' => ($bayiBaruLahir->berat_badan_lahir ? $bayiBaruLahir->berat_badan_lahir . ' kg' : '') . 
-                                 ($bayiBaruLahir->panjang_badan_lahir ? ' / ' . $bayiBaruLahir->panjang_badan_lahir . ' cm' : ''),
+                'berat_tinggi' => ($beratBadan ? $beratBadan . ' kg' : '') . 
+                                 ($panjangBadan ? ' / ' . $panjangBadan . ' cm' : ''),
                 'kelurahan_id' => $ibuNifas->ibu->kelurahan_id,
                 'kecamatan_id' => $ibuNifas->ibu->kecamatan_id,
                 'kartu_keluarga_id' => $ibuNifas->ibu->kartu_keluarga_id,
-                'jenis_kelamin' => null, // Nullable
-                'lingkar_kepala' => null, // Nullable
-                'lingkar_lengan' => null, // Nullable
-                'alamat' => $ibuNifas->ibu->alamat ?? null, // Ambil dari ibu jika ada
-                'status_gizi' => null, // Nullable
-                'warna_label' => null, // Nullable
-                'status_pemantauan' => null, // Nullable
-                'foto' => null, // Nullable
+                'jenis_kelamin' => null,
+                'lingkar_kepala' => null,
+                'lingkar_lengan' => null,
+                'alamat' => $ibuNifas->ibu->alamat ?? null,
+                'status_gizi' => null,
+                'warna_label' => null,
+                'status_pemantauan' => null,
+                'foto' => null,
             ]);
 
             // Hapus data dari bayi_baru_lahir

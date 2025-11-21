@@ -18,37 +18,58 @@ class KelurahanBalitaController extends Controller
         $this->middleware('role:admin_kelurahan');
     }
 
-    public function index(Request $request)
-    {
-        $user = Auth::user();
-        $kelurahan_id = $user->kelurahan_id;
+   public function index(Request $request)
+{
+    $user = Auth::user();
+    $kelurahan_id = $user->kelurahan_id;
 
-        if (!$kelurahan_id) {
-            return redirect()->route('dashboard')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
-        }
-
-        $search = $request->query('search');
-        $kategoriUmur = $request->query('kategori_umur');
-
-        // Query untuk Balita
-        $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
-            ->where('kelurahan_id', $kelurahan_id);
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', '%' . $search . '%')
-                  ->orWhere('nik', 'like', '%' . $search . '%');
-            });
-        }
-
-        if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
-            $query->where('kategori_umur', $kategoriUmur);
-        }
-
-        $balitas = $query->paginate(10)->appends($request->query());
-
-        return view('kelurahan.balita.index', compact('balitas', 'kategoriUmur', 'search'));
+    if (!$kelurahan_id) {
+        return redirect()->route('dashboard')->with('error', 'Admin kelurahan tidak terkait dengan kelurahan.');
     }
+
+    $search       = $request->query('search');
+    $kategoriUmur = $request->query('kategori_umur');
+
+    // Query utama – HANYA data dari kelurahan admin
+    $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
+                   ->where('kelurahan_id', $kelurahan_id)
+                   ->whereNotNull('tanggal_lahir'); // Hindari data rusak
+
+    // Pencarian nama / NIK (nik masih terenkripsi, jadi cari nama saja lebih aman)
+    if ($search) {
+        $query->where('nama', 'like', "%{$search}%");
+        // Jika NIK tidak dienkripsi di kelurahan, bisa ditambahkan:
+        // ->orWhere('nik', 'like', "%{$search}%");
+    }
+
+    // FILTER KATEGORI UMUR – INI YANG BENAR & AMAN
+    if ($kategoriUmur === 'Baduata') {
+        $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) <= 23');
+    } elseif ($kategoriUmur === 'Balita') {
+        $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) BETWEEN 24 AND 59');
+    }
+
+    $balitas = $query->paginate(10)->appends($request->query());
+
+    // STATISTIK AKURAT – HANYA dari kelurahan ini
+    $totalBaduata = Balita::where('kelurahan_id', $kelurahan_id)
+                          ->whereNotNull('tanggal_lahir')
+                          ->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) <= 23')
+                          ->count();
+
+    $totalBalita = Balita::where('kelurahan_id', $kelurahan_id)
+                         ->whereNotNull('tanggal_lahir')
+                         ->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) BETWEEN 24 AND 59')
+                         ->count();
+
+    return view('kelurahan.balita.index', compact(
+        'balitas',
+        'kategoriUmur',
+        'search',
+        'totalBaduata',
+        'totalBalita'
+    ));
+}
 
     public function create()
     {

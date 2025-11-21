@@ -41,29 +41,26 @@ class Balita extends Model
         'lingkar_lengan' => 'float',
     ];
 
-     // Accessor untuk menghitung usia dalam bulan (dibulatkan)
     public function getUsiaAttribute()
-    {
-        if (!$this->tanggal_lahir) {
-            return null;
-        }
-        return round(Carbon::parse($this->tanggal_lahir)->diffInMonths(Carbon::now()));
+{
+    if (!$this->tanggal_lahir) return null;
+    return (int) floor(Carbon::parse($this->tanggal_lahir)->diffInMonths(Carbon::now()));
+}
+
+public function getKategoriUmurAttribute()
+{
+    if (!$this->tanggal_lahir) return 'Tidak Diketahui';
+
+    $usia = $this->usia;
+
+    if ($usia <= 23) {
+        return 'Baduata';
+    } elseif ($usia <= 59) {
+        return 'Balita';
     }
 
-     // Accessor untuk menentukan kategori umur
-    public function getKategoriUmurAttribute()
-    {
-        if (!$this->tanggal_lahir) {
-            return 'Tidak Diketahui';
-        }
-        $usiaBulan = $this->usia;
-        if ($usiaBulan >= 0 && $usiaBulan <= 24) {
-            return 'Baduata';
-        } elseif ($usiaBulan > 24 && $usiaBulan <= 60) {
-            return 'Balita';
-        }
-        return 'Di Atas Balita';
-    }
+    return 'Di Atas Balita';
+}
 
     public function kartuKeluarga()
     {

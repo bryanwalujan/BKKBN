@@ -81,102 +81,104 @@
                 </div>
             @endif
 
-            <!-- Action Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Total Balita</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $balitas->total() }}</p>
-                        </div>
-                        <div class="p-3 bg-green-50 rounded-lg">
-                            <i class="fas fa-baby text-green-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Baduata (0-24 bln)</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $balitas->where('kategoriUmur', 'Baduata')->count() }}</p>
-                        </div>
-                        <div class="p-3 bg-blue-50 rounded-lg">
-                            <i class="fas fa-child text-blue-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Balita (25-60 bln)</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $balitas->where('kategoriUmur', 'Balita')->count() }}</p>
-                        </div>
-                        <div class="p-3 bg-purple-50 rounded-lg">
-                            <i class="fas fa-child text-purple-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="{{ route('kelurahan.balita.create') }}" class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
-                    <div class="flex items-center justify-between text-white">
-                        <div>
-                            <p class="text-sm font-medium opacity-90">Tambah Baru</p>
-                            <p class="text-lg font-bold mt-1 group-hover:translate-x-1 transition-transform">Data Balita</p>
-                        </div>
-                        <div class="p-3 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
-                            <i class="fas fa-plus text-xl"></i>
-                        </div>
-                    </div>
-                </a>
+           <!-- Action Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Balita (dari paginator) -->
+    <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Balita</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">{{ $balitas->total() }}</p>
             </div>
+            <div class="p-3 bg-green-50 rounded-lg">
+                <i class="fas fa-baby text-green-500 text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-            <!-- Filter Section -->
-            <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                        <i class="fas fa-filter text-green-500 mr-2"></i>
-                        Filter Data
-                    </h3>
-                    @if ($kategoriUmur || $search)
-                        <a href="{{ route('kelurahan.balita.index') }}" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
-                            <i class="fas fa-refresh mr-1"></i>
-                            Reset Filter
-                        </a>
-                    @endif
-                </div>
+    <!-- Baduata (0-24 bulan) -->
+    <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Baduata (0-24 bln)</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalBaduata }}</p>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg">
+                <i class="fas fa-child text-blue-500 text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-                <form action="{{ route('kelurahan.balita.index') }}" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-child mr-1 text-purple-500"></i>
-                            Kategori Umur
-                        </label>
-                        <select name="kategori_umur" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3">
-                            <option value="" {{ $kategoriUmur == '' ? 'selected' : '' }}>Semua Kategori</option>
-                            <option value="Baduata" {{ $kategoriUmur == 'Baduata' ? 'selected' : '' }}>Baduata (0-24 bulan)</option>
-                            <option value="Balita" {{ $kategoriUmur == 'Balita' ? 'selected' : '' }}>Balita (25-60 bulan)</option>
-                        </select>
-                    </div>
+    <!-- Balita (25-60 bulan) -->
+    <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Balita (25-60 bln)</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalBalita }}</p>
+            </div>
+            <div class="p-3 bg-purple-50 rounded-lg">
+                <i class="fas fa-child text-purple-500 text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-search mr-1 text-purple-500"></i>
-                            Pencarian
-                        </label>
-                        <input type="text" name="search" value="{{ $search ?? '' }}" 
-                               placeholder="Cari Nama atau NIK..." 
-                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3">
-                    </div>
+    <!-- Tombol Tambah -->
+    <a href="{{ route('kelurahan.balita.create') }}" 
+       class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
+        <div class="flex items-center justify-between text-white">
+            <div>
+                <p class="text-sm font-medium opacity-90">Tambah Baru</p>
+                <p class="text-lg font-bold mt-1 group-hover:translate-x-1 transition-transform">Data Balita</p>
+            </div>
+            <div class="p-3 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
+                <i class="fas fa-plus text-xl"></i>
+            </div>
+        </div>
+    </a>
+</div>
 
-                    <div class="flex items-end">
-                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center w-full">
-                            <i class="fas fa-filter mr-2"></i>
-                            Terapkan Filter
-                        </button>
-                    </div>
-                </form>
+           <!-- Filter Section -->
+<div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+            <i class="fas fa-filter text-green-500 mr-2"></i>
+            Filter Data
+        </h3>
+        @if ($kategoriUmur || $search)
+            <a href="{{ route('kelurahan.balita.index') }}" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
+                <i class="fas fa-refresh mr-1"></i> Reset Filter
+            </a>
+        @endif
+    </div>
+
+    <form action="{{ route('kelurahan.balita.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-child mr-1 text-purple-500"></i> Kategori Umur
+            </label>
+            <select name="kategori_umur" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3">
+                <option value="">Semua Kategori</option>
+                <option value="Baduata" {{ $kategoriUmur == 'Baduata' ? 'selected' : '' }}>Baduata (0-24 bulan)</option>
+                <option value="Balita" {{ $kategoriUmur == 'Balita' ? 'selected' : '' }}>Balita (25-60 bulan)</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-search mr-1 text-purple-500"></i> Pencarian
+            </label>
+            <input type="text" name="search" value="{{ $search ?? '' }}" 
+                   placeholder="Cari Nama..." 
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3">
+        </div>
+
+        <div class="flex items-end">
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center w-full">
+                <i class="fas fa-filter mr-2"></i> Terapkan Filter
+            </button>
+        </div>
+    </form>
+</div>
 
                 <!-- Filter Info -->
                 @if ($kategoriUmur || $search)

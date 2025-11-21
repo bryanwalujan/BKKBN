@@ -16,45 +16,56 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class BalitaController extends Controller
 {
-    public function index(Request $request)
+ public function index(Request $request)
 {
-    $search = $request->query('search');
-    $kategoriUmur = $request->query('kategori_umur');
-    $kecamatan_id = $request->query('kecamatan_id');
-    $kelurahan_id = $request->query('kelurahan_id');
+    $search        = $request->query('search');
+    $kategoriUmur  = $request->query('kategori_umur');
+    $kecamatan_id  = $request->query('kecamatan_id');
+    $kelurahan_id  = $request->query('kelurahan_id');
 
-    $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy']);
+    $query = Balita::with(['kartuKeluarga', 'kecamatan', 'kelurahan', 'createdBy'])
+                   ->whereNotNull('tanggal_lahir'); // PENTING! Hilangkan yang tanggal_lahir NULL
 
+    // Pencarian
     if ($search) {
         $query->where(function ($q) use ($search) {
-            $q->where('nama', 'like', '%' . $search . '%')
-              ->orWhereRaw('CAST(AES_DECRYPT(nik, ?) AS CHAR) LIKE ?', [config('app.key'), '%' . $search . '%']);
+            $q->where('nama', 'like', "%{$search}%")
+              ->orWhereRaw('CAST(AES_DECRYPT(nik, ?) AS CHAR) LIKE ?', [config('app.key'), "%{$search}%"]);
         });
     }
 
     if ($kecamatan_id) {
         $query->where('kecamatan_id', $kecamatan_id);
     }
-
     if ($kelurahan_id) {
         $query->where('kelurahan_id', $kelurahan_id);
     }
 
-    // Jika kategori umur dihitung dari tanggal lahir
-    if ($kategoriUmur && in_array($kategoriUmur, ['Baduata', 'Balita'])) {
-        if ($kategoriUmur === 'Baduata') {
-            // Baduata: 0-2 tahun (0-23 bulan)
-            $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) <= 23');
-        } else {
-            // Balita: 2-5 tahun (24-59 bulan)
-            $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) BETWEEN 24 AND 59');
-        }
+    // FILTER KATEGORI UMUR — INI YANG BENAR-BENAR AMAN
+    if ($kategoriUmur === 'Baduata') {
+        $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) <= 23');
+    } elseif ($kategoriUmur === 'Balita') {
+        $query->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) BETWEEN 24 AND 59');
     }
+    // Jika tidak dipilih filter kategori → tetap tampilkan semua (termasuk >59 bulan)
 
-    $balitas = $query->paginate(10)->appends($request->query());
-    $kecamatans = Kecamatan::all();
+    $balitas = $query->paginate(15)->appends($request->query());
 
-    return view('master.balita.index', compact('balitas', 'kategoriUmur', 'search', 'kecamatans', 'kecamatan_id', 'kelurahan_id'));
+    // Statistik akurat (termasuk yang tanggal_lahir NULL diabaikan)
+    $totalBaduata = Balita::whereNotNull('tanggal_lahir')
+                          ->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) <= 23')
+                          ->count();
+
+    $totalBalita = Balita::whereNotNull('tanggal_lahir')
+                         ->whereRaw('TIMESTAMPDIFF(MONTH, tanggal_lahir, CURDATE()) BETWEEN 24 AND 59')
+                         ->count();
+
+    $kecamatans = \App\Models\Kecamatan::orderBy('nama_kecamatan')->get();
+
+    return view('master.balita.index', compact(
+        'balitas', 'kategoriUmur', 'search', 'kecamatan_id', 'kelurahan_id',
+        'kecamatans', 'totalBaduata', 'totalBalita'
+    ));
 }
 
     public function create()

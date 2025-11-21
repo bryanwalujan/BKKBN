@@ -197,7 +197,7 @@
                                     Tanggal
                                 </label>
                                 <div class="relative">
-                                    <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal', $genting->tanggal ? $genting->tanggal->format('Y-m-d') : '') }}" 
+                                    <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal', $genting->tanggal ? \Carbon\Carbon::make($genting->tanggal)?->format('Y-m-d') : '') }}"" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
                                            required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

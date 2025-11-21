@@ -91,33 +91,35 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Rata-rata Berat Badan</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">
-                                {{ number_format($bayiBaruLahirs->avg('berat_badan_lahir') ?? 0, 2) }} kg
-                            </p>
-                        </div>
-                        <div class="p-3 bg-green-50 rounded-lg">
-                            <i class="fas fa-weight text-green-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+                 <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-sm font-medium text-gray-600">Rata-rata Berat Badan</p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">
+                @if($avgBeratBadan > 0)
+                    {{ number_format($avgBeratBadan, 1, ',', '.') }} kg
+                @else
+                    Belum ada data
+                @endif
+            </p>
+        </div>
+    </div>
+</div>
 
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Rata-rata Panjang Badan</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">
-                                {{ number_format($bayiBaruLahirs->avg('panjang_badan_lahir') ?? 0, 2) }} cm
-                            </p>
-                        </div>
-                        <div class="p-3 bg-purple-50 rounded-lg">
-                            <i class="fas fa-ruler-vertical text-purple-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+<div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-sm font-medium text-gray-600">Rata-rata Panjang Badan</p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">
+                @if($avgPanjangBadan > 0)
+                    {{ number_format($avgPanjangBadan, 1, ',', '.') }} cm
+                @else
+                    Belum ada data
+                @endif
+            </p>
+        </div>
+    </div>
+</div>
 
                 <div class="grid grid-cols-1 gap-3">
                    
@@ -276,7 +278,7 @@
                                                 <i class="fas fa-baby text-blue-600 text-xs"></i>
                                             </div>
                                             <div class="ml-3">
-                                                <span class="text-sm font-medium text-gray-900">{{ $bayi->umur_dalam_kandungan ?? '-' }} minggu</span>
+                                                <span class="text-sm font-medium text-gray-900">{{ $bayi->umur_dalam_kandungan ?? '-' }}Bulan</span>
                                                 <p class="text-xs text-gray-500">Umur Kandungan</p>
                                             </div>
                                         </div>
@@ -305,7 +307,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-2">
-                                            <a href="{{ route('bayi_baru_lahir.edit', $bayi->id) }}" 
+                                            <a href="{{ route('ibu_nifas.edit', $bayi->id) }}" 
                                                class="text-green-600 hover:text-green-900 transition-colors p-2 rounded-lg hover:bg-green-50"
                                                title="Edit">
                                                 <i class="fas fa-edit"></i>

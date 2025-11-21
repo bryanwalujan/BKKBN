@@ -514,7 +514,7 @@
                                 <div>
                                     <label for="bayi_umur_dalam_kandungan" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                                         <i class="fas fa-clock text-purple-500 mr-2 text-xs"></i>
-                                        Umur Dalam Kandungan
+                                        Umur Dalam Kandungan 
                                     </label>
                                     <div class="relative">
                                         <input type="text" name="bayi[umur_dalam_kandungan]" id="bayi_umur_dalam_kandungan" value="{{ old('bayi.umur_dalam_kandungan') }}" 
