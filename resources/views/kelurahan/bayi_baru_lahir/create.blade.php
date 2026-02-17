@@ -172,7 +172,7 @@
                                     Nama Ibu Nifas
                                 </label>
                                 <div class="relative">
-                                    <select name="ibu_nifas_id" id="ibu_nifas_id" class="w-full" required>
+                                    <select name="ibu_nifas_id" id="ibu_nifas_id" class="w-full" >
                                         <option value="">-- Pilih Ibu Nifas --</option>
                                         @foreach ($ibuNifas as $ibu)
                                             <option value="{{ $ibu->id }}" {{ old('ibu_nifas_id') == $ibu->id ? 'selected' : '' }}>

@@ -159,7 +159,7 @@
                                 <div class="relative">
                                     <select name="data_monitoring_id" id="data_monitoring_id" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Data Monitoring --</option>
                                         @foreach (App\Models\DataMonitoring::all() as $monitoring)
                                             <option value="{{ $monitoring->id }}" {{ old('data_monitoring_id', $auditStunting->data_monitoring_id) == $monitoring->id ? 'selected' : '' }}>
@@ -216,7 +216,7 @@
                                 <div class="relative">
                                     <select name="user_id" id="user_id" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Pengaudit --</option>
                                         @foreach (App\Models\User::all() as $user)
                                             <option value="{{ $user->id }}" {{ old('user_id', $auditStunting->user_id) == $user->id ? 'selected' : '' }}>

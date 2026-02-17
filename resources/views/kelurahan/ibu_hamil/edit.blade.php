@@ -173,7 +173,7 @@
                                         Nama Ibu
                                     </label>
                                     <div class="input-with-icon">
-                                        <select name="ibu_id" id="ibu_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                        <select name="ibu_id" id="ibu_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                             <option value="">-- Pilih Ibu --</option>
                                             @foreach ($ibus as $ibu)
                                                 <option value="{{ $ibu->id }}" {{ old('ibu_id', $ibuHamil->ibu_id) == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }})</option>
@@ -211,7 +211,7 @@
                                         Trimester
                                     </label>
                                     <div class="input-with-icon">
-                                        <select name="trimester" id="trimester" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                        <select name="trimester" id="trimester" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                             <option value="" {{ old('trimester', $ibuHamil->trimester) == '' ? 'selected' : '' }}>-- Pilih Trimester --</option>
                                             <option value="Trimester 1" {{ old('trimester', $ibuHamil->trimester) == 'Trimester 1' ? 'selected' : '' }}>Trimester 1</option>
                                             <option value="Trimester 2" {{ old('trimester', $ibuHamil->trimester) == 'Trimester 2' ? 'selected' : '' }}>Trimester 2</option>
@@ -236,7 +236,7 @@
                                     </label>
                                     <div class="input-with-icon">
                                         <input type="number" name="usia_kehamilan" id="usia_kehamilan" value="{{ old('usia_kehamilan', $ibuHamil->usia_kehamilan) }}" min="0" max="40" step="1" 
-                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                         <div class="icon">
                                             <i class="fas fa-clock"></i>
                                         </div>
@@ -270,7 +270,7 @@
                                     </label>
                                     <div class="input-with-icon">
                                         <input type="number" name="berat" id="berat" value="{{ old('berat', $ibuHamil->berat) }}" step="0.1" min="0" 
-                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                         <div class="icon">
                                             <i class="fas fa-weight"></i>
                                         </div>
@@ -290,7 +290,7 @@
                                     </label>
                                     <div class="input-with-icon">
                                         <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $ibuHamil->tinggi) }}" step="0.1" min="0" 
-                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                         <div class="icon">
                                             <i class="fas fa-ruler"></i>
                                         </div>
@@ -323,7 +323,7 @@
                                         Status Gizi
                                     </label>
                                     <div class="input-with-icon">
-                                        <select name="status_gizi" id="status_gizi" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                        <select name="status_gizi" id="status_gizi" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                             <option value="" {{ old('status_gizi', $ibuHamil->status_gizi) == '' ? 'selected' : '' }}>-- Pilih Status Gizi --</option>
                                             <option value="Normal" {{ old('status_gizi', $ibuHamil->status_gizi) == 'Normal' ? 'selected' : '' }}>Normal</option>
                                             <option value="Kurang Gizi" {{ old('status_gizi', $ibuHamil->status_gizi) == 'Kurang Gizi' ? 'selected' : '' }}>Kurang Gizi</option>
@@ -347,7 +347,7 @@
                                         Warna Status Gizi
                                     </label>
                                     <div class="input-with-icon">
-                                        <select name="warna_status_gizi" id="warna_status_gizi" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                        <select name="warna_status_gizi" id="warna_status_gizi" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                             <option value="" {{ old('warna_status_gizi', $ibuHamil->warna_status_gizi) == '' ? 'selected' : '' }}>-- Pilih Warna --</option>
                                             <option value="Sehat" {{ old('warna_status_gizi', $ibuHamil->warna_status_gizi) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                                             <option value="Waspada" {{ old('warna_status_gizi', $ibuHamil->warna_status_gizi) == 'Waspada' ? 'selected' : '' }}>Waspada</option>
@@ -371,7 +371,7 @@
                                         Intervensi
                                     </label>
                                     <div class="input-with-icon">
-                                        <select name="intervensi" id="intervensi" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                        <select name="intervensi" id="intervensi" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                             <option value="" {{ old('intervensi', $ibuHamil->intervensi) == '' ? 'selected' : '' }}>-- Pilih Intervensi --</option>
                                             <option value="Tidak Ada" {{ old('intervensi', $ibuHamil->intervensi) == 'Tidak Ada' ? 'selected' : '' }}>Tidak Ada</option>
                                             <option value="Gizi" {{ old('intervensi', $ibuHamil->intervensi) == 'Gizi' ? 'selected' : '' }}>Gizi</option>

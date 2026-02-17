@@ -78,44 +78,51 @@ class BalitaController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nik' => ['nullable', 'numeric', 'digits:16', 'unique:balitas,nik'],
-            'nama' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
-            'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
-            'lingkar_kepala' => ['nullable', 'numeric', 'min:0'],
-            'lingkar_lengan' => ['nullable', 'numeric', 'min:0'],
-            'alamat' => ['nullable', 'string', 'max:255'],
-            'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
-            'warna_label' => ['required', 'in:Sehat,Waspada,Bahaya'],
-            'status_pemantauan' => ['nullable', 'string', 'max:255'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
-        ]);
+{
+    $request->validate([
+        'kartu_keluarga_id'   => ['nullable', 'exists:kartu_keluargas,id'],     // boleh kosong
+        'nik'                 => ['nullable', 'numeric', 'digits:16', 'unique:balitas,nik'],
+        'nama'                => ['nullable', 'string', 'max:255'],             // ← boleh kosong
+        'tanggal_lahir'       => ['nullable', 'date_format:Y-m-d'],             // ← boleh kosong
+        'jenis_kelamin'       => ['nullable', 'in:Laki-laki,Perempuan'],
+        'kecamatan_id'        => ['nullable', 'exists:kecamatans,id'],
+        'kelurahan_id'        => ['nullable', 'exists:kelurahans,id'],
+        'berat'               => ['nullable', 'numeric', 'min:0'],
+        'tinggi'              => ['nullable', 'numeric', 'min:0'],
+        'lingkar_kepala'      => ['nullable', 'numeric', 'min:0'],
+        'lingkar_lengan'      => ['nullable', 'numeric', 'min:0'],
+        'alamat'              => ['nullable', 'string', 'max:255'],
+        'status_gizi'         => ['nullable', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
+        'warna_label'         => ['nullable', 'in:Sehat,Waspada,Bahaya'],
+        'status_pemantauan'   => ['nullable', 'string', 'max:255'],
+        'foto'                => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
+    ]);
 
-        try {
-            $data = $request->all();
+    try {
+        $data = $request->all();
+
+        // Hanya gabung berat/tinggi jika KEDUANYA ada
+        if ($request->filled('berat') && $request->filled('tinggi')) {
             $data['berat_tinggi'] = $request->berat . '/' . $request->tinggi;
-            $data['created_by'] = Auth::id();
-
-            if ($request->hasFile('foto')) {
-                $data['foto'] = $request->file('foto')->store('balita_fotos', 'public');
-            }
-
-            Log::info('Menyimpan data balita', $data);
-            Balita::create($data);
-
-            return redirect()->route('balita.index')->with('success', 'Data balita berhasil ditambahkan.');
-        } catch (\Exception $e) {
-            Log::error('Gagal menyimpan data balita: ' . $e->getMessage(), ['data' => $request->all()]);
-            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data balita: ' . $e->getMessage());
+        } else {
+            $data['berat_tinggi'] = null; // atau biarkan kosong
         }
+
+        $data['created_by'] = Auth::id();
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('balita_fotos', 'public');
+        }
+
+        Log::info('Menyimpan data balita (semua opsional)', $data);
+        Balita::create($data);
+
+        return redirect()->route('balita.index')->with('success', 'Data balita berhasil ditambahkan.');
+    } catch (\Exception $e) {
+        Log::error('Gagal menyimpan data balita: ' . $e->getMessage(), ['data' => $request->all()]);
+        return redirect()->back()->withInput()->with('error', 'Gagal menambahkan data balita: ' . $e->getMessage());
     }
+}
 
     public function edit($id)
     {
@@ -130,24 +137,24 @@ class BalitaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nik' => ['nullable', 'numeric', 'digits:16', 'unique:balitas,nik,' . $id],
-            'nama' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
-            'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
-            'lingkar_kepala' => ['nullable', 'numeric', 'min:0'],
-            'lingkar_lengan' => ['nullable', 'numeric', 'min:0'],
-            'alamat' => ['nullable', 'string', 'max:255'],
-            'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
-            'warna_label' => ['required', 'in:Sehat,Waspada,Bahaya'],
-            'status_pemantauan' => ['nullable', 'string', 'max:255'],
-            'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
-        ]);
+       $request->validate([
+        'kartu_keluarga_id'   => ['nullable', 'exists:kartu_keluargas,id'],     // boleh kosong
+        'nik'                 => ['nullable', 'numeric', 'digits:16', 'unique:balitas,nik'],
+        'nama'                => ['nullable', 'string', 'max:255'],             // ← boleh kosong
+        'tanggal_lahir'       => ['nullable', 'date_format:Y-m-d'],             // ← boleh kosong
+        'jenis_kelamin'       => ['nullable', 'in:Laki-laki,Perempuan'],
+        'kecamatan_id'        => ['nullable', 'exists:kecamatans,id'],
+        'kelurahan_id'        => ['nullable', 'exists:kelurahans,id'],
+        'berat'               => ['nullable', 'numeric', 'min:0'],
+        'tinggi'              => ['nullable', 'numeric', 'min:0'],
+        'lingkar_kepala'      => ['nullable', 'numeric', 'min:0'],
+        'lingkar_lengan'      => ['nullable', 'numeric', 'min:0'],
+        'alamat'              => ['nullable', 'string', 'max:255'],
+        'status_gizi'         => ['nullable', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
+        'warna_label'         => ['nullable', 'in:Sehat,Waspada,Bahaya'],
+        'status_pemantauan'   => ['nullable', 'string', 'max:255'],
+        'foto'                => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
+    ]);
 
         try {
             $balita = Balita::findOrFail($id);

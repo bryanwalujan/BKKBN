@@ -90,22 +90,22 @@ class PerangkatDaerahDataMonitoringController extends Controller
     {
         $user = Auth::user();
         $validated = $request->validate([
-            'target' => ['required', 'in:Ibu,Balita'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'ibu_id' => ['nullable', 'exists:ibus,id', 'required_if:target,Ibu'],
-            'balita_id' => ['nullable', 'exists:balitas,id', 'required_if:target,Balita'],
-            'kategori' => ['required', 'in:' . implode(',', $this->realtimeKategori)],
+            'target' => ['nullable', 'in:Ibu,Balita'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
+            'ibu_id' => ['nullable', 'exists:ibus,id', '_if:target,Ibu'],
+            'balita_id' => ['nullable', 'exists:balitas,id', '_if:target,Balita'],
+            'kategori' => ['nullable', 'in:' . implode(',', $this->realtimeKategori)],
             'perkembangan_anak' => ['nullable', 'string'],
             'kunjungan_rumah' => ['nullable', 'in:0,1'],
             'frekuensi_kunjungan' => ['nullable', 'in:Per Minggu,Per Bulan,Per 3 Bulan'],
             'pemberian_pmt' => ['nullable', 'in:0,1'],
             'frekuensi_pmt' => ['nullable', 'in:Per Minggu,Per Bulan,Per 3 Bulan'],
-            'status' => ['required', 'in:' . implode(',', $this->statusOptions)],
-            'warna_badge' => ['required', 'in:Hijau,Kuning,Merah,Biru'],
-            'tanggal_monitoring' => ['required', 'date'],
-            'urutan' => ['required', 'integer', 'min:1'],
-            'status_aktif' => ['required', 'boolean'],
+            'status' => ['nullable', 'in:' . implode(',', $this->statusOptions)],
+            'warna_badge' => ['nullable', 'in:Hijau,Kuning,Merah,Biru'],
+            'tanggal_monitoring' => ['nullable', 'date'],
+            'urutan' => ['nullable', 'integer', 'min:1'],
+            'status_aktif' => ['nullable', 'boolean'],
         ]);
 
         try {
@@ -155,22 +155,22 @@ class PerangkatDaerahDataMonitoringController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'target' => ['required', 'in:Ibu,Balita'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'ibu_id' => ['nullable', 'exists:ibus,id', 'required_if:target,Ibu'],
-            'balita_id' => ['nullable', 'exists:balitas,id', 'required_if:target,Balita'],
-            'kategori' => ['required', 'in:' . implode(',', $this->realtimeKategori)],
+            'target' => ['nullable', 'in:Ibu,Balita'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
+            'ibu_id' => ['nullable', 'exists:ibus,id', '_if:target,Ibu'],
+            'balita_id' => ['nullable', 'exists:balitas,id', '_if:target,Balita'],
+            'kategori' => ['nullable', 'in:' . implode(',', $this->realtimeKategori)],
             'perkembangan_anak' => ['nullable', 'string'],
             'kunjungan_rumah' => ['nullable', 'in:0,1'],
             'frekuensi_kunjungan' => ['nullable', 'in:Per Minggu,Per Bulan,Per 3 Bulan'],
             'pemberian_pmt' => ['nullable', 'in:0,1'],
             'frekuensi_pmt' => ['nullable', 'in:Per Minggu,Per Bulan,Per 3 Bulan'],
-            'status' => ['required', 'in:' . implode(',', $this->statusOptions)],
-            'warna_badge' => ['required', 'in:Hijau,Kuning,Merah,Biru'],
-            'tanggal_monitoring' => ['required', 'date'],
-            'urutan' => ['required', 'integer', 'min:1'],
-            'status_aktif' => ['required', 'boolean'],
+            'status' => ['nullable', 'in:' . implode(',', $this->statusOptions)],
+            'warna_badge' => ['nullable', 'in:Hijau,Kuning,Merah,Biru'],
+            'tanggal_monitoring' => ['nullable', 'date'],
+            'urutan' => ['nullable', 'integer', 'min:1'],
+            'status_aktif' => ['nullable', 'boolean'],
         ]);
 
         try {

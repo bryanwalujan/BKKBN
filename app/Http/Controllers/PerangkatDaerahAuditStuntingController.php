@@ -63,8 +63,8 @@ class PerangkatDaerahAuditStuntingController extends Controller
         $kecamatan_id = Auth::user()->kecamatan_id;
 
         $validated = $request->validate([
-            'data_monitoring_id' => ['required', 'exists:data_monitorings,id,kecamatan_id,' . $kecamatan_id],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id,kecamatan_id,' . $kecamatan_id],
+            'data_monitoring_id' => ['nullable', 'exists:data_monitorings,id,kecamatan_id,' . $kecamatan_id],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id,kecamatan_id,' . $kecamatan_id],
             'pihak_pengaudit' => ['nullable', 'string', 'max:255'],
             'foto_dokumentasi' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'laporan' => ['nullable', 'string'],
@@ -110,8 +110,8 @@ class PerangkatDaerahAuditStuntingController extends Controller
         })->findOrFail($id);
 
         $validated = $request->validate([
-            'data_monitoring_id' => ['required', 'exists:data_monitorings,id,kecamatan_id,' . $kecamatan_id],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id,kecamatan_id,' . $kecamatan_id],
+            'data_monitoring_id' => ['nullable', 'exists:data_monitorings,id,kecamatan_id,' . $kecamatan_id],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id,kecamatan_id,' . $kecamatan_id],
             'pihak_pengaudit' => ['nullable', 'string', 'max:255'],
             'foto_dokumentasi' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'laporan' => ['nullable', 'string'],

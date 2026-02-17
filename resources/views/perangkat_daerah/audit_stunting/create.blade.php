@@ -160,7 +160,7 @@
                                 <div class="relative">
                                     <select name="kelurahan_id" id="kelurahan_id" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Kelurahan --</option>
                                         @foreach ($kelurahans as $kelurahan)
                                             <option value="{{ $kelurahan->id }}" {{ $dataMonitoring && $dataMonitoring->kelurahan_id == $kelurahan->id ? 'selected' : '' }}>
@@ -202,7 +202,7 @@
                                 <div class="relative">
                                     <select name="data_monitoring_id" id="data_monitoring_id" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Data Monitoring --</option>
                                         @if ($dataMonitoring)
                                             <option value="{{ $dataMonitoring->id }}" selected>

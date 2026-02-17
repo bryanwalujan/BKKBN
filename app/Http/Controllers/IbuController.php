@@ -57,15 +57,15 @@ class IbuController extends Controller
     {
         $request->validate([
             'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:ibus,nik'],
-            'nama' => ['required', 'string', 'max:255'],
+            'nama' => ['nullable', 'string', 'max:255'],
             'tempat_lahir' => ['nullable', 'string', 'max:255'],
             'nomor_telepon' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]+$/'],
             'jumlah_anak' => ['nullable', 'integer', 'min:0'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'alamat' => ['nullable', 'string'],
-            'status' => ['required', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
+            'status' => ['nullable', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
@@ -129,15 +129,15 @@ class IbuController extends Controller
     {
         $request->validate([
             'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:ibus,nik,' . $id],
-            'nama' => ['required', 'string', 'max:255'],
+            'nama' => ['nullable', 'string', 'max:255'],
             'tempat_lahir' => ['nullable', 'string', 'max:255'],
             'nomor_telepon' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]+$/'],
             'jumlah_anak' => ['nullable', 'integer', 'min:0'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'alamat' => ['nullable', 'string'],
-            'status' => ['required', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
+            'status' => ['nullable', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 

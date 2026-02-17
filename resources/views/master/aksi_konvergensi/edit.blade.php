@@ -200,7 +200,7 @@
                                     <i class="fas fa-map text-blue-500 mr-2 text-xs"></i>
                                     Kecamatan
                                 </label>
-                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kecamatan --</option>
                                     @foreach ($kecamatans as $kecamatan)
                                         <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $aksiKonvergensi->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
@@ -219,7 +219,7 @@
                                     <i class="fas fa-map-pin text-green-500 mr-2 text-xs"></i>
                                     Kelurahan
                                 </label>
-                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kelurahan --</option>
                                     @foreach ($kelurahans as $kelurahan)
                                         <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $aksiKonvergensi->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
@@ -238,7 +238,7 @@
                                     <i class="fas fa-id-card text-purple-500 mr-2 text-xs"></i>
                                     Kartu Keluarga
                                 </label>
-                                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kartu Keluarga --</option>
                                     @foreach ($kartuKeluargas as $kk)
                                         <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $aksiKonvergensi->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
@@ -274,7 +274,7 @@
                                 <div class="form-input-icon">
                                     <input type="text" name="nama_aksi" id="nama_aksi" value="{{ old('nama_aksi', $aksiKonvergensi->nama_aksi) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan nama aksi" required>
+                                           placeholder="Masukkan nama aksi" >
                                     <div class="icon">
                                         <i class="fas fa-tag"></i>
                                     </div>
@@ -295,7 +295,7 @@
                                 <div class="form-input-icon">
                                     <input type="number" name="tahun" id="tahun" value="{{ old('tahun', $aksiKonvergensi->tahun) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           min="2000" max="2050" placeholder="Tahun aksi" required>
+                                           min="2000" max="2050" placeholder="Tahun aksi" >
                                     <div class="icon">
                                         <i class="fas fa-calendar"></i>
                                     </div>
@@ -554,7 +554,7 @@
                                         <label for="jenis_penyakit" class="block text-sm font-medium text-gray-700 mb-2">Jenis Penyakit</label>
                                         <input type="text" name="jenis_penyakit" id="jenis_penyakit" value="{{ old('jenis_penyakit', $aksiKonvergensi->jenis_penyakit) }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                                               {{ old('penyakit_menular', $aksiKonvergensi->penyakit_menular) == 'ada' ? 'required' : '' }}>
+                                               {{ old('penyakit_menular', $aksiKonvergensi->penyakit_menular) == 'ada' ? '' : '' }}>
                                     </div>
                                     <div>
                                         <label for="kesehatan_lingkungan" class="block text-sm font-medium text-gray-700 mb-2">Kesehatan Lingkungan</label>
@@ -729,10 +729,10 @@
                 var jenisPenyakitInput = $('#jenis_penyakit');
                 if (this.value === 'ada') {
                     jenisPenyakitContainer.removeClass('hidden');
-                    jenisPenyakitInput.prop('required', true);
+                    jenisPenyakitInput.prop('', true);
                 } else {
                     jenisPenyakitContainer.addClass('hidden');
-                    jenisPenyakitInput.prop('required', false);
+                    jenisPenyakitInput.prop('', false);
                     jenisPenyakitInput.val('');
                 }
             });

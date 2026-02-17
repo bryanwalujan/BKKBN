@@ -201,7 +201,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-map-marker-alt icon"></i>
-                                    <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                    <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                         <option value="">-- Pilih Kecamatan --</option>
                                         @foreach ($kecamatans as $kecamatan)
                                             <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $aksiKonvergensi->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
@@ -223,7 +223,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-map-pin icon"></i>
-                                    <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                    <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                         <option value="">-- Pilih Kelurahan --</option>
                                         @foreach ($kelurahans as $kelurahan)
                                             <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $aksiKonvergensi->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
@@ -245,7 +245,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-address-card icon"></i>
-                                    <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                    <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                         <option value="">-- Pilih Kartu Keluarga --</option>
                                         @foreach ($kartuKeluargas as $kk)
                                             <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $aksiKonvergensi->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
@@ -283,7 +283,7 @@
                                     <i class="fas fa-tag icon"></i>
                                     <input type="text" name="nama_aksi" id="nama_aksi" value="{{ old('nama_aksi', $aksiKonvergensi->nama_aksi) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan nama aksi" required>
+                                           placeholder="Masukkan nama aksi" >
                                 </div>
                                 @error('nama_aksi')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -302,7 +302,7 @@
                                     <i class="fas fa-calendar icon"></i>
                                     <input type="number" name="tahun" id="tahun" value="{{ old('tahun', $aksiKonvergensi->tahun) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           min="2000" max="2050" placeholder="Tahun aksi" required>
+                                           min="2000" max="2050" placeholder="Tahun aksi" >
                                 </div>
                                 @error('tahun')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -549,7 +549,7 @@
                                         <label for="jenis_penyakit" class="block text-sm font-medium text-gray-700 mb-2">Jenis Penyakit</label>
                                         <input type="text" name="jenis_penyakit" id="jenis_penyakit" value="{{ old('jenis_penyakit', $aksiKonvergensi->jenis_penyakit) }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                                               {{ old('penyakit_menular', $aksiKonvergensi->penyakit_menular) == 'ada' ? 'required' : '' }}>
+                                               {{ old('penyakit_menular', $aksiKonvergensi->penyakit_menular) == 'ada' ? '' : '' }}>
                                     </div>
                                     <div>
                                         <label for="kesehatan_lingkungan" class="block text-sm font-medium text-gray-700 mb-2">Kesehatan Lingkungan</label>
@@ -737,10 +737,10 @@
                 var jenisPenyakitInput = $('#jenis_penyakit');
                 if (this.value === 'ada') {
                     jenisPenyakitContainer.removeClass('hidden');
-                    jenisPenyakitInput.prop('required', true);
+                    jenisPenyakitInput.prop('', true);
                 } else {
                     jenisPenyakitContainer.addClass('hidden');
-                    jenisPenyakitInput.prop('required', false);
+                    jenisPenyakitInput.prop('', false);
                     jenisPenyakitInput.val('');
                 }
             });

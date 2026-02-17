@@ -88,7 +88,7 @@ class BayiBaruLahirController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ibu_nifas_id' => ['required', 'exists:ibu_nifas,id'],
+            'ibu_nifas_id' => ['nullable', 'exists:ibu_nifas,id'],
             'umur_dalam_kandungan' => ['nullable', 'string', 'max:255'],
             'berat_badan_lahir' => ['nullable', 'string', 'max:255'],
             'panjang_badan_lahir' => ['nullable', 'string', 'max:255'],
@@ -119,7 +119,7 @@ class BayiBaruLahirController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'ibu_nifas_id' => ['required', 'exists:ibu_nifas,id'],
+            'ibu_nifas_id' => ['nullable', 'exists:ibu_nifas,id'],
             'umur_dalam_kandungan' => ['nullable', 'string', 'max:255'],
             'berat_badan_lahir' => ['nullable', 'string', 'max:255'],
             'panjang_badan_lahir' => ['nullable', 'string', 'max:255'],

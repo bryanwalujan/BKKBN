@@ -114,7 +114,7 @@
                                     <i class="fas fa-map text-blue-500 mr-2 text-xs"></i>
                                     Kecamatan
                                 </label>
-                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3">
                                     <option value="">-- Pilih Kecamatan --</option>
                                     @foreach ($kecamatans as $kecamatan)
                                         <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
@@ -133,7 +133,7 @@
                                     <i class="fas fa-map-pin text-green-500 mr-2 text-xs"></i>
                                     Kelurahan
                                 </label>
-                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3">
                                     <option value="">-- Pilih Kelurahan --</option>
                                 </select>
                                 @error('kelurahan_id')
@@ -162,7 +162,7 @@
                                 <i class="fas fa-hashtag text-purple-500 mr-2 text-xs"></i>
                                 Nomor Kartu Keluarga
                             </label>
-                            <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                            <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3">
                                 <option value="">-- Pilih Kartu Keluarga --</option>
                             </select>
                             @error('kartu_keluarga_id')
@@ -215,7 +215,7 @@
                                 <div class="relative">
                                     <input type="text" name="nama" id="nama" value="{{ old('nama') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan nama lengkap balita" required>
+                                           placeholder="Masukkan nama lengkap balita">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-user text-gray-400"></i>
                                     </div>
@@ -236,7 +236,7 @@
                                 <div class="relative">
                                     <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           required>
+                                        >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-birthday-cake text-gray-400"></i>
                                     </div>
@@ -257,7 +257,7 @@
                                 <div class="relative">
                                     <select name="jenis_kelamin" id="jenis_kelamin" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                        >
                                         <option value="">-- Pilih Jenis Kelamin --</option>
                                         <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                                         <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
@@ -296,7 +296,7 @@
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           step="0.1" placeholder="0.0" required>
+                                           step="0.1" placeholder="0.0">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-weight text-gray-400"></i>
                                     </div>
@@ -317,7 +317,7 @@
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           step="0.1" placeholder="0.0" required>
+                                           step="0.1" placeholder="0.0">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-arrows-up-down text-gray-400"></i>
                                     </div>
@@ -440,7 +440,7 @@
                                 <div class="relative">
                                     <select name="status_gizi" id="status_gizi" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                        >
                                         <option value="Sehat" {{ old('status_gizi') == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                                         <option value="Stunting" {{ old('status_gizi') == 'Stunting' ? 'selected' : '' }}>Stunting</option>
                                         <option value="Kurang Gizi" {{ old('status_gizi') == 'Kurang Gizi' ? 'selected' : '' }}>Kurang Gizi</option>
@@ -466,7 +466,7 @@
                                 <div class="relative">
                                     <select name="warna_label" id="warna_label" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                        >
                                         <option value="Sehat" {{ old('warna_label') == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                                         <option value="Waspada" {{ old('warna_label') == 'Waspada' ? 'selected' : '' }}>Waspada</option>
                                         <option value="Bahaya" {{ old('warna_label') == 'Bahaya' ? 'selected' : '' }}>Bahaya</option>

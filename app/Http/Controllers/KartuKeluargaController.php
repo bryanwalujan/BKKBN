@@ -60,14 +60,14 @@ class KartuKeluargaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'no_kk' => ['required', 'numeric', 'digits_between:1,16', 'unique:kartu_keluargas,no_kk'],
-            'kepala_keluarga' => ['required', 'string', 'max:255'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
+            'no_kk' => ['nullable', 'numeric', 'digits_between:1,16', 'unique:kartu_keluargas,no_kk'],
+            'kepala_keluarga' => ['nullable', 'string', 'max:255'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
             'alamat' => ['nullable', 'string', 'max:255'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'status' => ['required', 'in:Aktif,Non-Aktif'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'status' => ['nullable', 'in:Aktif,Non-Aktif'],
         ]);
 
         try {
@@ -90,14 +90,14 @@ class KartuKeluargaController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'no_kk' => ['required', 'numeric', 'digits_between:1,16', 'unique:kartu_keluargas,no_kk,' . $id],
-            'kepala_keluarga' => ['required', 'string', 'max:255'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
+            'no_kk' => ['nullable', 'numeric', 'digits_between:1,16', 'unique:kartu_keluargas,no_kk,' . $id],
+            'kepala_keluarga' => ['nullable', 'string', 'max:255'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
             'alamat' => ['nullable', 'string', 'max:255'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'status' => ['required', 'in:Aktif,Non-Aktif'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'status' => ['nullable', 'in:Aktif,Non-Aktif'],
         ]);
 
         try {

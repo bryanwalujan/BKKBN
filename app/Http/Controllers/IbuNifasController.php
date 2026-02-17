@@ -39,8 +39,8 @@ class IbuNifasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'hari_nifas' => ['required', 'integer', 'min:0', 'max:42'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'hari_nifas' => ['nullable', 'integer', 'min:0', 'max:42'],
             'tanggal_melahirkan' => ['nullable', 'date'],
             'tempat_persalinan' => ['nullable', 'string', 'max:255'],
             'penolong_persalinan' => ['nullable', 'string', 'max:255'],
@@ -48,10 +48,10 @@ class IbuNifasController extends Controller
             'komplikasi' => ['nullable', 'string', 'max:255'],
             'keadaan_bayi' => ['nullable', 'string', 'max:255'],
             'kb_pasca_salin' => ['nullable', 'string', 'max:255'],
-            'kondisi_kesehatan' => ['required', 'in:Normal,Butuh Perhatian,Kritis'],
-            'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'kondisi_kesehatan' => ['nullable', 'in:Normal,Butuh Perhatian,Kritis'],
+            'warna_kondisi' => ['nullable', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
             'bayi.umur_dalam_kandungan' => ['nullable', 'string', 'max:255'],
             'bayi.berat_badan_lahir' => ['nullable', 'string', 'max:255'],
             'bayi.panjang_badan_lahir' => ['nullable', 'string', 'max:255'],
@@ -103,8 +103,8 @@ class IbuNifasController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'hari_nifas' => ['required', 'integer', 'min:0', 'max:42'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'hari_nifas' => ['nullable', 'integer', 'min:0', 'max:42'],
             'tanggal_melahirkan' => ['nullable', 'date'],
             'tempat_persalinan' => ['nullable', 'string', 'max:255'],
             'penolong_persalinan' => ['nullable', 'string', 'max:255'],
@@ -112,10 +112,10 @@ class IbuNifasController extends Controller
             'komplikasi' => ['nullable', 'string', 'max:255'],
             'keadaan_bayi' => ['nullable', 'string', 'max:255'],
             'kb_pasca_salin' => ['nullable', 'string', 'max:255'],
-            'kondisi_kesehatan' => ['required', 'in:Normal,Butuh Perhatian,Kritis'],
-            'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'kondisi_kesehatan' => ['nullable', 'in:Normal,Butuh Perhatian,Kritis'],
+            'warna_kondisi' => ['nullable', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
             'bayi.umur_dalam_kandungan' => ['nullable', 'string', 'max:255'],
             'bayi.berat_badan_lahir' => ['nullable', 'string', 'max:255'],
             'bayi.panjang_badan_lahir' => ['nullable', 'string', 'max:255'],

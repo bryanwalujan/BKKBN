@@ -93,18 +93,18 @@ class KelurahanBalitaController extends Controller
         }
 
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'nik' => ['nullable', 'string', 'max:255', 'unique:balitas,nik'],
-            'nama' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
-            'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'tanggal_lahir' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
+            'jenis_kelamin' => ['nullable', 'in:Laki-laki,Perempuan'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
             'lingkar_kepala' => ['nullable', 'numeric', 'min:0'],
             'lingkar_lengan' => ['nullable', 'numeric', 'min:0'],
             'alamat' => ['nullable', 'string', 'max:255'],
-            'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
-            'warna_label' => ['required', 'in:Sehat,Waspada,Bahaya'],
+            'status_gizi' => ['nullable', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
+            'warna_label' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
             'status_pemantauan' => ['nullable', 'string', 'max:255'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
@@ -162,18 +162,18 @@ class KelurahanBalitaController extends Controller
         }
 
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'nik' => ['nullable', 'string', 'max:255', 'unique:balitas,nik,' . $id],
-            'nama' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
-            'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'tanggal_lahir' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
+            'jenis_kelamin' => ['nullable', 'in:Laki-laki,Perempuan'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
             'lingkar_kepala' => ['nullable', 'numeric', 'min:0'],
             'lingkar_lengan' => ['nullable', 'numeric', 'min:0'],
             'alamat' => ['nullable', 'string', 'max:255'],
-            'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
-            'warna_label' => ['required', 'in:Sehat,Waspada,Bahaya'],
+            'status_gizi' => ['nullable', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
+            'warna_label' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
             'status_pemantauan' => ['nullable', 'string', 'max:255'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);

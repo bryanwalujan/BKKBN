@@ -43,20 +43,20 @@ class IbuHamilController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'trimester' => ['required', 'in:Trimester 1,Trimester 2,Trimester 3'],
-            'intervensi' => ['required', 'in:Tidak Ada,Gizi,Konsultasi Medis,Lainnya'],
-            'status_gizi' => ['required', 'in:Normal,Kurang Gizi,Berisiko'],
-            'warna_status_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
-            'usia_kehamilan' => ['required', 'integer', 'min:0', 'max:40'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'trimester' => ['nullable', 'in:Trimester 1,Trimester 2,Trimester 3'],
+            'intervensi' => ['nullable', 'in:Tidak Ada,Gizi,Konsultasi Medis,Lainnya'],
+            'status_gizi' => ['nullable', 'in:Normal,Kurang Gizi,Berisiko'],
+            'warna_status_gizi' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
+            'usia_kehamilan' => ['nullable', 'integer', 'min:0', 'max:40'],
             'tinggi_fundus_uteri' => ['nullable', 'string', 'max:255'],
             'imt' => ['nullable', 'string', 'max:255'],
             'riwayat_penyakit' => ['nullable', 'string', 'max:255'],
             'kadar_hb' => ['nullable', 'string', 'max:255'],
             'lingkar_kepala' => ['nullable', 'string', 'max:255'],
             'taksiran_berat_janin' => ['nullable', 'string', 'max:255'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         try {
@@ -86,20 +86,20 @@ class IbuHamilController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'trimester' => ['required', 'in:Trimester 1,Trimester 2,Trimester 3'],
-            'intervensi' => ['required', 'in:Tidak Ada,Gizi,Konsultasi Medis,Lainnya'],
-            'status_gizi' => ['required', 'in:Normal,Kurang Gizi,Berisiko'],
-            'warna_status_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
-            'usia_kehamilan' => ['required', 'integer', 'min:0', 'max:40'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'trimester' => ['nullable', 'in:Trimester 1,Trimester 2,Trimester 3'],
+            'intervensi' => ['nullable', 'in:Tidak Ada,Gizi,Konsultasi Medis,Lainnya'],
+            'status_gizi' => ['nullable', 'in:Normal,Kurang Gizi,Berisiko'],
+            'warna_status_gizi' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
+            'usia_kehamilan' => ['nullable', 'integer', 'min:0', 'max:40'],
             'tinggi_fundus_uteri' => ['nullable', 'string', 'max:255'],
             'imt' => ['nullable', 'string', 'max:255'],
             'riwayat_penyakit' => ['nullable', 'string', 'max:255'],
             'kadar_hb' => ['nullable', 'string', 'max:255'],
             'lingkar_kepala' => ['nullable', 'string', 'max:255'],
             'taksiran_berat_janin' => ['nullable', 'string', 'max:255'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         try {

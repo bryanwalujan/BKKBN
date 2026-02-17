@@ -199,7 +199,7 @@
                                 </label>
                                 <select name="kartu_keluarga_id" id="kartu_keluarga_id" 
                                         class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" 
-                                        required>
+                                        >
                                     <option value="">-- Pilih Kartu Keluarga --</option>
                                 </select>
                                 @error('kartu_keluarga_id')
@@ -254,7 +254,7 @@
                                     <div class="relative">
                                         <input type="text" name="nama" id="nama" value="{{ old('nama') }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                               placeholder="Masukkan nama lengkap ibu" required>
+                                               placeholder="Masukkan nama lengkap ibu" >
                                         <div class="input-icon">
                                             <i class="fas fa-user"></i>
                                         </div>
@@ -305,7 +305,7 @@
                                     <div class="relative">
                                         <select name="status" id="status" 
                                                 class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                                required>
+                                                >
                                             <option value="">-- Pilih Status --</option>
                                             <option value="Hamil" {{ old('status') == 'Hamil' ? 'selected' : '' }}>Hamil</option>
                                             <option value="Nifas" {{ old('status') == 'Nifas' ? 'selected' : '' }}>Nifas</option>

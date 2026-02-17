@@ -144,7 +144,7 @@
                                 <div class="relative">
                                     <select name="kartu_keluarga_id" id="kartu_keluarga_id" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Kartu Keluarga --</option>
                                         @foreach ($kartuKeluargas as $kk)
                                             <option value="{{ $kk->id }}" {{ old('kartu_keluarga_id', $genting->kartu_keluarga_id) == $kk->id ? 'selected' : '' }}>
@@ -173,7 +173,7 @@
                                     <input type="text" name="nama_kegiatan" id="nama_kegiatan" 
                                            value="{{ old('nama_kegiatan', $genting->nama_kegiatan) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan nama kegiatan" required>
+                                           placeholder="Masukkan nama kegiatan" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-pen text-gray-400"></i>
                                     </div>
@@ -195,7 +195,7 @@
                                     <input type="date" name="tanggal" id="tanggal" 
                                            value="{{ old('tanggal', $genting->tanggal ? \Carbon\Carbon::make($genting->tanggal)?->format('Y-m-d') : '') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           required>
+                                           >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>
@@ -216,7 +216,7 @@
                                 <div class="relative">
                                     <input type="text" name="lokasi" id="lokasi" value="{{ old('lokasi', $genting->lokasi) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan lokasi kegiatan" required>
+                                           placeholder="Masukkan lokasi kegiatan" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-location-dot text-gray-400"></i>
                                     </div>
@@ -237,7 +237,7 @@
                                 <div class="relative">
                                     <input type="text" name="sasaran" id="sasaran" value="{{ old('sasaran', $genting->sasaran) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan sasaran kegiatan" required>
+                                           placeholder="Masukkan sasaran kegiatan" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-users text-gray-400"></i>
                                     </div>
@@ -259,7 +259,7 @@
                                     <input type="text" name="jenis_intervensi" id="jenis_intervensi" 
                                            value="{{ old('jenis_intervensi', $genting->jenis_intervensi) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan jenis intervensi" required>
+                                           placeholder="Masukkan jenis intervensi" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-hands-helping text-gray-400"></i>
                                     </div>

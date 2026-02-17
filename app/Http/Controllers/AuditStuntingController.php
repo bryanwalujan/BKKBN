@@ -70,8 +70,8 @@ class AuditStuntingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'data_monitoring_id' => ['required', 'exists:data_monitorings,id'],
-            'user_id' => ['required', 'exists:users,id'],
+            'data_monitoring_id' => ['nullable', 'exists:data_monitorings,id'],
+            'user_id' => ['nullable', 'exists:users,id'],
             'foto_dokumentasi' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'pihak_pengaudit' => ['nullable', 'string', 'max:255'],
             'laporan' => ['nullable', 'string'],
@@ -112,8 +112,8 @@ class AuditStuntingController extends Controller
         $auditStunting = AuditStunting::findOrFail($id);
 
         $validated = $request->validate([
-            'data_monitoring_id' => ['required', 'exists:data_monitorings,id'],
-            'user_id' => ['required', 'exists:users,id'],
+            'data_monitoring_id' => ['nullable', 'exists:data_monitorings,id'],
+            'user_id' => ['nullable', 'exists:users,id'],
             'foto_dokumentasi' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'pihak_pengaudit' => ['nullable', 'string', 'max:255'],
             'laporan' => ['nullable', 'string'],

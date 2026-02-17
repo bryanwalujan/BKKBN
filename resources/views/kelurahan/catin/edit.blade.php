@@ -178,7 +178,7 @@
                                     <input type="date" name="hari_tanggal" id="hari_tanggal" 
                                            value="{{ old('hari_tanggal', $catin->hari_tanggal ? $catin->hari_tanggal->format('Y-m-d') : '') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           required>
+                                           >
                                 </div>
                                 @error('hari_tanggal')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -217,7 +217,7 @@
                                            value="{{ old('catin_wanita_nama', $catin->catin_wanita_nama) }}" 
                                            maxlength="255" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan nama lengkap" required>
+                                           placeholder="Masukkan nama lengkap" >
                                 </div>
                                 @error('catin_wanita_nama')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -238,7 +238,7 @@
                                            value="{{ old('catin_wanita_nik', $catin->catin_wanita_nik) }}" 
                                            maxlength="16" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan 16 digit NIK" required inputmode="numeric">
+                                           placeholder="Masukkan 16 digit NIK"  inputmode="numeric">
                                 </div>
                                 @error('catin_wanita_nik')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -259,7 +259,7 @@
                                            value="{{ old('catin_wanita_tempat_lahir', $catin->catin_wanita_tempat_lahir) }}" 
                                            maxlength="255" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan tempat lahir" required>
+                                           placeholder="Masukkan tempat lahir" >
                                 </div>
                                 @error('catin_wanita_tempat_lahir')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -279,7 +279,7 @@
                                     <input type="date" name="catin_wanita_tgl_lahir" id="catin_wanita_tgl_lahir" 
                                            value="{{ old('catin_wanita_tgl_lahir', $catin->catin_wanita_tgl_lahir ? $catin->catin_wanita_tgl_lahir->format('Y-m-d') : '') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           required>
+                                           >
                                 </div>
                                 @error('catin_wanita_tgl_lahir')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -300,7 +300,7 @@
                                            value="{{ old('catin_wanita_no_hp', $catin->catin_wanita_no_hp) }}" 
                                            maxlength="15" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan nomor HP" required>
+                                           placeholder="Masukkan nomor HP" >
                                 </div>
                                 @error('catin_wanita_no_hp')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -319,7 +319,7 @@
                                     <i class="fas fa-map-pin"></i>
                                     <textarea name="catin_wanita_alamat" id="catin_wanita_alamat" rows="3"
                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                              placeholder="Masukkan alamat lengkap" required>{{ old('catin_wanita_alamat', $catin->catin_wanita_alamat) }}</textarea>
+                                              placeholder="Masukkan alamat lengkap" >{{ old('catin_wanita_alamat', $catin->catin_wanita_alamat) }}</textarea>
                                 </div>
                                 @error('catin_wanita_alamat')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -358,7 +358,7 @@
                                            value="{{ old('catin_pria_nama', $catin->catin_pria_nama) }}" 
                                            maxlength="255" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan nama lengkap" required>
+                                           placeholder="Masukkan nama lengkap" >
                                 </div>
                                 @error('catin_pria_nama')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -379,7 +379,7 @@
                                            value="{{ old('catin_pria_nik', $catin->catin_pria_nik) }}" 
                                            maxlength="16" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan 16 digit NIK" required inputmode="numeric">
+                                           placeholder="Masukkan 16 digit NIK"  inputmode="numeric">
                                 </div>
                                 @error('catin_pria_nik')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -400,7 +400,7 @@
                                            value="{{ old('catin_pria_tempat_lahir', $catin->catin_pria_tempat_lahir) }}" 
                                            maxlength="255" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan tempat lahir" required>
+                                           placeholder="Masukkan tempat lahir" >
                                 </div>
                                 @error('catin_pria_tempat_lahir')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -420,7 +420,7 @@
                                     <input type="date" name="catin_pria_tgl_lahir" id="catin_pria_tgl_lahir" 
                                            value="{{ old('catin_pria_tgl_lahir', $catin->catin_pria_tgl_lahir ? $catin->catin_pria_tgl_lahir->format('Y-m-d') : '') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           required>
+                                           >
                                 </div>
                                 @error('catin_pria_tgl_lahir')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -441,7 +441,7 @@
                                            value="{{ old('catin_pria_no_hp', $catin->catin_pria_no_hp) }}" 
                                            maxlength="15" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                           placeholder="Masukkan nomor HP" required>
+                                           placeholder="Masukkan nomor HP" >
                                 </div>
                                 @error('catin_pria_no_hp')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -460,7 +460,7 @@
                                     <i class="fas fa-map-pin"></i>
                                     <textarea name="catin_pria_alamat" id="catin_pria_alamat" rows="3"
                                               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
-                                              placeholder="Masukkan alamat lengkap" required>{{ old('catin_pria_alamat', $catin->catin_pria_alamat) }}</textarea>
+                                              placeholder="Masukkan alamat lengkap" >{{ old('catin_pria_alamat', $catin->catin_pria_alamat) }}</textarea>
                                 </div>
                                 @error('catin_pria_alamat')
                                     <p class="mt-1 text-sm text-red-600 flex items-center">

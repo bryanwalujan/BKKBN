@@ -128,7 +128,7 @@
                                 <div class="relative">
                                     <select name="data_monitoring_id" id="data_monitoring_id" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Data Monitoring --</option>
                                         @foreach (App\Models\DataMonitoring::all() as $monitoring)
                                             <option value="{{ $monitoring->id }}" {{ $dataMonitoring && $dataMonitoring->id == $monitoring->id ? 'selected' : '' }}>
