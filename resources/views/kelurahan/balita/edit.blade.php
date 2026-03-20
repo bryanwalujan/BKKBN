@@ -156,7 +156,7 @@
                                 <i class="fas fa-hashtag text-green-500 mr-2 text-xs"></i>
                                 Nomor Kartu Keluarga
                             </label>
-                            <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3" required>
+                            <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3" >
                                 <option value="">-- Pilih Kartu Keluarga --</option>
                             </select>
                             @error('kartu_keluarga_id')
@@ -188,7 +188,7 @@
                                 <div class="relative">
                                     <input type="text" name="nik" id="nik" value="{{ old('nik', $balita->nik) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           pattern="[0-9]{16}" inputmode="numeric" maxlength="16" placeholder="Masukkan 16 digit NIK" required>
+                                           pattern="[0-9]{16}" inputmode="numeric" maxlength="16" placeholder="Masukkan 16 digit NIK" >
                                     <div class="input-icon">
                                         <i class="fas fa-id-card"></i>
                                     </div>
@@ -209,7 +209,7 @@
                                 <div class="relative">
                                     <input type="text" name="nama" id="nama" value="{{ old('nama', $balita->nama) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           placeholder="Masukkan nama lengkap balita" required>
+                                           placeholder="Masukkan nama lengkap balita" >
                                     <div class="input-icon">
                                         <i class="fas fa-user"></i>
                                     </div>
@@ -230,7 +230,7 @@
                                 <div class="relative">
                                     <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', $tanggalLahir) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           required>
+                                           >
                                     <div class="input-icon">
                                         <i class="fas fa-birthday-cake"></i>
                                     </div>
@@ -251,7 +251,7 @@
                                 <div class="relative">
                                     <select name="jenis_kelamin" id="jenis_kelamin" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Jenis Kelamin --</option>
                                         <option value="Laki-laki" {{ old('jenis_kelamin', $balita->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
                                         <option value="Perempuan" {{ old('jenis_kelamin', $balita->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
@@ -290,7 +290,7 @@
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat', $beratTinggi[0]) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0" required>
+                                           step="0.01" placeholder="0.0" >
                                     <div class="input-icon">
                                         <i class="fas fa-weight"></i>
                                     </div>
@@ -311,7 +311,7 @@
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $beratTinggi[1]) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0" required>
+                                           step="0.01" placeholder="0.0" >
                                     <div class="input-icon">
                                         <i class="fas fa-arrows-up-down"></i>
                                     </div>
@@ -332,7 +332,7 @@
                                 <div class="relative">
                                     <input type="number" name="lingkar_kepala" id="lingkar_kepala" value="{{ old('lingkar_kepala', $balita->lingkar_kepala) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0">
+                                           step="0.01" placeholder="0.0">
                                     <div class="input-icon">
                                         <i class="fas fa-circle-nodes"></i>
                                     </div>
@@ -353,7 +353,7 @@
                                 <div class="relative">
                                     <input type="number" name="lingkar_lengan" id="lingkar_lengan" value="{{ old('lingkar_lengan', $balita->lingkar_lengan) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0">
+                                           step="0.01" placeholder="0.0">
                                     <div class="input-icon">
                                         <i class="fas fa-circle-nodes"></i>
                                     </div>
@@ -454,7 +454,7 @@
                                 <div class="relative">
                                     <select name="status_gizi" id="status_gizi" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="Sehat" {{ old('status_gizi', $balita->status_gizi) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                                         <option value="Stunting" {{ old('status_gizi', $balita->status_gizi) == 'Stunting' ? 'selected' : '' }}>Stunting</option>
                                         <option value="Kurang Gizi" {{ old('status_gizi', $balita->status_gizi) == 'Kurang Gizi' ? 'selected' : '' }}>Kurang Gizi</option>
@@ -480,7 +480,7 @@
                                 <div class="relative">
                                     <select name="warna_label" id="warna_label" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="Sehat" {{ old('warna_label', $balita->warna_label) == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                                         <option value="Waspada" {{ old('warna_label', $balita->warna_label) == 'Waspada' ? 'selected' : '' }}>Waspada</option>
                                         <option value="Bahaya" {{ old('warna_label', $balita->warna_label) == 'Bahaya' ? 'selected' : '' }}>Bahaya</option>

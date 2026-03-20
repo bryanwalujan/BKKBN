@@ -174,10 +174,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/edit', [BayiBaruLahirController::class, 'edit'])->name('edit');
             Route::put('/{id}', [BayiBaruLahirController::class, 'update'])->name('update');
             Route::delete('/{id}', [BayiBaruLahirController::class, 'destroy'])->name('destroy');
+Route::post('/{id}/move-to-balita', [BayiBaruLahirController::class, 'moveToBalita'])->name('moveToBalita');
         });
 
-        // Bayi masuk balita
-        Route::post('bayi_baru_lahir/{id}/move-to-balita', [BayiBaruLahirController::class, 'moveToBalita'])->name('bayi_baru_lahir.moveToBalita');
+        
 
         // Balita
         Route::prefix('balita')->name('balita.')->group(function () {

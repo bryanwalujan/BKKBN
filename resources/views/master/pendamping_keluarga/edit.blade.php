@@ -162,7 +162,7 @@
                                 <div class="relative">
                                     <input type="text" name="nama" id="nama" value="{{ old('nama', $pendamping->nama) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan nama lengkap pendamping" required>
+                                           placeholder="Masukkan nama lengkap pendamping" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-user text-gray-400"></i>
                                     </div>
@@ -183,7 +183,7 @@
                                 <div class="relative">
                                     <select name="peran" id="peran" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="" disabled>-- Pilih Peran --</option>
                                         <option value="Bidan" {{ old('peran', $pendamping->peran) == 'Bidan' ? 'selected' : '' }}>Bidan</option>
                                         <option value="Kader Posyandu" {{ old('peran', $pendamping->peran) == 'Kader Posyandu' ? 'selected' : '' }}>Kader Posyandu</option>
@@ -221,7 +221,7 @@
                                     <i class="fas fa-map text-blue-500 mr-2 text-xs"></i>
                                     Kecamatan
                                 </label>
-                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kecamatan --</option>
                                     @foreach ($kecamatans as $kecamatan)
                                         <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id', $pendamping->kecamatan_id) == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
@@ -240,7 +240,7 @@
                                     <i class="fas fa-map-pin text-green-500 mr-2 text-xs"></i>
                                     Kelurahan
                                 </label>
-                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kelurahan --</option>
                                     @foreach ($kelurahans as $kelurahan)
                                         <option value="{{ $kelurahan->id }}" {{ old('kelurahan_id', $pendamping->kelurahan_id) == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
@@ -308,7 +308,7 @@
                                 <div class="relative">
                                     <select name="status" id="status" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="" disabled>-- Pilih Status --</option>
                                         <option value="Aktif" {{ old('status', $pendamping->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                                         <option value="Non-Aktif" {{ old('status', $pendamping->status) == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
@@ -333,7 +333,7 @@
                                 <div class="relative">
                                     <input type="number" name="tahun_bergabung" id="tahun_bergabung" value="{{ old('tahun_bergabung', $pendamping->tahun_bergabung) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           min="2000" max="2030" placeholder="Tahun bergabung" required>
+                                           min="2000" max="2030" placeholder="Tahun bergabung" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-calendar text-gray-400"></i>
                                     </div>

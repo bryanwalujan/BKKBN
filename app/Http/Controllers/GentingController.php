@@ -38,12 +38,12 @@ class GentingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nama_kegiatan' => ['required', 'string', 'max:255'],
-            'tanggal' => ['required', 'date'],
-            'lokasi' => ['required', 'string', 'max:255'],
-            'sasaran' => ['required', 'string', 'max:255'],
-            'jenis_intervensi' => ['required', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
+            'nama_kegiatan' => ['nullable', 'string', 'max:255'],
+            'tanggal' => ['nullable', 'date'],
+            'lokasi' => ['nullable', 'string', 'max:255'],
+            'sasaran' => ['nullable', 'string', 'max:255'],
+            'jenis_intervensi' => ['nullable', 'string', 'max:255'],
             'narasi' => ['nullable', 'string'],
             'dokumentasi' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
             'dunia_usaha' => ['nullable', 'in:ada,tidak'],
@@ -95,12 +95,12 @@ class GentingController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'nama_kegiatan' => ['required', 'string', 'max:255'],
-            'tanggal' => ['required', 'date'],
-            'lokasi' => ['required', 'string', 'max:255'],
-            'sasaran' => ['required', 'string', 'max:255'],
-            'jenis_intervensi' => ['required', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
+            'nama_kegiatan' => ['nullable', 'string', 'max:255'],
+            'tanggal' => ['nullable', 'date'],
+            'lokasi' => ['nullable', 'string', 'max:255'],
+            'sasaran' => ['nullable', 'string', 'max:255'],
+            'jenis_intervensi' => ['nullable', 'string', 'max:255'],
             'narasi' => ['nullable', 'string'],
             'dokumentasi' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
             'dunia_usaha' => ['nullable', 'in:ada,tidak'],

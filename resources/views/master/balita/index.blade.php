@@ -95,29 +95,31 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Baduata (0-24 bln)</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $balitas->where('kategoriUmur', 'Baduata')->count() }}</p>
-                        </div>
-                        <div class="p-3 bg-indigo-50 rounded-lg">
-                            <i class="fas fa-child text-indigo-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+          <!-- Baduata (0-24 bulan) -->
+<div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-sm font-medium text-gray-600">Baduata (0-24 bln)</p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalBaduata }}</p>
+        </div>
+        <div class="p-3 bg-indigo-50 rounded-lg">
+            <i class="fas fa-child text-indigo-500 text-xl"></i>
+        </div>
+    </div>
+</div>
 
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Balita (25-60 bln)</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $balitas->where('kategoriUmur', 'Balita')->count() }}</p>
-                        </div>
-                        <div class="p-3 bg-purple-50 rounded-lg">
-                            <i class="fas fa-child text-purple-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+<!-- Balita (25-60 bulan) -->
+<div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-sm font-medium text-gray-600">Balita (25-60 bln)</p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalBalita }}</p>
+        </div>
+        <div class="p-3 bg-purple-50 rounded-lg">
+            <i class="fas fa-child text-purple-500 text-xl"></i>
+        </div>
+    </div>
+</div>
 
                 <a href="{{ route('balita.create') }}" class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-sm p-6 card-hover group cursor-pointer">
                     <div class="flex items-center justify-between text-white">

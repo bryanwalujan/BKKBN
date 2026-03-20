@@ -416,7 +416,7 @@
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm">
                         <img src="{{ asset('storage/images/logo3.png') }}" alt="Logo CSSR" class="w-8 h-8 object-contain" style="width: 45px; height: auto;">
-                        <img src="{{ asset('storage/images/logo1.png') }}" alt="Logo CSSR" class="w-8 h-8 object-contain" style="width: 45px; height: auto;">
+                        <img src="{{ asset('storage/images/logo_stikes.png') }}" alt="Logo CSSR" class="w-10 h-10 object-contain" style="width: 80px; height: auto;">
                     </div>
                     <div class="text-sm leading-tight">
                         <div class="font-bold text-lg bg-gradient-to-r from-white to-blue-100 bg-clip-text">CEGAH STUNTING</div>

@@ -133,7 +133,7 @@
                                     <div class="relative">
                                         <input type="number" name="no_kk" id="no_kk" value="{{ old('no_kk') }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 pl-10"
-                                               placeholder="Masukkan nomor KK" required>
+                                               placeholder="Masukkan nomor KK" >
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-address-card text-gray-400"></i>
                                         </div>
@@ -154,7 +154,7 @@
                                     <div class="relative">
                                         <input type="text" name="kepala_keluarga" id="kepala_keluarga" value="{{ old('kepala_keluarga') }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 pl-10"
-                                               placeholder="Nama kepala keluarga" required>
+                                               placeholder="Nama kepala keluarga" >
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-user-tie text-gray-400"></i>
                                         </div>
@@ -264,7 +264,7 @@
                                     <div class="relative">
                                         <input type="number" step="any" name="latitude" id="latitude" value="{{ old('latitude') }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 pl-10 bg-gray-50"
-                                               required readonly>
+                                                readonly>
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-latitude text-gray-400"></i>
                                         </div>
@@ -285,7 +285,7 @@
                                     <div class="relative">
                                         <input type="number" step="any" name="longitude" id="longitude" value="{{ old('longitude') }}" 
                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 pl-10 bg-gray-50"
-                                               required readonly>
+                                                readonly>
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-longitude text-gray-400"></i>
                                         </div>
@@ -319,7 +319,7 @@
                                 <div class="relative">
                                     <select name="status" id="status" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                                         <option value="Non-Aktif" {{ old('status') == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
                                     </select>

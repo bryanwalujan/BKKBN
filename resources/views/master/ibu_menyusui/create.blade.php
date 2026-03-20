@@ -113,7 +113,7 @@
                                 <i class="fas fa-user-friends text-blue-500 mr-2 text-xs"></i>
                                 Nama Ibu
                             </label>
-                            <select name="ibu_id" id="ibu_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                            <select name="ibu_id" id="ibu_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                 <option value="">-- Pilih Ibu --</option>
                                 @foreach ($ibus as $ibu)
                                     <option value="{{ $ibu->id }}" {{ old('ibu_id') == $ibu->id ? 'selected' : '' }}>{{ $ibu->nama }} ({{ $ibu->nik ?? '-' }})</option>
@@ -148,7 +148,7 @@
                                 <div class="relative">
                                     <select name="status_menyusui" id="status_menyusui" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Status --</option>
                                         <option value="Eksklusif" {{ old('status_menyusui') == 'Eksklusif' ? 'selected' : '' }}>Eksklusif</option>
                                         <option value="Non-Eksklusif" {{ old('status_menyusui') == 'Non-Eksklusif' ? 'selected' : '' }}>Non-Eksklusif</option>
@@ -173,7 +173,7 @@
                                 <div class="relative">
                                     <input type="number" name="frekuensi_menyusui" id="frekuensi_menyusui" value="{{ old('frekuensi_menyusui') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           min="0" max="24" placeholder="0" required>
+                                           min="0" max="24" placeholder="0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-sync-alt text-gray-400"></i>
                                     </div>
@@ -208,7 +208,7 @@
                                 <div class="relative">
                                     <input type="text" name="kondisi_ibu" id="kondisi_ibu" value="{{ old('kondisi_ibu') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan kondisi kesehatan ibu" required>
+                                           placeholder="Masukkan kondisi kesehatan ibu" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-heart text-gray-400"></i>
                                     </div>
@@ -229,7 +229,7 @@
                                 <div class="relative">
                                     <select name="warna_kondisi" id="warna_kondisi" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Warna --</option>
                                         <option value="Hijau (success)" {{ old('warna_kondisi') == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
                                         <option value="Kuning (warning)" {{ old('warna_kondisi') == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
@@ -269,7 +269,7 @@
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           step="0.1" placeholder="0.0" required>
+                                           step="0.01" placeholder="0.0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-weight text-gray-400"></i>
                                     </div>
@@ -290,7 +290,7 @@
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           step="0.1" placeholder="0.0" required>
+                                           step="0.01" placeholder="0.0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-arrows-up-down text-gray-400"></i>
                                     </div>

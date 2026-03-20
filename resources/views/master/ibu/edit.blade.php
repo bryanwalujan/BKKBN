@@ -159,7 +159,7 @@
                                     <i class="fas fa-map text-blue-500 mr-2 text-xs"></i>
                                     Kecamatan
                                 </label>
-                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kecamatan_id" id="kecamatan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kecamatan --</option>
                                     @foreach ($kecamatans as $kecamatan)
                                         <option value="{{ $kecamatan->id }}" {{ $ibu->kecamatan_id == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->nama_kecamatan }}</option>
@@ -178,7 +178,7 @@
                                     <i class="fas fa-map-pin text-green-500 mr-2 text-xs"></i>
                                     Kelurahan
                                 </label>
-                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                                <select name="kelurahan_id" id="kelurahan_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <option value="">-- Pilih Kelurahan --</option>
                                     @foreach ($kelurahans as $kelurahan)
                                         <option value="{{ $kelurahan->id }}" {{ $ibu->kelurahan_id == $kelurahan->id ? 'selected' : '' }}>{{ $kelurahan->nama_kelurahan }}</option>
@@ -210,7 +210,7 @@
                                 <i class="fas fa-hashtag text-purple-500 mr-2 text-xs"></i>
                                 Nomor Kartu Keluarga
                             </label>
-                            <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                            <select name="kartu_keluarga_id" id="kartu_keluarga_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                 <option value="">-- Pilih Kartu Keluarga --</option>
                                 @foreach ($kartuKeluargas as $kk)
                                     <option value="{{ $kk->id }}" {{ $ibu->kartu_keluarga_id == $kk->id ? 'selected' : '' }}>{{ $kk->no_kk }} - {{ $kk->kepala_keluarga }}</option>
@@ -266,7 +266,7 @@
                                 <div class="relative">
                                     <input type="text" name="nama" id="nama" value="{{ $ibu->nama }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           placeholder="Masukkan nama lengkap ibu" required>
+                                           placeholder="Masukkan nama lengkap ibu" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-user text-gray-400"></i>
                                     </div>
@@ -366,7 +366,7 @@
                                 <div class="relative">
                                     <select name="status" id="status" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Status --</option>
                                         <option value="Hamil" {{ $ibu->status == 'Hamil' ? 'selected' : '' }}>Hamil</option>
                                         <option value="Nifas" {{ $ibu->status == 'Nifas' ? 'selected' : '' }}>Nifas</option>

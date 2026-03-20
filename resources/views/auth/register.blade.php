@@ -119,11 +119,11 @@
     <div class="max-w-2xl w-full">
         <!-- Logo Area -->
         <div class="text-center mb-8">
-            <!-- Template untuk logo - ganti dengan logo Anda -->
-            <img src="{{ asset('storage/images/logo.png') }}" alt="Logo Perusahaan" class="mx-auto mb-4" style="width: 170px; height: auto;">
-            <!-- <img src="/path/to/your/logo.png" alt="Logo" class="h-20 mx-auto mb-4"> -->
-            <h1 class="text-3xl font-bold text-gray-800">Buat Akun Baru</h1>
-            <p class="text-gray-600 mt-2">Isi formulir di bawah untuk mendaftar</p>
+            <div class="flex justify-center items-center gap-6 mb-4">
+             <img src="{{ asset('storage/images/logo.png') }}" alt="Logo Perusahaan" style="width: 170px; height: auto;">
+             <img src="{{ asset('storage/images/logo_stikes.png') }}" alt="Logo Perusahaan" style="width: 170px; height: auto;">
+            </div>
+        <p class="text-gray-600 mt-2">Silakan masuk ke akun Anda</p>
         </div>
         
         <!-- Register Card -->

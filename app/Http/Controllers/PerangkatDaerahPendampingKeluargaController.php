@@ -70,12 +70,12 @@ class PerangkatDaerahPendampingKeluargaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'peran' => ['required', 'in:Bidan,Kader Posyandu,Kader Kesehatan,Tim Penggerak PKK'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id,kecamatan_id,' . Auth::user()->kecamatan_id],
-            'status' => ['required', 'in:Aktif,Non-Aktif'],
-            'tahun_bergabung' => ['required', 'integer', 'min:1900', 'max:' . date('Y')],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'peran' => ['nullable', 'in:Bidan,Kader Posyandu,Kader Kesehatan,Tim Penggerak PKK'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id,kecamatan_id,' . Auth::user()->kecamatan_id],
+            'status' => ['nullable', 'in:Aktif,Non-Aktif'],
+            'tahun_bergabung' => ['nullable', 'integer', 'min:1900', 'max:' . date('Y')],
             'foto' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:7000'],
             'penyuluhan' => ['boolean'],
             'penyuluhan_frekuensi' => ['nullable', 'string', 'max:255'],
@@ -181,12 +181,12 @@ class PerangkatDaerahPendampingKeluargaController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'peran' => ['required', 'in:Bidan,Kader Posyandu,Kader Kesehatan,Tim Penggerak PKK'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id,kecamatan_id,' . Auth::user()->kecamatan_id],
-            'status' => ['required', 'in:Aktif,Non-Aktif'],
-            'tahun_bergabung' => ['required', 'integer', 'min:1900', 'max:' . date('Y')],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'peran' => ['nullable', 'in:Bidan,Kader Posyandu,Kader Kesehatan,Tim Penggerak PKK'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id,kecamatan_id,' . Auth::user()->kecamatan_id],
+            'status' => ['nullable', 'in:Aktif,Non-Aktif'],
+            'tahun_bergabung' => ['nullable', 'integer', 'min:1900', 'max:' . date('Y')],
             'foto' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:7000'],
             'penyuluhan' => ['boolean'],
             'penyuluhan_frekuensi' => ['nullable', 'string', 'max:255'],

@@ -38,13 +38,13 @@ class IbuMenyusuiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'status_menyusui' => ['required', 'in:Eksklusif,Non-Eksklusif'],
-            'frekuensi_menyusui' => ['required', 'integer', 'min:0', 'max:24'],
-            'kondisi_ibu' => ['required', 'string', 'max:255'],
-            'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'status_menyusui' => ['nullable', 'in:Eksklusif,Non-Eksklusif'],
+            'frekuensi_menyusui' => ['nullable', 'integer', 'min:0', 'max:24'],
+            'kondisi_ibu' => ['nullable', 'string', 'max:255'],
+            'warna_kondisi' => ['nullable', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         try {
@@ -74,13 +74,13 @@ class IbuMenyusuiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'status_menyusui' => ['required', 'in:Eksklusif,Non-Eksklusif'],
-            'frekuensi_menyusui' => ['required', 'integer', 'min:0', 'max:24'],
-            'kondisi_ibu' => ['required', 'string', 'max:255'],
-            'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'status_menyusui' => ['nullable', 'in:Eksklusif,Non-Eksklusif'],
+            'frekuensi_menyusui' => ['nullable', 'integer', 'min:0', 'max:24'],
+            'kondisi_ibu' => ['nullable', 'string', 'max:255'],
+            'warna_kondisi' => ['nullable', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         try {

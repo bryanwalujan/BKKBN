@@ -74,12 +74,12 @@ class KelurahanIbuNifasController extends Controller
         }
 
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'hari_nifas' => ['required', 'integer', 'min:0', 'max:42'],
-            'kondisi_kesehatan' => ['required', 'in:Normal,Butuh Perhatian,Kritis'],
-            'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'hari_nifas' => ['nullable', 'integer', 'min:0', 'max:42'],
+            'kondisi_kesehatan' => ['nullable', 'in:Normal,Butuh Perhatian,Kritis'],
+            'warna_kondisi' => ['nullable', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
             'tanggal_melahirkan' => ['nullable', 'date'],
             'tempat_persalinan' => ['nullable', 'string', 'max:255'],
             'penolong_persalinan' => ['nullable', 'string', 'max:255'],
@@ -172,12 +172,12 @@ class KelurahanIbuNifasController extends Controller
         }
 
         $request->validate([
-            'ibu_id' => ['required', 'exists:ibus,id'],
-            'hari_nifas' => ['required', 'integer', 'min:0', 'max:42'],
-            'kondisi_kesehatan' => ['required', 'in:Normal,Butuh Perhatian,Kritis'],
-            'warna_kondisi' => ['required', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
+            'ibu_id' => ['nullable', 'exists:ibus,id'],
+            'hari_nifas' => ['nullable', 'integer', 'min:0', 'max:42'],
+            'kondisi_kesehatan' => ['nullable', 'in:Normal,Butuh Perhatian,Kritis'],
+            'warna_kondisi' => ['nullable', 'in:Hijau (success),Kuning (warning),Merah (danger)'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
             'tanggal_melahirkan' => ['nullable', 'date'],
             'tempat_persalinan' => ['nullable', 'string', 'max:255'],
             'penolong_persalinan' => ['nullable', 'string', 'max:255'],

@@ -52,19 +52,19 @@ class StuntingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'nik' => ['nullable', 'string', 'max:255', 'regex:/^[0-9]+$/', 'unique:stuntings,nik'],
-            'nama' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
-            'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
-            'warna_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'tanggal_lahir' => ['nullable', 'date_format:Y-m-d'],
+            'jenis_kelamin' => ['nullable', 'in:Laki-laki,Perempuan'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'status_gizi' => ['nullable', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
+            'warna_gizi' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
             'tindak_lanjut' => ['nullable', 'string', 'max:255'],
-            'warna_tindak_lanjut' => ['required', 'in:Sehat,Waspada,Bahaya'],
+            'warna_tindak_lanjut' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
 
@@ -120,19 +120,19 @@ class StuntingController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'nik' => ['nullable', 'string', 'max:255', 'regex:/^[0-9]+$/', 'unique:stuntings,nik,' . $id],
-            'nama' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date_format:Y-m-d'],
-            'jenis_kelamin' => ['required', 'in:Laki-laki,Perempuan'],
-            'berat' => ['required', 'numeric', 'min:0'],
-            'tinggi' => ['required', 'numeric', 'min:0'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'status_gizi' => ['required', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
-            'warna_gizi' => ['required', 'in:Sehat,Waspada,Bahaya'],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'tanggal_lahir' => ['nullable', 'date_format:Y-m-d'],
+            'jenis_kelamin' => ['nullable', 'in:Laki-laki,Perempuan'],
+            'berat' => ['nullable', 'numeric', 'min:0'],
+            'tinggi' => ['nullable', 'numeric', 'min:0'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'status_gizi' => ['nullable', 'in:Sehat,Stunting,Kurang Gizi,Obesitas'],
+            'warna_gizi' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
             'tindak_lanjut' => ['nullable', 'string', 'max:255'],
-            'warna_tindak_lanjut' => ['required', 'in:Sehat,Waspada,Bahaya'],
+            'warna_tindak_lanjut' => ['nullable', 'in:Sehat,Waspada,Bahaya'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
         ]);
 

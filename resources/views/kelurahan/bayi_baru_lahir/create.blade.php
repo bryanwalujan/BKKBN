@@ -172,7 +172,7 @@
                                     Nama Ibu Nifas
                                 </label>
                                 <div class="relative">
-                                    <select name="ibu_nifas_id" id="ibu_nifas_id" class="w-full" required>
+                                    <select name="ibu_nifas_id" id="ibu_nifas_id" class="w-full" >
                                         <option value="">-- Pilih Ibu Nifas --</option>
                                         @foreach ($ibuNifas as $ibu)
                                             <option value="{{ $ibu->id }}" {{ old('ibu_nifas_id') == $ibu->id ? 'selected' : '' }}>
@@ -205,7 +205,7 @@
                                 <div>
                                     <label for="umur_dalam_kandungan" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                                         <i class="fas fa-calendar-alt text-purple-500 mr-2 text-xs"></i>
-                                        Umur Dalam Kandungan
+                                        Umur Dalam Kandungan 
                                     </label>
                                     <div class="input-with-icon">
                                         <input type="text" name="umur_dalam_kandungan" id="umur_dalam_kandungan" value="{{ old('umur_dalam_kandungan') }}" maxlength="255" 

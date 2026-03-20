@@ -169,7 +169,7 @@
                                 <i class="fas fa-user text-blue-500 mr-2 text-xs"></i>
                                 Nama Ibu
                             </label>
-                            <select name="ibu_id" id="ibu_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" required>
+                            <select name="ibu_id" id="ibu_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                 <option value="">-- Pilih Ibu --</option>
                                 @foreach ($ibus as $ibu)
                                     <option value="{{ $ibu->id }}" {{ old('ibu_id', $ibuNifas->ibu_id) == $ibu->id ? 'selected' : '' }}>
@@ -207,7 +207,7 @@
                                     <input type="number" name="hari_nifas" id="hari_nifas" value="{{ old('hari_nifas', $ibuNifas->hari_nifas) }}" 
                                            min="0" max="42" step="1"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 input-with-icon"
-                                           placeholder="Hari ke-nifas" required>
+                                           placeholder="Hari ke-nifas" >
                                     <div class="input-icon">
                                         <i class="fas fa-hashtag"></i>
                                     </div>
@@ -351,7 +351,7 @@
                                 <div class="relative">
                                     <select name="kondisi_kesehatan" id="kondisi_kesehatan" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Kondisi --</option>
                                         <option value="Normal" {{ old('kondisi_kesehatan', $ibuNifas->kondisi_kesehatan) == 'Normal' ? 'selected' : '' }}>Normal</option>
                                         <option value="Butuh Perhatian" {{ old('kondisi_kesehatan', $ibuNifas->kondisi_kesehatan) == 'Butuh Perhatian' ? 'selected' : '' }}>Butuh Perhatian</option>
@@ -377,7 +377,7 @@
                                 <div class="relative">
                                     <select name="warna_kondisi" id="warna_kondisi" 
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 appearance-none"
-                                            required>
+                                            >
                                         <option value="">-- Pilih Warna --</option>
                                         <option value="Hijau (success)" {{ old('warna_kondisi', $ibuNifas->warna_kondisi) == 'Hijau (success)' ? 'selected' : '' }}>Hijau (success)</option>
                                         <option value="Kuning (warning)" {{ old('warna_kondisi', $ibuNifas->warna_kondisi) == 'Kuning (warning)' ? 'selected' : '' }}>Kuning (warning)</option>
@@ -426,9 +426,9 @@
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat', $ibuNifas->berat) }}" 
-                                           step="0.1" min="0"
+                                           step="0.01" min="0"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 input-with-icon"
-                                           placeholder="0.0" required>
+                                           placeholder="0.0" >
                                     <div class="input-icon">
                                         <i class="fas fa-weight"></i>
                                     </div>
@@ -448,9 +448,9 @@
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $ibuNifas->tinggi) }}" 
-                                           step="0.1" min="0"
+                                           step="0.01" min="0"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 input-with-icon"
-                                           placeholder="0.0" required>
+                                           placeholder="0.0" >
                                     <div class="input-icon">
                                         <i class="fas fa-arrows-up-down"></i>
                                     </div>

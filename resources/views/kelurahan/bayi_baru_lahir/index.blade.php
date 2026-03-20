@@ -83,75 +83,82 @@
                 </div>
             @endif
 
-            <!-- Action Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Total Bayi Baru Lahir</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">{{ $bayiBaruLahirs->total() }}</p>
-                        </div>
-                        <div class="p-3 bg-blue-50 rounded-lg">
-                            <i class="fas fa-baby text-blue-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+          <!-- Action Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Bayi Baru Lahir</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">{{ $bayiBaruLahirs->total() }}</p>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg">
+                <i class="fas fa-baby text-blue-500 text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Rata-rata Berat Badan</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">
-                                {{ number_format($bayiBaruLahirs->avg('berat_badan_lahir') ?? 0, 2) }} kg
-                            </p>
-                        </div>
-                        <div class="p-3 bg-green-50 rounded-lg">
-                            <i class="fas fa-weight text-green-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Rata-rata Berat Badan</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">
+                    @if($avgBeratBadan > 0)
+                        {{ number_format($avgBeratBadan, 1, ',', '.') }} kg
+                    @else
+                        Belum ada data
+                    @endif
+                </p>
+            </div>
+            <div class="p-3 bg-green-50 rounded-lg">
+                <i class="fas fa-weight text-green-500 text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-                <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Rata-rata Panjang Badan</p>
-                            <p class="text-2xl font-bold text-gray-800 mt-1">
-                                {{ number_format($bayiBaruLahirs->avg('panjang_badan_lahir') ?? 0, 2) }} cm
-                            </p>
-                        </div>
-                        <div class="p-3 bg-purple-50 rounded-lg">
-                            <i class="fas fa-ruler-vertical text-purple-500 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="bg-white rounded-xl shadow-sm border p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Rata-rata Panjang Badan</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">
+                    @if($avgPanjangBadan > 0)
+                        {{ number_format($avgPanjangBadan, 1, ',', '.') }} cm
+                    @else
+                        Belum ada data
+                    @endif
+                </p>
+            </div>
+            <div class="p-3 bg-purple-50 rounded-lg">
+                <i class="fas fa-ruler-vertical text-purple-500 text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-1 gap-3">
-                    <a href="{{ route('kelurahan.bayi_baru_lahir.create') }}" class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-sm p-4 card-hover group cursor-pointer">
-                        <div class="flex items-center justify-between text-white">
-                            <div>
-                                <p class="text-sm font-medium opacity-90">Tambah Data</p>
-                                <p class="text-sm font-bold mt-1 group-hover:translate-x-1 transition-transform">Bayi Baru Lahir</p>
-                            </div>
-                            <div class="p-2 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-plus text-sm"></i>
-                            </div>
-                        </div>
-                    </a>
-                    
-                    <a href="{{ route('kelurahan.ibu_nifas.index') }}" class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-sm p-4 card-hover group cursor-pointer">
-                        <div class="flex items-center justify-between text-white">
-                            <div>
-                                <p class="text-sm font-medium opacity-90">Lihat Data</p>
-                                <p class="text-sm font-bold mt-1 group-hover:translate-x-1 transition-transform">Ibu Nifas</p>
-                            </div>
-                            <div class="p-2 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-arrow-right text-sm"></i>
-                            </div>
-                        </div>
-                    </a>
+    <div class="grid grid-cols-1 gap-3">
+        <a href="{{ route('kelurahan.bayi_baru_lahir.create') }}" class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-sm p-4 card-hover group cursor-pointer">
+            <div class="flex items-center justify-between text-white">
+                <div>
+                    <p class="text-sm font-medium opacity-90">Tambah Data</p>
+                    <p class="text-sm font-bold mt-1 group-hover:translate-x-1 transition-transform">Bayi Baru Lahir</p>
+                </div>
+                <div class="p-2 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
+                    <i class="fas fa-plus text-sm"></i>
                 </div>
             </div>
-
+        </a>
+        
+        <a href="{{ route('kelurahan.ibu_nifas.index') }}" class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-sm p-4 card-hover group cursor-pointer">
+            <div class="flex items-center justify-between text-white">
+                <div>
+                    <p class="text-sm font-medium opacity-90">Lihat Data</p>
+                    <p class="text-sm font-bold mt-1 group-hover:translate-x-1 transition-transform">Ibu Nifas</p>
+                </div>
+                <div class="p-2 bg-white bg-opacity-20 rounded-lg group-hover:scale-110 transition-transform">
+                    <i class="fas fa-arrow-right text-sm"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
             <!-- Filter Section -->
             <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
@@ -293,7 +300,7 @@
                                                 <i class="fas fa-baby text-blue-600 text-xs"></i>
                                             </div>
                                             <div class="ml-3">
-                                                <span class="text-sm font-medium text-gray-900">{{ $bayi->umur_dalam_kandungan ?? '-' }} minggu</span>
+                                                <span class="text-sm font-medium text-gray-900">{{ $bayi->umur_dalam_kandungan ?? '-' }}</span>
                                                 <p class="text-xs text-gray-500">Umur Kandungan</p>
                                             </div>
                                         </div>

@@ -82,10 +82,10 @@ class KelurahanIbuController extends Controller
 
         $request->validate([
             'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:ibus,nik'],
-            'nama' => ['required', 'string', 'max:255'],
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'alamat' => ['nullable', 'string'],
-            'status' => ['required', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
+            'status' => ['nullable', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 
@@ -177,10 +177,10 @@ class KelurahanIbuController extends Controller
 
         $request->validate([
             'nik' => ['nullable', 'string', 'max:16', 'regex:/^[0-9]+$/', 'unique:ibus,nik,' . $id],
-            'nama' => ['required', 'string', 'max:255'],
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
+            'nama' => ['nullable', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
             'alamat' => ['nullable', 'string'],
-            'status' => ['required', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
+            'status' => ['nullable', 'in:Hamil,Nifas,Menyusui,Tidak Aktif'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:10000'],
         ]);
 

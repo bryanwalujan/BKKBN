@@ -40,12 +40,12 @@ class AksiKonvergensiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'nama_aksi' => ['required', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'nama_aksi' => ['nullable', 'string', 'max:255'],
             'selesai' => ['nullable', 'boolean'],
-            'tahun' => ['required', 'integer', 'min:2000', 'max:2050'],
+            'tahun' => ['nullable', 'integer', 'min:2000', 'max:2050'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
             'air_bersih_sanitasi' => ['nullable', 'in:ada-baik,ada-buruk,tidak'],
             'akses_layanan_kesehatan_kb' => ['nullable', 'in:ada,tidak'],
@@ -62,7 +62,7 @@ class AksiKonvergensiController extends Controller
             'pencegahan_infeksi' => ['nullable', 'in:ada,tidak'],
             'status_gizi_ibu' => ['nullable', 'in:baik,buruk'],
             'penyakit_menular' => ['nullable', 'in:tidak,ada'],
-            'jenis_penyakit' => ['required_if:penyakit_menular,ada', 'string', 'max:255', 'nullable'],
+            'jenis_penyakit' => ['_if:penyakit_menular,ada', 'string', 'max:255', 'nullable'],
             'kesehatan_lingkungan' => ['nullable', 'in:baik,buruk'],
             'narasi' => ['nullable', 'string'],
             'pelaku_aksi' => ['nullable', 'string', 'max:255'],
@@ -99,12 +99,12 @@ class AksiKonvergensiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'kartu_keluarga_id' => ['required', 'exists:kartu_keluargas,id'],
-            'kecamatan_id' => ['required', 'exists:kecamatans,id'],
-            'kelurahan_id' => ['required', 'exists:kelurahans,id'],
-            'nama_aksi' => ['required', 'string', 'max:255'],
+            'kartu_keluarga_id' => ['nullable', 'exists:kartu_keluargas,id'],
+            'kecamatan_id' => ['nullable', 'exists:kecamatans,id'],
+            'kelurahan_id' => ['nullable', 'exists:kelurahans,id'],
+            'nama_aksi' => ['nullable', 'string', 'max:255'],
             'selesai' => ['nullable', 'boolean'],
-            'tahun' => ['required', 'integer', 'min:2000', 'max:2050'],
+            'tahun' => ['nullable', 'integer', 'min:2000', 'max:2050'],
             'foto' => ['nullable', 'image', 'mimes:jpg,png,jpeg', 'max:7000'],
             'air_bersih_sanitasi' => ['nullable', 'in:ada-baik,ada-buruk,tidak'],
             'akses_layanan_kesehatan_kb' => ['nullable', 'in:ada,tidak'],
@@ -121,7 +121,7 @@ class AksiKonvergensiController extends Controller
             'pencegahan_infeksi' => ['nullable', 'in:ada,tidak'],
             'status_gizi_ibu' => ['nullable', 'in:baik,buruk'],
             'penyakit_menular' => ['nullable', 'in:tidak,ada'],
-            'jenis_penyakit' => ['required_if:penyakit_menular,ada', 'string', 'max:255', 'nullable'],
+            'jenis_penyakit' => ['_if:penyakit_menular,ada', 'string', 'max:255', 'nullable'],
             'kesehatan_lingkungan' => ['nullable', 'in:baik,buruk'],
             'narasi' => ['nullable', 'string'],
             'pelaku_aksi' => ['nullable', 'string', 'max:255'],
