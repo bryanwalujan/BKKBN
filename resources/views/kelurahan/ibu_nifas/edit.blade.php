@@ -426,7 +426,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat', $ibuNifas->berat) }}" 
-                                           step="0.1" min="0"
+                                           step="0.01" min="0"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 input-with-icon"
                                            placeholder="0.0" >
                                     <div class="input-icon">
@@ -448,7 +448,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $ibuNifas->tinggi) }}" 
-                                           step="0.1" min="0"
+                                           step="0.01" min="0"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 input-with-icon"
                                            placeholder="0.0" >
                                     <div class="input-icon">

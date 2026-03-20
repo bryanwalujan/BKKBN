@@ -290,7 +290,7 @@
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat', $beratTinggi[0]) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0" >
+                                           step="0.01" placeholder="0.0" >
                                     <div class="input-icon">
                                         <i class="fas fa-weight"></i>
                                     </div>
@@ -311,7 +311,7 @@
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi', $beratTinggi[1]) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0" >
+                                           step="0.01" placeholder="0.0" >
                                     <div class="input-icon">
                                         <i class="fas fa-arrows-up-down"></i>
                                     </div>
@@ -332,7 +332,7 @@
                                 <div class="relative">
                                     <input type="number" name="lingkar_kepala" id="lingkar_kepala" value="{{ old('lingkar_kepala', $balita->lingkar_kepala) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0">
+                                           step="0.01" placeholder="0.0">
                                     <div class="input-icon">
                                         <i class="fas fa-circle-nodes"></i>
                                     </div>
@@ -353,7 +353,7 @@
                                 <div class="relative">
                                     <input type="number" name="lingkar_lengan" id="lingkar_lengan" value="{{ old('lingkar_lengan', $balita->lingkar_lengan) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3 input-with-icon"
-                                           step="0.1" placeholder="0.0">
+                                           step="0.01" placeholder="0.0">
                                     <div class="input-icon">
                                         <i class="fas fa-circle-nodes"></i>
                                     </div>

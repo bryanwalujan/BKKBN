@@ -235,7 +235,7 @@
                                     Berat (kg)
                                 </label>
                                 <div class="input-with-icon">
-                                    <input type="number" name="berat" id="berat" value="{{ $ibuHamil->berat }}" step="0.1" min="0" 
+                                    <input type="number" name="berat" id="berat" value="{{ $ibuHamil->berat }}" step="0.01" min="0" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <div class="icon">
                                         <i class="fas fa-weight"></i>
@@ -255,7 +255,7 @@
                                     Tinggi (cm)
                                 </label>
                                 <div class="input-with-icon">
-                                    <input type="number" name="tinggi" id="tinggi" value="{{ $ibuHamil->tinggi }}" step="0.1" min="0" 
+                                    <input type="number" name="tinggi" id="tinggi" value="{{ $ibuHamil->tinggi }}" step="0.01" min="0" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3" >
                                     <div class="icon">
                                         <i class="fas fa-ruler"></i>

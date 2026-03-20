@@ -269,7 +269,7 @@
                                 <div class="relative">
                                     <input type="number" name="berat" id="berat" value="{{ old('berat') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           step="0.1" placeholder="0.0" >
+                                           step="0.01" placeholder="0.0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-weight text-gray-400"></i>
                                     </div>
@@ -290,7 +290,7 @@
                                 <div class="relative">
                                     <input type="number" name="tinggi" id="tinggi" value="{{ old('tinggi') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
-                                           step="0.1" placeholder="0.0" >
+                                           step="0.01" placeholder="0.0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-arrows-up-down text-gray-400"></i>
                                     </div>

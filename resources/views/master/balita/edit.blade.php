@@ -319,7 +319,7 @@
                                     Berat (kg)
                                 </label>
                                 <div class="relative">
-                                    <input type="number" step="0.1" name="berat" id="berat" value="{{ old('berat', explode('/', $balita->berat_tinggi)[0] ?? '') }}" 
+                                    <input type="number" step="0.01" name="berat" id="berat" value="{{ old('berat', explode('/', $balita->berat_tinggi)[0] ?? '') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
                                            placeholder="0.0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -340,7 +340,7 @@
                                     Tinggi (cm)
                                 </label>
                                 <div class="relative">
-                                    <input type="number" step="0.1" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $balita->berat_tinggi)[1] ?? '') }}" 
+                                    <input type="number" step="0.01" name="tinggi" id="tinggi" value="{{ old('tinggi', explode('/', $balita->berat_tinggi)[1] ?? '') }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
                                            placeholder="0.0" >
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -361,7 +361,7 @@
                                     Lingkar Kepala (cm)
                                 </label>
                                 <div class="relative">
-                                    <input type="number" step="0.1" name="lingkar_kepala" id="lingkar_kepala" value="{{ old('lingkar_kepala', $balita->lingkar_kepala) }}" 
+                                    <input type="number" step="0.01" name="lingkar_kepala" id="lingkar_kepala" value="{{ old('lingkar_kepala', $balita->lingkar_kepala) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
                                            placeholder="0.0">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -382,7 +382,7 @@
                                     Lingkar Lengan (cm)
                                 </label>
                                 <div class="relative">
-                                    <input type="number" step="0.1" name="lingkar_lengan" id="lingkar_lengan" value="{{ old('lingkar_lengan', $balita->lingkar_lengan) }}" 
+                                    <input type="number" step="0.01" name="lingkar_lengan" id="lingkar_lengan" value="{{ old('lingkar_lengan', $balita->lingkar_lengan) }}" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 pl-10"
                                            placeholder="0.0">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

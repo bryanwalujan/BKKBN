@@ -460,7 +460,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-weight"></i>
-                                    <input type="number" name="berat_badan" id="berat_badan" value="{{ old('berat_badan') }}" step="0.1" min="0" 
+                                    <input type="number" name="berat_badan" id="berat_badan" value="{{ old('berat_badan') }}" step="0.01" min="0" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
                                            placeholder="0.0">
                                 </div>
@@ -479,7 +479,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-arrows-up-down"></i>
-                                    <input type="number" name="tinggi_badan" id="tinggi_badan" value="{{ old('tinggi_badan') }}" step="0.1" min="0" 
+                                    <input type="number" name="tinggi_badan" id="tinggi_badan" value="{{ old('tinggi_badan') }}" step="0.01" min="0" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
                                            placeholder="0.0">
                                 </div>
@@ -498,7 +498,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-chart-line"></i>
-                                    <input type="number" name="imt" id="imt" value="{{ old('imt') }}" step="0.1" min="0" 
+                                    <input type="number" name="imt" id="imt" value="{{ old('imt') }}" step="0.01" min="0" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
                                            placeholder="0.0">
                                 </div>
@@ -517,7 +517,7 @@
                                 </label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-vial"></i>
-                                    <input type="number" name="kadar_hb" id="kadar_hb" value="{{ old('kadar_hb') }}" step="0.1" min="0" 
+                                    <input type="number" name="kadar_hb" id="kadar_hb" value="{{ old('kadar_hb') }}" step="0.01" min="0" 
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"
                                            placeholder="0.0">
                                 </div>
